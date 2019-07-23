@@ -1,0 +1,46 @@
+language: python
+
+python:
+  - "3.6"
+
+sudo: required
+
+cache: pip
+
+env:
+  global:
+    - DISPLAY=:99.0
+    # https://github.com/SeleniumHQ/docker-selenium/issues/87 :
+    - export DBUS_SESSION_BUS_ADDRESS=/dev/null
+
+services:
+  - postgresql
+
+install:
+  - "pip install -r requirements.txt"
+  - "pip install -r requirements_dev.txt"
+  # FIXME manual install datagetter requirements
+  - "pip install -r /home/travis/virtualenv/python3.6.7/src/datagetter/requirements.txt"
+  - "sudo apt-get install pwgen" # For generating random data
+  - "sudo apt-get -y purge chromium-browser"
+  - "wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
+  - "sudo dpkg -i google-chrome*.deb"
+  - "sleep 3"
+  - "google-chrome &"
+  - "wget https://chromedriver.storage.googleapis.com/75.0.3770.90/chromedriver_linux64.zip; unzip chromedriver_linux64.zip -d chromedriver; export PATH=$PATH:`pwd`/chromedriver"
+
+
+before_script:
+  - psql -c 'CREATE DATABASE "360givingdatastore";' -U postgres
+  - psql -c "CREATE USER test WITH ENCRYPTED PASSWORD 'test'; GRANT ALL PRIVILEGES ON DATABASE \"360givingdatastore\" TO test; ALTER USER test CREATEDB;" -U postgres
+  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_99.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :99 -ac -screen 0 1280x1024x16"
+  - sleep 3 # give xvfb some time to start
+  - set -e # make sure we exit if one command fails
+
+script:
+  - "./datastore/manage.py test tests"
+  - "datagetter.py --help" # Verify it compiles
+  - "./datastore/manage.py migrate"
+  - "./datastore/tests/generate_testdata.py"
+  - "./datastore/manage.py load_datagetter_data ./test-data/"
+  - "flake8"

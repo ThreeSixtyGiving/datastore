@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load prettyjson %}
+
+{% block title %}Dev Explore data{% endblock %}
+
+{% block content %}
+
+{% if errors %}
+<div class="alert alert-warning">
+  {% for error in errors %}
+  <p>{{error}}</p>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="container">
+  <form method="GET" id="object-selector-form">
+    <div class="form-group">
+      <label for="data-getter-select">Dater Getter Run</label>
+      <select name="getter_run" id="data-getter-select" class="form-control">
+        {% for getter_run in getter_runs %}
+
+        {% if getter_run_selected.pk == getter_run.pk %}
+        <option value="{{getter_run.pk}}" selected>{{getter_run.datetime|date:"r"}}</option>
+        {% else %}
+        <option value="{{getter_run.pk}}">{{getter_run.datetime|date:"r"}}</option>
+        {% endif %}
+
+        {% endfor %}
+      </select>
+    </div>
+
+    {% if getter_run_selected %}
+    <div class="form-group">
+      <label for="publisher-select">Publishers</label>
+      <select name="publisher" id="publisher-select" class="form-control">
+        <option value="-1">--</option>
+        {% for publisher in getter_run_selected.publisher_set.all %}
+
+        {% if publisher_selected.pk == publisher.pk %}
+        <option value="{{publisher.prefix}}" selected>{{publisher.prefix}} - {{publisher.name}}</option>
+        {% else %}
+        <option value="{{publisher.prefix}}">{{publisher.prefix}} - {{publisher.name}}</option>
+        {% endif %}
+
+        {% endfor %}
+      </select>
+    </div>
+
+
+    {% endif %}
+
+  </form>
+  <a class="text-muted" href="?">reset</a>
+</div>
+
+<div class="container">
+  {% if publisher_selected  %}
+
+  <div class="list-group d-none" id="grants-list">
+    <div class="list-group-item">
+      <h2>{{publisher_selected.name}} ({{publisher_selected.grant_set.count}} Grants) </h2>
+    </div>
+
+    <div class="list-group-item d-none" id="publisher-data">
+      {% prettyjson publisher_selected.data initial="parsed" %}
+    </div>
+
+  {% for grant in publisher_selected.grant_set.all %}
+    <div class="list-group-item">
+      <h4>{{grant.grant_id}}</h4>
+      {% prettyjson grant.data %}
+    </div>
+  {% endfor %}
+
+  </div>
+  {% endif %}
+</div>
+
+
+<script>
+  $(document).ready(function(){
+    let form = $("#object-selector-form");
+
+    $("select").change(function(){
+      form.submit();
+    });
+
+    /* Hack to add bootstrap style to the jsonwidget templates */
+    $(".jsonwidget").each(function(){
+      $(this).children("textarea").addClass("form-control");
+      $(this).find("button").addClass("btn btn-sm btn-secondary d-inline");
+    });
+
+
+    $("#grants-list").removeClass("d-none");
+    $("#publisher-data").removeClass("d-none");
+    /* end Hack */
+  });
+</script>
+{% endblock %}
+

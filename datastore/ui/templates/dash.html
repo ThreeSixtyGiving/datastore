@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% load prettyjson %}
+
+{% block title %}Datastore dashboard{% endblock %}
+
+{% block content %}
+
+{% if errors %}
+<div class="alert alert-warning">
+  {% for error in errors %}
+  <p>{{error}}</p>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="container">
+  <p>Last datagetter run {{last_getter_run.datetime|date:"r"}} <small><a href="?">refresh</a></small></p>
+  <ul>
+    <li>Grants: {{last_getter_run.grant_set.count}}</li>
+    <li>Publishers: {{last_getter_run.publisher_set.count}}</li>
+    <li>Source files: {{last_getter_run.sourcefile_set.count}}</li>
+    <li><a href="{% url "ui:explore" %}?getter_run={{last_getter_run.id}}">Explore data</a></li>
+  </ul>
+
+</div>
+
+<div class="container">
+  <p>Current data getter status: <small>(updates every 5 seconds)</small></p>
+  <pre id="checked-time"></pre>
+
+  <div id="status-area" style="height: 100px; overflow: auto;" class="border mb-2 p-1">
+  </div>
+
+  <p>Controls</p>
+  <button class="btn btn-sm btn-danger" id="run-datagetter-btn">Run Datagetter process</button>
+  <button class="btn btn-sm btn-secondary" id="abort-datagetter-btn">Abort Datagetter process</button>
+
+</div>
+<script>
+  var getterStatusUrl = "{% url "api:status" %}";
+  var triggerDatagetterUrl = "{% url "api:trigger-datagetter" %}";
+  var abortDatagetterUrl = "{% url "api:abort-datagetter" %}";
+</script>
+
+<script>
+  var statusArea = $("#status-area");
+
+  function updateStatus() {
+    $("#checked-time").text(new Date().toTimeString());
+    // Clear old statues
+    statusArea.html("");
+
+    $.getJSON(getterStatusUrl, function (status) {
+      for (let items in status.statuses) {
+        let whatEl = $("<pre class='d-inline mr-2'></pre>").text(status.statuses[items].what);
+        let statusEl = $("<pre class='d-inline'></pre>").text(status.statuses[items].status);
+
+        let container = $("<div></div>");
+        container.append(whatEl);
+        container.append(statusEl);
+
+        statusArea.append(container);
+      }
+    }).fail(function(error){
+      let errorEl = $("<pre></pre>").text(error.statusText);
+      statusArea.append(errorEl);
+    });
+  }
+
+  $(document).ready(function(){
+    updateStatus();
+
+    setInterval(updateStatus, 5000);
+
+    $("#run-datagetter-btn").click(function(){
+      $.getJSON(triggerDatagetterUrl, function(data){
+        console.log(data);
+      });
+    });
+
+    $("#abort-datagetter-btn").click(function () {
+      if (confirm("Note depending on when in the process this aborts it may require manual intervention to restore a previous state")){
+        $.getJSON(abortDatagetterUrl, function(data){
+          console.log(data);
+        });
+      }
+    });
+
+  });
+</script>
+{% endblock %}
+
