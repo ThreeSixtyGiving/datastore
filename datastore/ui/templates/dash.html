@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+
+{% load l10n %}
 {% load prettyjson %}
 
 {% block title %}Datastore dashboard{% endblock %}
@@ -13,8 +15,10 @@
 </div>
 {% endif %}
 
+
 <div class="container">
-  <p>Last datagetter run {{last_getter_run.datetime|date:"r"}} <small><a href="?">refresh</a></small></p>
+  <p>Total grants in the system is {{total_grants|localize}} from {{total_datagetter_runs}} datagetter runs.</p>
+  <p>Last datagetter run {{last_getter_run.datetime|date:"r"}} <small><a href="?">refresh</a></small>.</p>
   <ul>
     <li>Grants: {{last_getter_run.grant_set.count}}</li>
     <li>Publishers: {{last_getter_run.publisher_set.count}}</li>

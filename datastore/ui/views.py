@@ -55,5 +55,7 @@ class DashBoardView(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         context['last_getter_run'] = db.GetterRun.objects.order_by("-datetime").first()
+        context['total_grants'] = db.Grant.objects.count()
+        context['total_datagetter_runs'] = db.GetterRun.objects.count()
 
         return context
