@@ -32,7 +32,8 @@ class CanonicalDatasetPublishers(View):
 class CanonicalDatasetDataGetters(View):
     def get(self, *args, **kwargs):
         data = CanonicalDataset()
-        return JsonResponse(data.datagetters_used)
+        # Safe = False because this will return an array no a dict
+        return JsonResponse(data.datagetters_used, safe=False)
 
 
 class CanonicalDatasetGrantsView(View):
