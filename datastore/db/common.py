@@ -94,11 +94,11 @@ class CanonicalDataset(object):
                                                                acceptable_license=True):
             self._add_source(good_source)
 
-        for failed_source in latest_getter.sourcefile_set.filter(downloads=False,
-                                                                 data_valid=True,
-                                                                 acceptable_license=True):
+        for failed_source in latest_getter.sourcefile_set.filter(downloads=False):
             failed_id = failed_source.data['identifier']
             new_source = db.SourceFile.objects.filter(data__identifier=failed_id,
+                                                      data_valid=True,
+                                                      acceptable_license=True,
                                                       downloads=True)[:1].get()
             self.datagetters_used.append(new_source.getter_run.id)
 
