@@ -9,7 +9,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             type=int,
-            nargs='+',
+            nargs='*',
             action='store',
             dest='getter_run_ids',
             help='The datagetter run ids',
@@ -21,7 +21,20 @@ class Command(BaseCommand):
             help="Don't prompt for deletes",
         )
 
+        parser.add_argument(
+            '--oldest',
+            action='store_true',
+            help="Delete the oldest datagetter data",
+        )
+
     def handle(self, *args, **options):
+        if options.get('oldest'):
+            to_delete = GetterRun.objects.order_by("datetime").first()
+            options['getter_run_ids'] = [to_delete.pk]
+
+        if len(options['getter_run_ids']) is 0:
+            raise CommandError("No datagetter data specified")
+
         for run in options['getter_run_ids']:
             try:
                 confirm = 'n'
