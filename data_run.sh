@@ -9,6 +9,7 @@ DOWNLOAD_DIR=~/latest_datagetter/
 GRANTNAV_DATA_DIR=~/grant_nav_data/
 GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR=~/grant_nav_packages/
 DATAGETTER_THREADS=16
+MAX_TOTAL_RUNS_IN_DB=20
 
 ### End CONFIG ###
 
@@ -56,3 +57,11 @@ rm $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/latest_grantnav_data.tar.gz
 ln -s  $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/$NEW_PACKAGE_NAME  $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/latest_grantnav_data.tar.gz
 
 ./datastore/manage.py set_status --what grantnav_data_package --status READY
+
+# Delete datagetter runs if we have reached the max
+TOTAL_RUNS=`./datastore/manage.py list_datagetter_runs --total`
+
+if [ $TOTAL_RUNS -gt $MAX_TOTAL_RUNS_IN_DB ]; then
+    echo "Deleteing oldest datagetter data"
+    ./datastore/manage.py delete_datagetter_data --oldest --no-prompt
+fi
