@@ -27,7 +27,8 @@ install:
   - "sudo dpkg -i google-chrome*.deb"
   - "sleep 3"
   - "google-chrome &"
-  - "wget https://chromedriver.storage.googleapis.com/75.0.3770.90/chromedriver_linux64.zip; unzip chromedriver_linux64.zip -d chromedriver; export PATH=$PATH:`pwd`/chromedriver"
+  - "export LATEST_CHROMEDRIVER=$(wget -q -O - http://chromedriver.storage.googleapis.com/LATEST_RELEASE)"
+  - "wget http://chromedriver.storage.googleapis.com/$LATEST_CHROMEDRIVER/chromedriver_linux64.zip; unzip chromedriver_linux64.zip -d chromedriver; export PATH=$PATH:`pwd`/chromedriver"
 
 
 before_script:
