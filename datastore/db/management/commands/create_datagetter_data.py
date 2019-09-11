@@ -1,4 +1,4 @@
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from db.common import CanonicalDataset
 from db.management.spinner import Spinner
@@ -6,12 +6,11 @@ from db.management.spinner import Spinner
 import os
 import json
 
+
 class Command(BaseCommand):
     help = "Outputs a datagetter compatible datadump of our best/canonical data"
 
     def add_arguments(self, parser):
-
-
         parser.add_argument(
             '--dir',
             action='store',
@@ -20,7 +19,6 @@ class Command(BaseCommand):
             help="Destination of data output dir",
             default="canonical_data"
         )
-
 
     def handle(self, *args, **options):
 
@@ -41,7 +39,6 @@ class Command(BaseCommand):
             # Build a temporary index cache to avoid querying sources later
             source_index[source['id']] = source['data']
 
-
         with open(data_all_file, 'w+') as data_all_fp:
             data_all_fp.write(json.dumps(data_all, indent=2))
 
@@ -59,7 +56,6 @@ class Command(BaseCommand):
             if not grants_grouped.get(grant_file_name, None):
                 grants_grouped[grant_file_name] = []
 
-
             grants_grouped[grant_file_name].append(grant['data'])
 
         for file_name, grants_list in grants_grouped.items():
@@ -71,5 +67,3 @@ class Command(BaseCommand):
                 grantfp.write(json.dumps(grant_file, indent=2))
 
         spinner.stop()
-
-

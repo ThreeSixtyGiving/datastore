@@ -2,9 +2,7 @@ from django.views import View
 from django.http import JsonResponse
 from db.common import CanonicalDataset
 
-import json
 import time
-
 
 
 class CanonicalDatasetAll(View):
@@ -22,6 +20,7 @@ class CanonicalDatasetAll(View):
         }
 
         return JsonResponse(data)
+
 
 class CanonicalDatasetPublishers(View):
     def get(self, *args, **kwargs):
@@ -55,6 +54,5 @@ class CanonicalDatasetGrantsView(View):
             data['next_page']: grants.next_page_number()
         if grants.has_previous():
             data['prev_page']: grants.previous_page_number()
-
 
         return JsonResponse(data)

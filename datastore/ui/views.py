@@ -1,11 +1,12 @@
 from django.views.generic import TemplateView
 from db.models import Publisher, GetterRun
-from django.urls import reverse_lazy
 import db.models as db
 
-# To require login use LoginRequiredMixin
+# Note To require login use LoginRequiredMixin
 # from django.contrib.auth.mixins import LoginRequiredMixin
 # and set login_url = reverse_lazy("admin:login")
+# from django.urls import reverse_lazy
+
 
 class ExploreView(TemplateView):
     template_name = "explore.html"

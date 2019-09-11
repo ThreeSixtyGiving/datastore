@@ -1,3 +1,4 @@
+# flake8: noqa
 from settings.settings import *
 
 # Database
@@ -13,4 +14,3 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-

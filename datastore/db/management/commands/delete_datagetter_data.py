@@ -32,7 +32,7 @@ class Command(BaseCommand):
             to_delete = GetterRun.objects.order_by("datetime").first()
             options['getter_run_ids'] = [to_delete.pk]
 
-        if len(options['getter_run_ids']) is 0:
+        if len(options['getter_run_ids']) == 0:
             raise CommandError("No datagetter data specified")
 
         for run in options['getter_run_ids']:

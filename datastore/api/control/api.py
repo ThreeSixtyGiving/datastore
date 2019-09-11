@@ -1,18 +1,21 @@
 from django.views.generic import View
 from django.http.response import JsonResponse
+from django.conf import settings
+
 import db.models as db
 import subprocess
 import os
-from django.conf import settings
+import signal
 
 
 class StatusView(View):
     def get(self, *args, **kwargs):
         ret = {
-            'statuses': list(db.Status.objects.all().values('what','status')),
+            'statuses': list(db.Status.objects.all().values('what', 'status')),
         }
 
         return JsonResponse(ret, safe=False)
+
 
 class TriggerDataGetter(View):
     def get(self, *args, **kwargs):
@@ -24,7 +27,7 @@ class TriggerDataGetter(View):
 
         return JsonResponse({"error": "OK", "pid": process.pid})
 
-import signal
+
 class AbortDataGetter(View):
     @staticmethod
     def abort():
@@ -42,8 +45,6 @@ class AbortDataGetter(View):
         for status_item in db.Status.objects.all():
             status_item.status = db.Statuses.IDLE
             status_item.save()
-
-
 
     def get(self, *args, **kwargs):
         AbortDataGetter.abort()

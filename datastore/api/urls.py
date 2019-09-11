@@ -10,9 +10,8 @@ app_name = 'api'
 
 urlpatterns = [
     path('', TemplateView.as_view(template_name="api.html"), name="index"),
-   path('grantnav/updates',
+    path('grantnav/updates',
          api.grantnav.api.GrantNavPollForNewData.as_view()),
-
     path('control/status', api.control.api.StatusView.as_view(),
          name="status"),
     path('control/trigger-datagetter',
@@ -21,25 +20,21 @@ urlpatterns = [
     path('control/abort-datagetter',
          api.control.api.AbortDataGetter.as_view(),
          name="abort-datagetter"),
-
 ]
 
 if settings.DEBUG:
     experimental_stuff = [
         path('experimental/canonical',
-            api.experimental.api.CanonicalDatasetAll.as_view()),
+             api.experimental.api.CanonicalDatasetAll.as_view()),
         path('experimental/canonical/publishers',
-            api.experimental.api.CanonicalDatasetPublishers.as_view()),
+             api.experimental.api.CanonicalDatasetPublishers.as_view()),
         path('experimental/canonical/grants',
-            api.experimental.api.CanonicalDatasetGrantsView.as_view()),
+             api.experimental.api.CanonicalDatasetGrantsView.as_view()),
         path('experimental/canonical/datagetters',
-            api.experimental.api.CanonicalDatasetDataGetters.as_view()),
-
+             api.experimental.api.CanonicalDatasetDataGetters.as_view()),
         path('experimental/grantnav/data',
-            api.grantnav.api.GrantNavApiView.as_view(),
-            name="grantnav"),
+             api.grantnav.api.GrantNavApiView.as_view(),
+             name="grantnav"),
     ]
 
     urlpatterns = urlpatterns + experimental_stuff
-
-

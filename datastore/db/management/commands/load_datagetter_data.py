@@ -5,8 +5,8 @@ import os
 import json
 
 import db.models as db
-
 from db.management.spinner import Spinner
+
 
 class Command(BaseCommand):
     help = "Loads data that has been downloaded and processed by the datagetter"

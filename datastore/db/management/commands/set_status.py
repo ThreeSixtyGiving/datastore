@@ -7,8 +7,6 @@ class Command(BaseCommand):
     help = "Sets a status flag"
 
     def add_arguments(self, parser):
-
-
         parser.add_argument(
             '--list-options',
             action='store_true',
@@ -34,8 +32,6 @@ class Command(BaseCommand):
             dest='status',
             help='The status to set the thing to e.g. IN_PROGRESS',
         )
-
-
 
     def handle(self, *args, **options):
 

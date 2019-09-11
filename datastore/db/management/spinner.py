@@ -3,6 +3,7 @@ import time
 import threading
 import os
 
+
 # Spinner - Michael Wood - Toaster - lsupdates GPLv2
 class Spinner(threading.Thread):
     """ A simple progress spinner to indicate download/parsing is happening"""
@@ -22,4 +23,3 @@ class Spinner(threading.Thread):
 
     def stop(self):
         self.signal = False
-
