@@ -1,5 +1,5 @@
 -e git+https://github.com/ThreeSixtyGiving/datagetter.git@d565d59700a380fe64836402689dff95705871bf#egg=datagetter
-Django==2.2
+Django==2.2.5
 django-prettyjson==0.4.1
 psycopg2==2.8
 selenium==3.141.0
