@@ -20,7 +20,7 @@ GRANTS_PER_PUBLISHER = 5
 grant_template = {
     "id": "360G-example-c",
     "title": "Example title for this grant",
-    "description": "Example grant discription",
+    "description": "Example grant description",
     "currency": "GBP",
     "amountAwarded": 25000,
     "awardDate": "2019-10-03T00:00:00+00:00",
