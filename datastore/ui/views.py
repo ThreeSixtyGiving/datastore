@@ -2,6 +2,8 @@ from django.views.generic import TemplateView
 from db.models import Publisher, GetterRun
 import db.models as db
 
+import subprocess
+
 # Note To require login use LoginRequiredMixin
 # from django.contrib.auth.mixins import LoginRequiredMixin
 # and set login_url = reverse_lazy("admin:login")
@@ -53,10 +55,22 @@ class ExploreView(TemplateView):
 class DashBoardView(TemplateView):
     template_name = "dash.html"
 
+    @staticmethod
+    def git_revision():
+        return subprocess.check_output(
+            ['git show --format=format:%h  --no-patch'],
+            shell=True).decode()
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         context['last_getter_run'] = db.GetterRun.objects.order_by("-datetime").first()
         context['total_grants'] = db.Grant.objects.count()
         context['total_datagetter_runs'] = db.GetterRun.objects.count()
+
+        # Not critical if this fails e.g. git not installed
+        try:
+            context['git_rev'] = DashBoardView.git_revision()
+        except Exception:
+            pass
 
         return context
