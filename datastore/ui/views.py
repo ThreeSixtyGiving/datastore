@@ -29,7 +29,7 @@ class ExploreView(TemplateView):
 
         # If we don't have a getter run selected or there is an error
         if len(context['errors']) > 0 or "getter_run" not in self.request.GET:
-            getter_run = context['getter_runs'][0]
+            getter_run = context['getter_runs'].first()
 
         context['getter_run_selected'] = getter_run
 
