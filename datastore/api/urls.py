@@ -11,7 +11,8 @@ app_name = 'api'
 urlpatterns = [
     path('', TemplateView.as_view(template_name="api.html"), name="index"),
     path('grantnav/updates',
-         api.grantnav.api.GrantNavPollForNewData.as_view()),
+         api.grantnav.api.GrantNavPollForNewData.as_view(),
+         name="updates"),
     path('control/status', api.control.api.StatusView.as_view(),
          name="status"),
     path('control/trigger-datagetter',
