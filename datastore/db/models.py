@@ -1,6 +1,7 @@
 from django.db import models
+from django.db.utils import DataError
 from db.common import CanonicalDataset
-
+from django.db import connection
 from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
 import django.db.models.signals
@@ -78,6 +79,21 @@ class Grant(models.Model):
     getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
     publisher = models.ForeignKey(Publisher, on_delete=models.DO_NOTHING)
     source_file = models.ForeignKey(SourceFile, on_delete=models.DO_NOTHING)
+
+    @staticmethod
+    def estimated_total():
+        """ Big table count() is expensive so estimate instead """
+        try:
+            with connection.cursor() as c:
+                # https://www.citusdata.com/blog/2016/10/12/count-performance/
+                c.execute(
+                    " SELECT (reltuples/relpages) * (pg_relation_size('db_grant') / "
+                    " (current_setting('block_size')::integer)) "
+                    " FROM pg_class where relname = 'db_grant'"
+                    )
+                return c.fetchone()[0]
+        except DataError:
+            return Grant.objects.count()
 
     def __str__(self):
         return self.grant_id
