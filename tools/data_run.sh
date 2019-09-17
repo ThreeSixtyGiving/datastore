@@ -55,8 +55,27 @@ echo "Load the downloaded datagetter data into datastore"
 echo "Create grant nav package"
 ./datastore/manage.py set_status --what grantnav_data_package --status LOADING_DATA
 
+# Tidy up
+
 # Remove old data dump
 rm -rf $GRANTNAV_DATA_DIR/data || true
+
+# Delete datagetter runs if we have reached the max
+# This has to happen /before/ we create the new data package as otherwise that
+# data could be based on removed data
+TOTAL_RUNS=`./datastore/manage.py list_datagetter_runs --total`
+
+if [ $TOTAL_RUNS -gt $MAX_TOTAL_RUNS_IN_DB ]; then
+    echo "Deleteing oldest datagetter data"
+    ./datastore/manage.py delete_datagetter_data --oldest --no-prompt
+fi
+
+echo "Deleting old grantnav packages"
+find $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR -name "data_*.tar.gz" -mtime +$MAX_PACKAGE_AGE_DAYS | xargs rm -f
+
+
+echo "Creating new grantnav package"
+
 ./datastore/manage.py create_datagetter_data --dir $GRANTNAV_DATA_DIR/data
 
 NEW_PACKAGE_NAME=data_$(date +%F).tar.gz
@@ -71,16 +90,3 @@ rm $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/latest_grantnav_data.tar.gz
 ln -s  $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/$NEW_PACKAGE_NAME  $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/latest_grantnav_data.tar.gz
 
 ./datastore/manage.py set_status --what grantnav_data_package --status READY
-
-# Tidy up
-
-# Delete datagetter runs if we have reached the max
-TOTAL_RUNS=`./datastore/manage.py list_datagetter_runs --total`
-
-if [ $TOTAL_RUNS -gt $MAX_TOTAL_RUNS_IN_DB ]; then
-    echo "Deleteing oldest datagetter data"
-    ./datastore/manage.py delete_datagetter_data --oldest --no-prompt
-fi
-
-echo "Deleting old grantnav packages"
-find $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR -name "data_*.tar.gz" -mtime +$MAX_PACKAGE_AGE_DAYS | xargs rm -f
