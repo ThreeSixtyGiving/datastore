@@ -91,7 +91,7 @@ class Grant(models.Model):
                     " (current_setting('block_size')::integer)) "
                     " FROM pg_class where relname = 'db_grant'"
                     )
-                return c.fetchone()[0]
+                return int(c.fetchone()[0])
         except DataError:
             return Grant.objects.count()
 
