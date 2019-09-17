@@ -10,7 +10,8 @@ GRANTNAV_DATA_DIR=~/grant_nav_data/
 GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR=~/grant_nav_packages/
 DATAGETTER_THREADS=16
 MAX_TOTAL_RUNS_IN_DB=20
-
+# Based on running this script each day and Keep a few extra for safety
+MAX_PACKAGE_AGE_DAYS=`expr $MAX_TOTAL_RUNS_IN_DB + 2`
 ### End CONFIG ###
 
 mkdir -p $DOWNLOAD_DIR
@@ -58,6 +59,8 @@ ln -s  $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/$NEW_PACKAGE_NAME  $GRANTNAV_DATA_PAC
 
 ./datastore/manage.py set_status --what grantnav_data_package --status READY
 
+# Tidy up
+
 # Delete datagetter runs if we have reached the max
 TOTAL_RUNS=`./datastore/manage.py list_datagetter_runs --total`
 
@@ -65,3 +68,6 @@ if [ $TOTAL_RUNS -gt $MAX_TOTAL_RUNS_IN_DB ]; then
     echo "Deleteing oldest datagetter data"
     ./datastore/manage.py delete_datagetter_data --oldest --no-prompt
 fi
+
+echo "Deleting old grantnav packages"
+find $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR -name "data_*.tar.gz" -mtime +$MAX_PACKAGE_AGE_DAYS | xargs rm -f
