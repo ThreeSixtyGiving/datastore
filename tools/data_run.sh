@@ -1,20 +1,25 @@
 #!/bin/bash -x
 # Example data_run.sh with proxy
-# Assumes git repo is cloned in ~/datastore/
 
-### Start CONFIG ###
-SOCKS5_PORT=1337
-SSH_SERVER=example.com
-DOWNLOAD_DIR=~/latest_datagetter/
-GRANTNAV_DATA_DIR=~/grantnav_data/
-GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR=/var/www/grantnav_packages/
-DATAGETTER_THREADS=16
-export DJANGO_SETTINGS_MODULE=settings.settings_production_example
-DATASTORE=~/datastore/
-MAX_TOTAL_RUNS_IN_DB=31
-# Based on running this script each day and Keep a few extra for safety
-MAX_PACKAGE_AGE_DAYS=`expr $MAX_TOTAL_RUNS_IN_DB + 2`
-### End CONFIG ###
+CONFIG_FILE=~/data_run_config.sh
+
+if [ -e $CONFIG_FILE ]; then
+  source $CONFIG_FILE
+else
+  ### Start CONFIG ###
+  SOCKS5_PORT=1337
+  SSH_SERVER=example.com
+  DOWNLOAD_DIR=~/latest_datagetter/
+  GRANTNAV_DATA_DIR=~/grantnav_data/
+  GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR=/var/www/grantnav_packages/
+  DATAGETTER_THREADS=16
+  export DJANGO_SETTINGS_MODULE=settings.settings_examlple
+  DATASTORE=~/datastore/
+  MAX_TOTAL_RUNS_IN_DB=31
+  # Based on running this script each day and Keep a few extra for safety
+  MAX_PACKAGE_AGE_DAYS=`expr $MAX_TOTAL_RUNS_IN_DB + 2`
+  ### End CONFIG ###
+fi
 
 source $DATASTORE/.ve/bin/activate
 
@@ -55,14 +60,10 @@ echo "Load the downloaded datagetter data into datastore"
 echo "Create grant nav package"
 ./datastore/manage.py set_status --what grantnav_data_package --status LOADING_DATA
 
+
 # Tidy up
 
-# Remove old data dump
-rm -rf $GRANTNAV_DATA_DIR/data || true
-
 # Delete datagetter runs if we have reached the max
-# This has to happen /before/ we create the new data package as otherwise that
-# data could be based on removed data
 TOTAL_RUNS=`./datastore/manage.py list_datagetter_runs --total`
 
 if [ $TOTAL_RUNS -gt $MAX_TOTAL_RUNS_IN_DB ]; then
@@ -73,8 +74,8 @@ fi
 echo "Deleting old grantnav packages"
 find $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR -name "data_*.tar.gz" -mtime +$MAX_PACKAGE_AGE_DAYS | xargs rm -f
 
-
-echo "Creating new grantnav package"
+# Remove old data dump
+rm -rf $GRANTNAV_DATA_DIR/data || true
 
 ./datastore/manage.py create_datagetter_data --dir $GRANTNAV_DATA_DIR/data
 
@@ -90,3 +91,4 @@ rm $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/latest_grantnav_data.tar.gz
 ln -s  $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/$NEW_PACKAGE_NAME  $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/latest_grantnav_data.tar.gz
 
 ./datastore/manage.py set_status --what grantnav_data_package --status READY
+
