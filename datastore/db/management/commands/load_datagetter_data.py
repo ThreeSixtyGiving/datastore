@@ -33,7 +33,7 @@ class Command(BaseCommand):
     def load_dataset_data(self):
         """ Loads the dataset data which describes the grant data """
         path = os.path.join(self.options['data_dir'][0], "data_all.json")
-        with open(path) as f:
+        with open(path, encoding='utf-8') as f:
             return json.loads(f.read())
 
     def load_grant_data(self, path):
@@ -49,7 +49,7 @@ class Command(BaseCommand):
                                 "json_all",
                                 filename)
 
-        with open(new_path) as f:
+        with open(new_path, encoding='utf-8') as f:
             return json.loads(f.read())
 
     def extact_data(self):
