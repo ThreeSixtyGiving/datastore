@@ -103,3 +103,6 @@ class Command(BaseCommand):
 
         spinner.stop()
         print("\nData loaded: %s grants added" % grants_added)
+
+        print("\n Updating Latest")
+        db.Latest.update()

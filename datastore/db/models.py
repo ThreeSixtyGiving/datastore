@@ -8,6 +8,95 @@ import django.db.models.signals
 from django.core.cache import cache
 
 
+class Latest(models.Model):
+    """ Latest best data we have """
+
+    NEXT = 'NEXT'
+    CURRENT = 'CURRENT'
+    PREVIOUS = 'PREVIOUS'
+
+    SERIES_CHOICES = [
+        (NEXT, 'Next'),
+        (CURRENT, 'Current'),
+        (PREVIOUS, 'Previous')
+    ]
+
+    series = models.TextField(choices=SERIES_CHOICES)
+    updated = models.DateTimeField(default=timezone.now)
+    total_grants = models.IntegerField(default=0)
+
+    @staticmethod
+    def update():
+        latest_getter = GetterRun.objects.order_by("-datetime")[:1].get()
+
+        # Delete any old nexts hanging around
+        Latest.objects.filter(series=Latest.NEXT).delete()
+        latest_next = Latest.objects.create(series=Latest.NEXT)
+
+        print("Using datetime %s" % latest_getter.datetime)
+
+        grant_count = 0
+
+        # All the good downloads
+        for good_source in latest_getter.sourcefile_set.filter(downloads=True,
+                                                               data_valid=True,
+                                                               acceptable_license=True):
+            # Extra check make sure the source actually has grants.
+            # It isn't much good if not.
+            source_grant_count = good_source.grant_set.count()
+
+            grant_count += source_grant_count
+
+            if source_grant_count > 0:
+                latest_next.sourcefile_set.add(good_source)
+
+        for failed_source in latest_getter.sourcefile_set.filter(downloads=False):
+            failed_id = failed_source.data['identifier']
+
+            # Find a replacement source for a failed one
+            for candidate_replacement_source in SourceFile.objects.filter(
+                    data__identifier=failed_id,
+                    data_valid=True,
+                    acceptable_license=True,
+                    downloads=True):
+
+                # Extra check make sure the source actually has grants.
+                # It isn't much good if not.
+                source_grant_count = candidate_replacement_source.grant_set.count()
+
+                grant_count += source_grant_count
+
+                if source_grant_count > 0:
+                    print("found new source for failed_source %s which is %s" %
+                        (failed_id, candidate_replacement_source))
+                    latest_next.sourcefile_set.add(candidate_replacement_source)
+                    break
+
+        latest_next.total_grants = grant_count
+
+        # Before we set this as current check that there are more than 0 grants
+        # Do the switcher-round
+        if latest_next.total_grants > 0:
+            # Delete the old previous
+            Latest.objects.filter(series=Latest.PREVIOUS).delete()
+            # Make the current the previous
+            current, c_created = Latest.objects.get_or_create(series=Latest.CURRENT)
+            current.series = Latest.PREVIOUS
+            current.save()
+
+            # Make the next the current
+            latest_next.series = Latest.CURRENT
+            latest_next.save()
+        else:
+            raise Exception("The data provided no grants to generate an update")
+
+    def clear(self):
+        pass
+
+    def __str__(self):
+        return self.series
+
+
 class GetterRun(models.Model):
     datetime = models.DateTimeField(default=timezone.now)
 
@@ -23,6 +112,7 @@ class GetterRun(models.Model):
 class SourceFile(models.Model):
     data = JSONField()
     getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
+    latest = models.ManyToManyField(Latest)
 
     # Convenience fields
     datagetter_data = JSONField(null=True)
