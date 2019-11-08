@@ -37,3 +37,22 @@ $ manage.py load_datagetter_data ../path/to/data/dir/from/datagetter/
 ## Other useful commands
 
 $ manage.py --help # !
+
+## Testing
+
+### Requirements
+
+```
+$ pip install -r ./requirements_dev.txt
+```
+
+You will also need the chromedriver for your machine's chromimum based browser.
+see https://chromedriver.chromium.org/downloads
+
+Alternatively edit the selenium test setup in test_browser to use your preferred selenium setup.
+
+### Run tests
+```
+$ ./manage.py test tests
+$ flake8
+```
