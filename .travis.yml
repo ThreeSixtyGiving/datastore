@@ -44,4 +44,8 @@ script:
   - "./datastore/manage.py migrate"
   - "./datastore/tests/generate_testdata.py"
   - "./datastore/manage.py load_datagetter_data ./test-data/"
+  - "./datastore/manage.py create_datagetter_data"
+  - "./datastore/manage.py list_datagetter_runs"
+  - "./datastore/manage.py delete_datagetter_data 1 --no-prompt"
+  - "./datastore/manage.py set_status --what test --status READY"
   - "flake8"
