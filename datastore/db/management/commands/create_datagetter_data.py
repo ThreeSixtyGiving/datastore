@@ -8,7 +8,7 @@ import json
 
 
 class Command(BaseCommand):
-    help = "Outputs a datagetter compatible datadump of our best/canonical data"
+    help = "Outputs a grantnav compatible datadump of our best Latest data"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -17,7 +17,7 @@ class Command(BaseCommand):
             dest='dir',
             type=str,
             help="Destination of data output dir",
-            default="canonical_data"
+            default="grantnav_data"
         )
 
     def handle(self, *args, **options):

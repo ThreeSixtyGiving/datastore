@@ -1,11 +1,8 @@
 from django.db import models
 from django.db.utils import DataError
-from db.common import CanonicalDataset
 from django.db import connection
 from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
-import django.db.models.signals
-from django.core.cache import cache
 
 
 class Latest(models.Model):
@@ -89,9 +86,6 @@ class Latest(models.Model):
             latest_next.save()
         else:
             raise Exception("The data provided no grants to generate an update")
-
-    def clear(self):
-        pass
 
     def __str__(self):
         return self.series
@@ -205,16 +199,3 @@ class Status(models.Model):
     what = models.CharField(max_length=200)
     status = models.CharField(max_length=200, default=Statuses.IDLE)
     when = models.DateTimeField(auto_now=True)
-
-
-def invalidate_cache(**kwargs):
-    # Ignore these models as they don't affect the core data directly
-    if type(kwargs.get('instance')) is Status:
-        return
-
-    cache.delete(CanonicalDataset.CANONICAL_DATASET_CACHE_KEY)
-
-
-django.db.models.signals.post_save.connect(invalidate_cache)
-django.db.models.signals.post_delete.connect(invalidate_cache)
-django.db.models.signals.m2m_changed.connect(invalidate_cache)
