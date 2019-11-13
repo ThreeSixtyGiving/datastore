@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load l10n %}
+{% load humanize %}
 {% load prettyjson %}
 
 {% block title %}Datastore dashboard{% endblock %}
@@ -24,7 +24,7 @@
     </div>
 
     <div class="col">
-      <p>Total grants in the system approximately {{total_grants|localize}} from {{total_datagetter_runs}} datagetter runs.</p>
+      <p>Total grants in the system approximately {{total_grants|intcomma}} from {{total_datagetter_runs}} datagetter runs.</p>
     </div>
 
     <div class="col">

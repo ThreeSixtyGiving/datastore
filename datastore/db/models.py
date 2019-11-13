@@ -67,6 +67,7 @@ class Latest(models.Model):
                     print("found new source for failed_source %s which is %s" %
                         (failed_id, candidate_replacement_source))
                     latest_next.sourcefile_set.add(candidate_replacement_source)
+                    # We found a replacement:
                     break
 
         latest_next.total_grants = grant_count
@@ -86,6 +87,7 @@ class Latest(models.Model):
             latest_next.save()
         else:
             raise Exception("The data provided no grants to generate an update")
+
 
     def __str__(self):
         return self.series
