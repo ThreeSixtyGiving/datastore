@@ -6,6 +6,7 @@ import json
 
 import db.models as db
 from db.management.spinner import Spinner
+from metadata.grant import GrantMetadataGenerator
 
 
 class Command(BaseCommand):
@@ -53,6 +54,7 @@ class Command(BaseCommand):
             return json.loads(f.read())
 
     def extact_data(self):
+        grant_metadata_generator = GrantMetadataGenerator()
         grants_added = 0
         dataset = self.load_dataset_data()
 
@@ -74,6 +76,12 @@ class Command(BaseCommand):
                 grant_bulk_insert = []
 
                 for grant in grant_data['grants']:
+                    try:
+                        grant_metadata_generator.update(grant)
+                    except Exception as e:
+                        print("Generating metadata for grant %s failed %e" %
+                              (grant['id'], e))
+
                     grant_bulk_insert.append(db.Grant(grant_id=grant['id'],
                                                       source_file=source_file,
                                                       publisher=publisher,
@@ -104,5 +112,5 @@ class Command(BaseCommand):
         spinner.stop()
         print("\nData loaded: %s grants added" % grants_added)
 
-        print("\n Updating Latest")
+        print("Updating Latest")
         db.Latest.update()
