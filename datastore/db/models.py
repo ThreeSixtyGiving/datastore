@@ -20,7 +20,6 @@ class Latest(models.Model):
 
     series = models.TextField(choices=SERIES_CHOICES)
     updated = models.DateTimeField(default=timezone.now)
-    total_grants = models.IntegerField(default=0)
 
     @staticmethod
     def update():
@@ -29,8 +28,6 @@ class Latest(models.Model):
         # Delete any old nexts hanging around
         Latest.objects.filter(series=Latest.NEXT).delete()
         latest_next = Latest.objects.create(series=Latest.NEXT)
-
-        print("Using datetime %s" % latest_getter.datetime)
 
         grant_count = 0
 
@@ -65,16 +62,14 @@ class Latest(models.Model):
 
                 if source_grant_count > 0:
                     print("found new source for failed_source %s which is %s" %
-                        (failed_id, candidate_replacement_source))
+                          (failed_id, candidate_replacement_source))
                     latest_next.sourcefile_set.add(candidate_replacement_source)
                     # We found a replacement:
                     break
 
-        latest_next.total_grants = grant_count
-
         # Before we set this as current check that there are more than 0 grants
         # Do the switcher-round
-        if latest_next.total_grants > 0:
+        if grant_count > 0:
             # Delete the old previous
             Latest.objects.filter(series=Latest.PREVIOUS).delete()
             # Make the current the previous
@@ -85,9 +80,21 @@ class Latest(models.Model):
             # Make the next the current
             latest_next.series = Latest.CURRENT
             latest_next.save()
+            # Just to be less confusing later on
+            latest_current = latest_next
+
+            # Update our shortcut latest->grants
+            # Access the through model (the m2m table) directly to do bulk update
+            ThroughModel = Latest.grant_set.through
+            grants_for_latest = []
+
+            for grant in latest_next.sourcefile_set.values_list('grant', flat=True).iterator():
+                grants_for_latest.append(ThroughModel(grant_id=grant, latest_id=latest_current.pk))
+
+            ThroughModel.objects.bulk_create(grants_for_latest)
+
         else:
             raise Exception("The data provided no grants to generate an update")
-
 
     def __str__(self):
         return self.series
@@ -165,6 +172,8 @@ class Grant(models.Model):
     getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
     publisher = models.ForeignKey(Publisher, on_delete=models.DO_NOTHING)
     source_file = models.ForeignKey(SourceFile, on_delete=models.DO_NOTHING)
+    # Convenience shortcut to latest->grants
+    latest = models.ManyToManyField(Latest)
 
     @staticmethod
     def estimated_total():
