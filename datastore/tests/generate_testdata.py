@@ -4,6 +4,7 @@ import copy
 import subprocess
 import random
 import os
+import argparse
 
 # Generates some test data for loading into the data store
 # requires pwgen binary
@@ -97,8 +98,8 @@ publisher_template = {
 }
 
 
-def generate_data():
-    os.makedirs("test-data/json_all/")
+def generate_data(output_dir='test-data'):
+    os.makedirs("%s/json_all/" % output_dir)
 
     data_all = []
 
@@ -127,16 +128,27 @@ def generate_data():
 
             grant_data['grants'].append(grant)
 
-        with open("test-data/json_all/%s.json" % identifier, 'w') as grantf:
+        with open("%s/json_all/%s.json" % (output_dir, identifier), 'w') as grantf:
             json.dump(grant_data, grantf, indent=INDENT)
 
         data_all.append(data_item)
 
     # For debug use pp.pprint(data_all)
 
-    with open("test-data/data_all.json", 'w') as out:
+    with open("%s/data_all.json" % output_dir, 'w') as out:
         json.dump(data_all, out, indent=INDENT)
 
 
 if __name__ == '__main__':
-    generate_data()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        type=str,
+        action='store',
+        dest='output_dir',
+        default="test-data",
+        help='The location of the test data output',
+    )
+
+    args = parser.parse_args()
+
+    generate_data(args.output_dir)
