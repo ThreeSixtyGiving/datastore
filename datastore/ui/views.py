@@ -67,6 +67,12 @@ class DashBoardView(TemplateView):
         context['total_grants'] = db.Grant.estimated_total()
         context['total_datagetter_runs'] = db.GetterRun.objects.count()
 
+        # May not be generated yet
+        try:
+            context['latest_current'] = db.Latest.objects.get(series=db.Latest.CURRENT)
+        except db.Latest.DoesNotExist:
+            pass
+
         # Not critical if this fails e.g. git not installed
         try:
             context['git_rev'] = DashBoardView.git_revision()
