@@ -44,7 +44,7 @@ class Command(BaseCommand):
         # reconstruct the file path with this value
 
         filename = os.path.split(path)[-1]
-        print("Loading %s" % filename)
+        print("Loading %s" % filename, file=self.stdout)
 
         new_path = os.path.join(self.options['data_dir'][0],
                                 "json_all",
@@ -80,7 +80,7 @@ class Command(BaseCommand):
                         grant_metadata_generator.update(grant)
                     except Exception as e:
                         print("Generating metadata for grant %s failed %e" %
-                              (grant['id'], e))
+                              (grant['id'], e), file=self.stderr)
 
                     grant_bulk_insert.append(db.Grant(grant_id=grant['id'],
                                                       source_file=source_file,
@@ -92,7 +92,7 @@ class Command(BaseCommand):
                 grants_added = grants_added + len(grant_data['grants'])
             except (FileNotFoundError, KeyError, TypeError) as e:
                 print("Skipping '%s' as it does not exist in supplied dataset"
-                      % e)
+                      % e, file=self.stdout)
                 pass
 
         return grants_added
@@ -110,7 +110,7 @@ class Command(BaseCommand):
             grants_added = self.extact_data()
 
         spinner.stop()
-        print("\nData loaded: %s grants added" % grants_added)
+        print("\nData loaded: %s grants added" % grants_added, file=self.stdout)
 
-        print("Updating Latest")
+        print("Updating Latest", file=self.stdout)
         db.Latest.update()

@@ -15,9 +15,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options.get('total'):
-            print("%s" % GetterRun.objects.count())
+            print("%s" % GetterRun.objects.count(), file=self.stdout)
             return
 
         print("id | datetime")
         for run in GetterRun.objects.all():
-            print("%s | %s" % (run.pk, str(run)))
+            print("%s | %s" % (run.pk, str(run)), file=self.stdout)
