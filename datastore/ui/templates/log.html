@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load prettyjson %}
+
+{% block title %}Dev Explore data{% endblock %}
+
+{% block content %}
+
+{% load humanize %}
+<div class="container d-flex justify-content-between">
+  <h1>Log view </h1>
+  <h4 class="align-self-end">{{view.kwargs.log_name}} {{date_modified|date:'r'}}</h4>
+</div>
+
+<div class="container bg-light">
+  <pre class="p-3">{{log_content}}</pre>
+</div>
+
+{% endblock %}
+

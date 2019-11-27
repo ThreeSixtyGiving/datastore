@@ -146,3 +146,5 @@ DATA_RUN_PID_FILE = '/var/run/user/%s/datarun.pid' % os.getuid()
 DATA_RUN_SCRIPT = 'data_run.sh'
 
 GRANTNAV_PACKAGE_DOWNLOAD_URL = 'https://localhost:8000/grantnav_packages/latest_grantnav_data.tar.gz'
+
+DATA_RUN_LOG = 'data_run.log'

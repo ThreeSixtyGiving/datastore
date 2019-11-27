@@ -1,8 +1,12 @@
 from django.views.generic import TemplateView
+from django.conf import settings
+
 from db.models import Publisher, GetterRun
 import db.models as db
 
 import subprocess
+import os
+import datetime
 
 # Note To require login use LoginRequiredMixin
 # from django.contrib.auth.mixins import LoginRequiredMixin
@@ -78,5 +82,37 @@ class DashBoardView(TemplateView):
             context['git_rev'] = DashBoardView.git_revision()
         except Exception:
             pass
+
+        return context
+
+
+class LogView(TemplateView):
+    template_name = "log.html"
+
+    def read_log_file(self, log_file):
+        """ Returns log content and datetime of modified """
+        try:
+            with open(log_file, 'r') as f:
+                return f.read(), datetime.datetime.fromtimestamp(
+                    int(os.stat(log_file).st_mtime))
+
+        except FileNotFoundError:
+            return "Error unable to read log file", ""
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        log_name = kwargs.get('log_name')
+
+        context['log_content'] = "No valid log selected"
+
+        if not log_name:
+            return context
+
+        if log_name == 'data_run':
+            log_file = getattr(settings, "DATA_RUN_LOG", "")
+
+            context['log_content'], context['date_modified'] = \
+                self.read_log_file(log_file)
 
         return context
