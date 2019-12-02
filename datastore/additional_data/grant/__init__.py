@@ -3,12 +3,12 @@ import os
 import csv
 import gzip
 
-
 # Based on grantnav/import_to_elastic_search by David Raznick and Ben Webb
 # https://github.com/ThreeSixtyGiving/grantnav/tree/master/dataload
 
 
-class GrantMetadataGenerator(object):
+class GrantAdditionalDataGenerator(object):
+    """ Adds additional data to a grant """
     def __init__(self):
         self.id_name_org_mappings = {"fundingOrganization": {}, "recipientOrganization": {}}
 
