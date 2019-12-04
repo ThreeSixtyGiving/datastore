@@ -23,6 +23,17 @@ class GrantAdditionalDataGenerator(object):
         self._setup_charity_mappings()
         self._setup_org_name_mappings()
 
+    def create(self, grant):
+        """ Takes a grant's data and returns a dict of additional metadata """
+
+        grant_additional = {}
+
+        self.update_additional_with_org_mappings(grant, "fundingOrganization", grant_additional)
+        self.update_additional_with_org_mappings(grant, "recipientOrganization", grant_additional)
+        self.update_additional_with_region(grant, grant_additional)
+
+        return grant_additional
+
     def _setup_charity_mappings(self):
         """ Setup info for charity names """
 
@@ -118,14 +129,7 @@ class GrantAdditionalDataGenerator(object):
 
                 self.district_name_to_code[district_name] = district_code
 
-    def update(self, grant):
-        """ Takes a grant's data and adds additional metadata """
-
-        self.update_doc_with_org_mappings(grant, "fundingOrganization")
-        self.update_doc_with_org_mappings(grant, "recipientOrganization")
-        self.update_doc_with_region(grant)
-
-    def update_doc_with_org_mappings(self, grant, org_key):
+    def update_additional_with_org_mappings(self, grant, org_key, grant_additional):
         mapping = self.id_name_org_mappings[org_key]
         orgs = grant.get(org_key, [])
         for org in orgs:
@@ -139,21 +143,21 @@ class GrantAdditionalDataGenerator(object):
             if not found_name:
                 mapping[org_id] = name
                 found_name = name
-            org["id_and_name"] = json.dumps([found_name, org_id])
+            grant_additional["id_and_name"] = json.dumps([found_name, org_id])
 
-    def _add_area_to_grant(self, area, grant):
+    def _add_area_to_grant(self, area, grant_additional):
         if area.get('ward_code'):
-            grant['recipientWardNameGeoCode'] = area['ward_code']
-            grant['recipientWardName'] = self.ward_code_to_area.get(area['ward_code'], {}).get('ward_name')
+            grant_additional['recipientWardNameGeoCode'] = area['ward_code']
+            grant_additional['recipientWardName'] = self.ward_code_to_area.get(area['ward_code'], {}).get('ward_name')
         if area['district_name']:
-            grant['recipientDistrictName'] = area['district_name']
-            grant['recipientDistrictGeoCode'] = self.district_name_to_code.get(area['district_name'])
+            grant_additional['recipientDistrictName'] = area['district_name']
+            grant_additional['recipientDistrictGeoCode'] = self.district_name_to_code.get(area['district_name'])
         if area['area_name']:
-            grant['recipientRegionName'] = area['area_name']
+            grant_additional['recipientRegionName'] = area['area_name']
 
-        grant['recipientLocation'] = ' '.join(area.values())
+        grant_additional['recipientLocation'] = ' '.join(area.values())
 
-    def update_doc_with_region(self, grant):
+    def update_additional_with_region(self, grant, grant_additional):
         try:
             post_code = grant['recipientOrganization'][0]['postalCode']
         except (KeyError, IndexError):
@@ -161,12 +165,12 @@ class GrantAdditionalDataGenerator(object):
 
         # If there is a 'BT' postcode we can safely assume this is in NI
         if post_code and post_code.startswith("BT"):
-            grant['recipientRegionName'] = "Northern Ireland"
+            grant_additional['recipientRegionName'] = "Northern Ireland"
 
         # test postcode first
         area = self.postcode_to_area.get(str(post_code).replace(' ', '').upper())
         if area:
-            self._add_area_to_grant(area, grant)
+            self._add_area_to_grant(area, grant_additional)
             return
 
         if not area:
@@ -179,16 +183,16 @@ class GrantAdditionalDataGenerator(object):
             for location in locations:
                 geoCode = location.get('geoCode')
                 if geoCode and geoCode in self.ward_code_to_area:
-                    self._add_area_to_grant(self.ward_code_to_area.get(geoCode), grant)
+                    self._add_area_to_grant(self.ward_code_to_area.get(geoCode), grant_additional)
                     return
 
             # finally district
             for location in locations:
                 geoCode = location.get('geoCode')
                 if geoCode and geoCode in self.district_code_to_area:
-                    self._add_area_to_grant(self.district_code_to_area.get(geoCode), grant)
+                    self._add_area_to_grant(self.district_code_to_area.get(geoCode), grant_additional)
                     return
                 # No NI data but try and get name from data
                 if geoCode and geoCode.startswith("N09"):
-                    grant['recipientRegionName'] = "Northern Ireland"
-                    grant['recipientDistrictName'] = location["name"]
+                    grant_additional['recipientRegionName'] = "Northern Ireland"
+                    grant_additional['recipientDistrictName'] = location["name"]

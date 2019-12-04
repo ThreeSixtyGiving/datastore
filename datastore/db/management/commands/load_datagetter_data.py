@@ -77,15 +77,17 @@ class Command(BaseCommand):
 
                 for grant in grant_data['grants']:
                     try:
-                        grant_additional_data_generator.update(grant)
+                        additional_data = grant_additional_data_generator.create(grant)
                     except Exception as e:
                         print("Generating metadata for grant %s failed %e" %
                               (grant['id'], e), file=self.stderr)
+                        additional_data = None
 
                     grant_bulk_insert.append(db.Grant(grant_id=grant['id'],
                                                       source_file=source_file,
                                                       publisher=publisher,
                                                       data=grant,
+                                                      additional_data=additional_data,
                                                       getter_run=getter_run))
 
                 db.Grant.objects.bulk_create(grant_bulk_insert)

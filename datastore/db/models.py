@@ -175,6 +175,10 @@ class Grant(models.Model):
     # Convenience shortcut to latest->grants
     latest = models.ManyToManyField(Latest)
 
+    additional_data = JSONField(verbose_name="Additional Grant data",
+                                null=True,
+                                blank=True)
+
     @staticmethod
     def estimated_total():
         """ Big table count() is expensive so estimate instead """
