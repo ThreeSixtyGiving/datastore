@@ -1,5 +1,7 @@
 -e git+https://github.com/ThreeSixtyGiving/datagetter.git#egg=datagetter
-Django==2.2
+Django<3.0
+djangorestframework==3.10.3
+django-filter==2.2.0
 django-prettyjson==0.4.1
 psycopg2==2.8
 prometheus_client==0.7
