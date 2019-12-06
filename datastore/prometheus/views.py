@@ -7,6 +7,20 @@ from django.conf import settings
 
 import db.models as db
 
+NUM_ERRORS_LOGGED = Gauge(
+    "total_service_errors_logged",
+    "Total number of errors logged by last service run")
+
+
+TOTAL_LATEST_GRANTS = Gauge(
+    "total_latest_grants",
+    "Total number of latest grants in the system")
+
+
+TOTAL_DATAGETTER_GRANTS = Gauge(
+    "total_datagetter_grants",
+    "Total number of grants in the last datagetter run")
+
 
 class ServiceMetrics(View):
 
@@ -17,7 +31,6 @@ class ServiceMetrics(View):
 
     def _num_errors_log(self):
         errors = 0
-        s = Gauge("total_service_errors_logged", "Total number of errors logged by last service run")
         log_file = getattr(settings, "DATA_RUN_LOG", "")
 
         try:
@@ -29,17 +42,15 @@ class ServiceMetrics(View):
             errors = -1
             pass
 
-        s.set(errors)
+        NUM_ERRORS_LOGGED.set(errors)
 
     def _total_latest_grants(self):
-        s = Gauge('total_latest_grants', 'Total number of latest grants in the system')
         total = db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.count()
-        s.set(total)
+        TOTAL_LATEST_GRANTS.set(total)
 
     def _total_datagetter_grants(self):
-        s = Gauge('total_datagetter_grants', 'Total number of grants in the last datagetter run')
         total = db.GetterRun.objects.last().grant_set.count()
-        s.set(total)
+        TOTAL_DATAGETTER_GRANTS.set(total)
 
     def get(self, *args, **kwargs):
         # Generate latest uses default of the global registry
