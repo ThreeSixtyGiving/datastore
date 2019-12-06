@@ -21,6 +21,7 @@ $ createdb -U test -W 360givingdatastore
 $ virtualenv --python=python3 ./.ve/
 $ source ./.ve/bin/activate
 $ pip install -r requirements.txt
+```
 
 ## Run the dev server
 
@@ -31,13 +32,13 @@ $ manage.py runserver
 ```
 
 ## Loading data
-
+```
 $ manage.py load_datagetter_data ../path/to/data/dir/from/datagetter/
-
+```
 ## Other useful commands
-
+```
 $ manage.py --help # !
-
+```
 ## Testing
 
 ### Requirements
