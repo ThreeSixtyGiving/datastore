@@ -3,6 +3,7 @@ from django.views.generic import TemplateView
 
 import api.grantnav.api
 import api.control.api
+import api.experimental.api
 
 app_name = 'api'
 
@@ -19,4 +20,7 @@ urlpatterns = [
     path('control/abort-datagetter',
          api.control.api.AbortDataGetter.as_view(),
          name="abort-datagetter"),
+    path('experimental/CurrentLatestGrants',
+         api.experimental.api.CurrentLatestGrants.as_view(),
+         name="current-latest-grants"),
 ]

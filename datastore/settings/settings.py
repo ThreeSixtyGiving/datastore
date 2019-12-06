@@ -48,6 +48,8 @@ INSTALLED_APPS = [
 
     # 3rd party apps:
     'prettyjson',
+    'rest_framework',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -113,6 +115,21 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
+    'DEFAULT_PERMISSIONS_CLASSES': 'reset_framework.permissions.IsAuthenticatedOrReadOnly',
+
+    'DEFAULT_THROTTLE_CLASSES': (
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '2/second',
+        'user': '8/second'
+    }
+}
 
 
 # Internationalization

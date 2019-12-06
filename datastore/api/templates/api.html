@@ -1,4 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<p>Experimental API for testing datastore</p>
+<div class="container">
+    <p>Experimental API</p>
+    <ul>
+        <li><a href="{% url "api:current-latest-grants" %}">{% url "api:current-latest-grants" %}</a></li>
+    </ul>
+</div>
 {% endblock %}
