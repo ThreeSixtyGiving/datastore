@@ -14,7 +14,6 @@ class CurrentLatestGrantsPaginator(LimitOffsetPagination):
 
 
 class CurrentLatestGrants(generics.ListAPIView):
-    latest = db.Latest.objects.get(series=db.Latest.CURRENT)
     serializer_class = serializers.GrantSerializer
     pagination_class = CurrentLatestGrantsPaginator
 
@@ -22,4 +21,6 @@ class CurrentLatestGrants(generics.ListAPIView):
     filter_fields = ('grant_id', 'id')
     filter_backends = (filters.SearchFilter, django_filters.rest_framework.DjangoFilterBackend)
 
-    queryset = latest.grant_set.all()
+    def get_queryset(self):
+        return db.Latest.objects.get(
+            series=db.Latest.CURRENT).grant_set.all()
