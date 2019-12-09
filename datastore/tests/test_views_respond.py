@@ -7,6 +7,7 @@ from ui.urls import urlpatterns as ui_urls
 
 # test urls/views Adapted from YQN by Michael Wood GPLv2
 class UrlsTests(LiveServerTestCase):
+    fixtures = ['test_data.json']
 
     def _test_url(self, path, namespace=False):
         if type(path) is not URLPattern or path.name is None:
