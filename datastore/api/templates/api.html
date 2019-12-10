@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="container">
-    <p>Experimental API</p>
+    <h2>API</h2>
     <ul>
         <li><a href="{% url "api:current-latest-grants" %}">{% url "api:current-latest-grants" %}</a></li>
+        <li><a href="{% url "api:status" %}">{% url "api:status" %}</a></li>
     </ul>
 </div>
 {% endblock %}
