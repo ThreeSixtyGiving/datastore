@@ -11,11 +11,13 @@ NUM_ERRORS_LOGGED = Gauge(
     "total_service_errors_logged",
     "Total number of errors logged by last service run")
 
+TOTAL_CURRENT_LATEST_GRANTS = Gauge(
+    "total_current_latest_grants",
+    "Total number of current latest grants in the system")
 
-TOTAL_LATEST_GRANTS = Gauge(
-    "total_latest_grants",
-    "Total number of latest grants in the system")
-
+TOTAL_PREVIOUS_LATEST_GRANTS = Gauge(
+    "total_previous_latest_grants",
+    "Total number of previous latest grants in the system")
 
 TOTAL_DATAGETTER_GRANTS = Gauge(
     "total_datagetter_grants",
@@ -45,8 +47,11 @@ class ServiceMetrics(View):
         NUM_ERRORS_LOGGED.set(errors)
 
     def _total_latest_grants(self):
-        total = db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.count()
-        TOTAL_LATEST_GRANTS.set(total)
+        total_current = db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.count()
+        TOTAL_CURRENT_LATEST_GRANTS.set(total_current)
+
+        total_prev = db.Latest.objects.get(series=db.Latest.PREVIOUS).grant_set.count()
+        TOTAL_PREVIOUS_LATEST_GRANTS.set(total_prev)
 
     def _total_datagetter_grants(self):
         total = db.GetterRun.objects.last().grant_set.count()
