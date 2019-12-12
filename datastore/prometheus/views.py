@@ -26,11 +26,6 @@ TOTAL_DATAGETTER_GRANTS = Gauge(
 
 class ServiceMetrics(View):
 
-    def __init__(self, *args, **kwargs):
-        self._num_errors_log()
-        self._total_latest_grants()
-        self._total_datagetter_grants()
-
     def _num_errors_log(self):
         errors = 0
         log_file = getattr(settings, "DATA_RUN_LOG", "")
@@ -38,7 +33,8 @@ class ServiceMetrics(View):
         try:
             with open(log_file, "r") as lf:
                 for line in lf.readlines():
-                    if "error" in line or "exception" in line or "failure" in line:
+                    if "error" in line or "exception" in line or "failure" in line \
+                            or "Error" in line or "Exception" in line or "Failure" in line:
                         errors = errors + 1
         except FileNotFoundError:
             errors = -1
@@ -58,5 +54,9 @@ class ServiceMetrics(View):
         TOTAL_DATAGETTER_GRANTS.set(total)
 
     def get(self, *args, **kwargs):
+        # Update gauges
+        self._num_errors_log()
+        self._total_latest_grants()
+        self._total_datagetter_grants()
         # Generate latest uses default of the global registry
         return HttpResponse(generate_latest(), content_type="text/plain")
