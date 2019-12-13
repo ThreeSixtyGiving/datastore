@@ -10,13 +10,24 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <!-- /Bootstrap 4 -->
 
-    {% load prettyjson %}
-    {% prettyjson_setup jquery='False' %}
-    <title>{% block title %}{% endblock %}</title>
+    <script>
+      /* little script to show menu active states */
+      $(document).ready(function(){
+        $(".nav-link").each(function(){
+          if (window.location.href == $(this).prop('href')){
+            $(this).addClass("active");
+          } else {
+            $(this).removeClass("active");
+          }
+        });
+      })
+    </script>
+  {% load prettyjson %}
+  {% prettyjson_setup jquery='False' %}
+  <title>{% block title %}{% endblock %} - 360 Giving Datastore</title>
   </head>
   <body class="d-flex flex-column h-100">
     <main role="main">
-
       <div class="container mt-2 mb-4 bg-dark">
           <nav class="navbar navbar-expand-sm navbar-dark rounded">
             <ul class="navbar-nav">
@@ -24,18 +35,17 @@
                 <a class="nav-link" href="{% url 'ui:index' %}">Home</a>
               </li>
              <li class="nav-item">
-                <a class="nav-link" href="{% url 'ui:explore' %}">Explore</a>
-              </li>
-              <li class="nav-item">
                 <a class="nav-link" href="{% url 'ui:dashboard' %}">Dashboard</a>
               </li>
-              <li class="nav-item">
-                <a class="nav-link" href="{% url 'admin:index' %}">Data Admin</a>
+             <li class="nav-item">
+                <a class="nav-link" href="{% url 'ui:explore' %}">Explore</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="{% url 'api:index' %}">API</a>
               </li>
-
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'admin:index' %}">Data Admin</a>
+              </li>
             </ul>
           </nav>
        </div>

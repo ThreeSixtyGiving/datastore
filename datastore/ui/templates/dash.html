@@ -3,7 +3,7 @@
 {% load humanize %}
 {% load prettyjson %}
 
-{% block title %}Datastore dashboard{% endblock %}
+{% block title %}Dashboard{% endblock %}
 
 {% block content %}
 
@@ -19,40 +19,69 @@
 <div class="container">
   <div class="row bg-light">
     <div class="col">
+
       <h3>Info</h3>
-      <p>Datastore running at revision <a href="https://github.com/ThreeSixtyGiving/datastore/commit/{{git_rev}}">{{git_rev}}</a>.</p>
-      <p>Total grants in the system approximately {{total_grants|intcomma}} from {{total_datagetter_runs}} datagetter runs.</p>
+      <p>Datastore running at revision <a
+          href="https://github.com/ThreeSixtyGiving/datastore/commit/{{git_rev}}">{{git_rev}}</a>.</p>
+      <p>Total Grants in the system is approximately {{total_grants|intcomma}} from {{total_datagetter_runs}} Datagetter
+        runs.</p>
     </div>
-
-    <div class="col">
-      <h3>Latest dataset</h3>
-      {% if not latest_current %}
-      <p>No Latest data generated</p>
-      {% endif %}
-      <ul>
-        <li>Updated: {{latest_current.updated|date:"r"}} </li>
-        <li>Grants: {{latest_current.grant_set.all.count|intcomma}} </li>
-        <li>Source files: {{latest_current.sourcefile_set.all.count|intcomma}} </li>
-        <li><a href="{% url "ui:log" 'data_run' %}" >Datarun log</a></li>
-        <li><a href="/reports" >Data Reports</a></li>
-      </ul>
-    </div>
-
-    <div class="col">
-      <h3>Daily datagetter</h3>
-      <ul>
-        <li>Updated {{last_getter_run.datetime|date:"r"}}</li>
-        <li>Grants: {{last_getter_run.grant_set.count|intcomma}}</li>
-        <li>Publishers: {{last_getter_run.publisher_set.count}}</li>
-        <li>Source files: {{last_getter_run.sourcefile_set.count}}</li>
-        <li><a href="{% url "ui:explore" %}?getter_run={{last_getter_run.id}}">Explore data</a></li>
-        <li><a href="/reports" >Data Reports</a></li>
-      </ul>
-
-    </div>
-
   </div>
 
+  <div class="row bg-light">
+    <div class="col">
+
+      <table class="table table-hover">
+        <thead>
+          <th scope="col">Dataset</th>
+          <th scope="col">Updated</th>
+          <th scope="col">Grants</th>
+          <th scope="col">Source Files</th>
+          <th scope="col">Notes</th>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Current Latest</td>
+            <td>{{latest_current.updated|date:"r"}}</td>
+            <td>{{latest_current.grant_set.all.count|intcomma}}
+              {% if latest_current.grant_set.all.count > latest_previous.grant_set.all.count %}
+              <span class="text-success">&#9650;</span>
+              {% elif latest_current.grant_set.all.count < latest_previous.grant_set.all.count %}
+              <span class="text-danger">&#9660;</span>
+              {% endif %}
+            </td>
+            <td>{{latest_current.sourcefile_set.all.count|intcomma}}</td>
+            <td>
+              {% if not latest_current %}No Latest data generated{% endif %}
+              <a href="{% url "ui:log" 'data_run' %}">Datarun log</a>,
+              <a href="/reports">Data Reports</a>
+            </td>
+          </tr>
+
+          <tr>
+            <td>Previous Latest</td>
+            <td>{{latest_previous.updated|date:"r"}}</td>
+            <td>{{latest_previous.grant_set.all.count|intcomma}}</td>
+            <td>{{latest_previous.sourcefile_set.all.count|intcomma}}</td>
+            <td>
+              {% if not latest_previous %}No Latest data generated{% endif %}
+            </td>
+          </tr>
+
+          <tr>
+            <td>Datagetter</td>
+            <td>{{last_datagetter_run.datetime|date:"r"}}</td>
+            <td>{{last_datagetter_run.grant_set.all.count|intcomma}}</td>
+            <td>{{last_datagetter_run.sourcefile_set.all.count|intcomma}}</td>
+            <td>
+              <a href="{% url "ui:explore" %}?getter_run={{last_datagetter_run.id}}">Explore data</a> ,
+              <a href="/reports">Data Reports</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 <div class="container mt-3">

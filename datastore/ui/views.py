@@ -67,13 +67,19 @@ class DashBoardView(TemplateView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['last_getter_run'] = db.GetterRun.objects.order_by("-datetime").first()
+        context['last_datagetter_run'] = db.GetterRun.objects.order_by("-datetime").first()
         context['total_grants'] = db.Grant.estimated_total()
         context['total_datagetter_runs'] = db.GetterRun.objects.count()
 
         # May not be generated yet
         try:
             context['latest_current'] = db.Latest.objects.get(series=db.Latest.CURRENT)
+        except db.Latest.DoesNotExist:
+            pass
+
+        # May not be generated yet
+        try:
+            context['latest_previous'] = db.Latest.objects.get(series=db.Latest.PREVIOUS)
         except db.Latest.DoesNotExist:
             pass
 
