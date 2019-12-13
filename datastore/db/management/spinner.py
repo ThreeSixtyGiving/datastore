@@ -13,6 +13,11 @@ class Spinner(threading.Thread):
         self.signal = True
 
     def run(self):
+        # Only show the spinner if in we're in an actual terminal.
+        # Saves filling the log file up with characters.
+        if os.environ.get("TERM") is None:
+            return
+
         os.system('setterm -cursor off')
         while self.signal:
             for char in ["/", "-", "\\", "|"]:
