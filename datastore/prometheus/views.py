@@ -5,7 +5,10 @@ from django.http.response import HttpResponse
 from django.views import View
 from django.conf import settings
 
+import re
+
 import db.models as db
+
 
 NUM_ERRORS_LOGGED = Gauge(
     "total_service_errors_logged",
@@ -29,13 +32,12 @@ class ServiceMetrics(View):
     def _num_errors_log(self):
         errors = 0
         log_file = getattr(settings, "DATA_RUN_LOG", "")
+        search_term = re.compile('failure|failed|exception|error', re.IGNORECASE)
 
         try:
             with open(log_file, "r") as lf:
-                for line in lf.readlines():
-                    if "error" in line or "exception" in line or "failure" in line \
-                            or "Error" in line or "Exception" in line or "Failure" in line:
-                        errors = errors + 1
+                log = lf.read()
+                errors = len(search_term.findall(log))
         except FileNotFoundError:
             errors = -1
             pass
