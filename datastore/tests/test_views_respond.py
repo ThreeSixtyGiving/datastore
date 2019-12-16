@@ -1,8 +1,11 @@
 from django.urls import URLPattern, reverse_lazy
 from django.test import LiveServerTestCase
 from urls import urlpatterns as root_urls
+
 from api.urls import urlpatterns as api_urls
 from ui.urls import urlpatterns as ui_urls
+from prometheus.urls import urlpatterns as prom_urls
+import db.models as db
 
 
 # test urls/views Adapted from YQN by Michael Wood GPLv2
@@ -39,7 +42,14 @@ class UrlsTests(LiveServerTestCase):
             self._test_url(path)
 
         for path in api_urls:
+            db.Status.objects.create(
+                what=db.Statuses.GRANTNAV_DATA_PACKAGE,
+                status=db.Statuses.READY)
+
             self._test_url(path, "api")
 
         for path in ui_urls:
             self._test_url(path, "ui")
+
+        for path in prom_urls:
+            self._test_url(path, "prometheus")

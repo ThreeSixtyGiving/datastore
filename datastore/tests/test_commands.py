@@ -1,4 +1,5 @@
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
 from io import StringIO
 from tempfile import TemporaryDirectory
@@ -43,3 +44,22 @@ class CustomMgmtCommandsTest(TestCase):
         call_command("set_status", what="test", status="READY", stderr=err_out)
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
         self.assertTrue(db.Status.objects.get(what="test"))
+
+    def test_set_status_list(self):
+        err_out = StringIO()
+        call_command("set_status", list=True, stderr=err_out)
+        self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+
+    def test_set_status_invalid(self):
+        err_out = StringIO()
+        call_command("set_status", list_options=True, stderr=err_out)
+        self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+
+    def test_set_status_no_options(self):
+        err_out = StringIO()
+        try:
+            call_command("set_status", stderr=err_out)
+        except CommandError as e:
+            self.assertTrue("Not enough parameters" in str(e), "Unexpected exception")
+
+        self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")

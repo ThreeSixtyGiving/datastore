@@ -49,7 +49,7 @@ class Command(BaseCommand):
             try:
                 item.status = Statuses.__dict__.get(options['status'])
             except KeyError:
-                print("Unknown status use --list-options to list statuses")
+                CommandError("Unknown status use --list-options to list statuses")
             item.save()
 
         else:
