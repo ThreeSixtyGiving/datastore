@@ -20,6 +20,15 @@ class Command(BaseCommand):
             default="grantnav_data"
         )
 
+        parser.add_argument(
+            '--indent-json',
+            action='store',
+            dest='indent',
+            type=int,
+            help="Indentation of JSON output",
+            default=None
+        )
+
     def handle(self, *args, **options):
         """ Create grantnav package:
 
@@ -40,6 +49,19 @@ class Command(BaseCommand):
         data_all = []
         data_all_file = "%s/data_all.json" % options['dir']
 
+        def flatten_grant(in_grant):
+            """ Flattens grant object to make compatible with grantnav """
+            out_grant = {}
+            out_grant.update(in_grant['data'])
+            try:
+                out_grant.update(in_grant['additional_data'])
+            except TypeError:
+                # We may not have any additional_data and therefore it will be
+                # None(Type)
+                pass
+
+            return out_grant
+
         for source in latest_data.sourcefile_set.all():
             data_all.append(source.data)
 
@@ -50,13 +72,18 @@ class Command(BaseCommand):
 
             # Write out grant data
             with open(grant_file_name, 'w') as grantfp:
+
+                grants_list = list(source.grant_set.all().values('data', 'additional_data'))
+
+                grants_list_flattened = map(flatten_grant, grants_list)
+
                 grants = {
-                    'grants': list(source.grant_set.all().values_list('data', flat=True))
+                    'grants': list(grants_list_flattened)
                 }
 
-                grantfp.write(json.dumps(grants, indent=2))
+                grantfp.write(json.dumps(grants, indent=options['indent']))
 
         with open(data_all_file, 'w+') as data_all_fp:
-            data_all_fp.write(json.dumps(data_all, indent=2))
+            data_all_fp.write(json.dumps(data_all, indent=options['indent']))
 
         spinner.stop()
