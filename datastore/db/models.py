@@ -52,7 +52,7 @@ class Latest(models.Model):
                     data__identifier=failed_id,
                     data_valid=True,
                     acceptable_license=True,
-                    downloads=True):
+                    downloads=True).order_by("-getter_run"):
 
                 # Extra check make sure the source actually has grants.
                 # It isn't much good if not.
