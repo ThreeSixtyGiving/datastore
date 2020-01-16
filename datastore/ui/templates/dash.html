@@ -37,7 +37,7 @@
           <th scope="col">Updated</th>
           <th scope="col">Grants</th>
           <th scope="col">Source Files</th>
-          <th scope="col">Notes</th>
+          <th scope="col"></th>
         </thead>
         <tbody>
           <tr>
@@ -52,9 +52,13 @@
             </td>
             <td>{{latest_current.sourcefile_set.all.count|intcomma}}</td>
             <td>
-              {% if not latest_current %}No Latest data generated{% endif %}
+              {% if not latest_current %}
+              No Latest data generated
+              {% else %}
               <a href="{% url "ui:log" 'data_run' %}">Datarun log</a>,
               <a href="/reports">Data Reports</a>
+              <a href="{% url "ui:explore-latest" %}?latest={{latest_current.pk}}">Explore data</a>
+              {% endif %}
             </td>
           </tr>
 
@@ -64,7 +68,11 @@
             <td>{{latest_previous.grant_set.all.count|intcomma}}</td>
             <td>{{latest_previous.sourcefile_set.all.count|intcomma}}</td>
             <td>
-              {% if not latest_previous %}No Latest data generated{% endif %}
+              {% if not latest_previous %}
+              No Latest data generated
+              {% else %}
+              <a href="{% url "ui:explore-latest" %}?latest={{latest_previous.pk}}">Explore data</a>
+              {% endif %}
             </td>
           </tr>
 
@@ -74,7 +82,7 @@
             <td>{{last_datagetter_run.grant_set.all.count|intcomma}}</td>
             <td>{{last_datagetter_run.sourcefile_set.all.count|intcomma}}</td>
             <td>
-              <a href="{% url "ui:explore" %}?getter_run={{last_datagetter_run.id}}">Explore data</a> ,
+              <a href="{% url "ui:explore-datagetter" %}?getter_run={{last_datagetter_run.id}}">Explore data</a> ,
               <a href="/reports">Data Reports</a>
             </td>
           </tr>

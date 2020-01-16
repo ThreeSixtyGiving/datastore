@@ -1,7 +1,6 @@
 from django.views.generic import TemplateView
 from django.conf import settings
 
-from db.models import Publisher, GetterRun
 import db.models as db
 
 import subprocess
@@ -14,44 +13,59 @@ import datetime
 # from django.urls import reverse_lazy
 
 
-class ExploreView(TemplateView):
-    template_name = "explore.html"
+class ExploreDatagetterView(TemplateView):
+    template_name = "explore_datagetter.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         context['errors'] = []
 
-        context['getter_runs'] = GetterRun.objects.order_by("-datetime")
+        context['getter_runs'] = db.GetterRun.objects.order_by("-datetime")
 
-        if "getter_run" in self.request.GET:
-            try:
-                getter_run = GetterRun.objects.get(
+        try:
+
+            if "getter_run" in self.request.GET and "-1" not in self.request.GET['getter_run']:
+                getter_run = context['getter_runs'].get(
                         pk=self.request.GET['getter_run'])
-            except GetterRun.DoesNotExist:
-                context['errors'].append(
-                    "Specified data getter run doesn't exist using latest")
-                pass
 
-        # If we don't have a getter run selected or there is an error
-        if len(context['errors']) > 0 or "getter_run" not in self.request.GET:
-            getter_run = context['getter_runs'].first()
+                context['getter_run_selected'] = getter_run
 
-        context['getter_run_selected'] = getter_run
+                if "publisher" in self.request.GET and "-1" not in self.request.GET['publisher']:
+                    publisher = getter_run.publisher_set.get(
+                        prefix=self.request.GET['publisher'])
 
-        # -1 is  unset
-        if "publisher" in self.request.GET and \
-           "-1" not in self.request.GET['publisher']:
+                    context['publisher_selected'] = publisher
+        except (db.GetterRun.DoesNotExist, db.Publisher.DoesNotExist) as e:
+            context['errors'].append(str(e))
+            pass
 
-            try:
-                publisher = getter_run.publisher_set.get(
-                    prefix=self.request.GET['publisher'])
+        return context
 
-                context['publisher_selected'] = publisher
-            except Publisher.DoesNotExist:
-                context['errors'].append(
-                    "Publisher doest not exist in the selected data getter run")
-                pass
+
+class ExploreLatestView(TemplateView):
+    template_name = "explore_latest.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['errors'] = []
+
+        context['latests'] = db.Latest.objects.all()
+
+        try:
+
+            if "latest" in self.request.GET and "-1" not in self.request.GET['latest']:
+                context['latest_selected'] = \
+                    context['latests'].get(pk=self.request.GET['latest'])
+
+                if "source" in self.request.GET and "-1" not in self.request.GET['source']:
+                    context['source_selected'] = \
+                        context['latest_selected'].sourcefile_set.get(pk=self.request.GET['source'])
+
+        except (db.Latest.DoesNotExist, db.SourceFile.DoesNotExist) as e:
+            context['errors'].append(str(e))
+            pass
 
         return context
 

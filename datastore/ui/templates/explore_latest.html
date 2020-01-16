@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load prettyjson %}
+{% load humanize %}
+
+{% block title %}Explore Latest data{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <h2>Explore Latest data</h2>
+  {% if errors %}
+  <div class="alert alert-warning">
+    {% for error in errors %}
+    <p>{{error}}</p>
+    {% endfor %}
+  </div>
+  {% endif %}
+  <form method="GET" id="object-selector-form">
+    <div class="form-group">
+      <label for="latest-select">Latest</label>
+      <select name="latest" id="dataset-select" class="form-control">
+        <option value="-1" >--</option>
+
+        {% for latest in latests %}
+
+        {% if latest_selected.pk == latest.pk %}
+        <option value="{{latest.pk}}" selected>{{latest.series}} {{latest.updated|date:"r"}}</option>
+        {% else %}
+        <option value="{{latest.pk}}">{{latest.series}} {{latest.updated|date:"r"}}</option>
+        {% endif %}
+
+        {% endfor %}
+
+      </select>
+    </div>
+
+    {% if latest_selected %}
+    <div class="form-group">
+      <label for="source-select">Sources</label>
+      <select name="source" id="source-select" class="form-control">
+        <option value="-1">--</option>
+        {% for source in latest_selected.sourcefile_set.all %}
+
+        {% if source_selected.pk == source.pk %}
+        <option value="{{source.pk}}" selected>{{source.data.publisher.prefix}} - {{source.data.title}}</option>
+        {% else %}
+        <option value="{{source.pk}}">{{source.data.publisher.prefix}} - {{source.data.title}}</option>
+        {% endif %}
+
+        {% endfor %}
+      </select>
+    </div>
+
+
+    {% endif %}
+
+  </form>
+  <a class="text-muted mb-2" href="?">reset</a>
+</div>
+<div class="container">
+  {% if source_selected  %}
+
+  <div class="list-group d-none" id="grants-list">
+    <div class="list-group-item">
+      <h2>{{source_selected.data.title}}</h2>
+      <ul>
+        <li>Grants: {{source_selected.grant_set.count|intcomma}} </li>
+        <li>From Datagetter run: <a href="{% url 'ui:explore-datagetter' %}?getter_run={{source_selected.getter_run.pk}}&publisher={{source_selected.data.publisher.prefix}}">{{source_selected.getter_run.datetime|date:"r"}}</a> </li>
+        <li>Identifier: {{source_selected.data.identifier}}</li>
+      </ul>
+    </div>
+
+    <div class="list-group-item d-none" id="source-data">
+      {% prettyjson source_selected.data initial="parsed" %}
+    </div>
+
+  {% for grant in source_selected.grant_set.all %}
+    <div class="list-group-item">
+      <h4>{{grant.grant_id}}</h4>
+      {% prettyjson grant.data %}
+    </div>
+  {% endfor %}
+
+  </div>
+  {% endif %}
+</div>
+
+
+<script>
+  $(document).ready(function(){
+    let form = $("#object-selector-form");
+
+    $("select").change(function(){
+      form.submit();
+    });
+
+    /* Hack to add bootstrap style to the jsonwidget templates */
+    $(".jsonwidget").each(function(){
+      $(this).children("textarea").addClass("form-control");
+      $(this).find("button").addClass("btn btn-sm btn-secondary d-inline");
+    });
+
+
+    $("#grants-list").removeClass("d-none");
+    $("#publisher-data").removeClass("d-none");
+    /* end Hack */
+  });
+</script>
+{% endblock %}
+
