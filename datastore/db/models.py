@@ -44,7 +44,10 @@ class Latest(models.Model):
             if source_grant_count > 0:
                 latest_next.sourcefile_set.add(good_source)
 
-        for failed_source in latest_getter.sourcefile_set.filter(downloads=False):
+        for failed_source in latest_getter.sourcefile_set.filter(
+                models.Q(downloads=False) |
+                models.Q(data_valid=False)):
+
             failed_id = failed_source.data['identifier']
 
             # Find a replacement source for a failed one
