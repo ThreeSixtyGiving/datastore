@@ -144,6 +144,7 @@
 
     $("#run-datagetter-btn").click(function(){
       $.getJSON(triggerDatagetterUrl, function(data){
+        alert("Response: " + data.error + " Process ID: "+ data.pid);
         console.log(data);
       });
     });
