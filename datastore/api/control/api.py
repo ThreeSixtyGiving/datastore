@@ -37,7 +37,7 @@ class AbortDataGetter(View):
                 process_group = os.getpgid(int(pid))
                 os.killpg(process_group, signal.SIGTERM)
 
-        except (FileNotFoundError, ProcessLookupError):
+        except (FileNotFoundError, ProcessLookupError, ValueError):
             # Not already running
             pass
 
