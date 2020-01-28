@@ -56,7 +56,7 @@
               No Latest data generated
               {% else %}
               <a href="{% url "ui:log" 'data_run' %}">Datarun log</a>,
-              <a href="/reports">Data Reports</a>
+              <a href="/reports">Data Reports</a>,
               <a href="{% url "ui:explore-latest" %}?latest={{latest_current.pk}}">Explore data</a>
               {% endif %}
             </td>
@@ -82,7 +82,7 @@
             <td>{{last_datagetter_run.grant_set.all.count|intcomma}}</td>
             <td>{{last_datagetter_run.sourcefile_set.all.count|intcomma}}</td>
             <td>
-              <a href="{% url "ui:explore-datagetter" %}?getter_run={{last_datagetter_run.id}}">Explore data</a> ,
+              <a href="{% url "ui:explore-datagetter" %}?getter_run={{last_datagetter_run.id}}">Explore data</a>,
               <a href="/reports">Data Reports</a>
             </td>
           </tr>
