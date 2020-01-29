@@ -55,6 +55,7 @@ class Command(BaseCommand):
             out_grant.update(in_grant['data'])
             try:
                 out_grant.update(in_grant['additional_data'])
+                out_grant['additional_data_added'] = True
             except TypeError:
                 # We may not have any additional_data and therefore it will be
                 # None(Type)
