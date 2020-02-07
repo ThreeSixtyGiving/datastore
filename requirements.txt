@@ -1,5 +1,5 @@
 -e git+https://github.com/ThreeSixtyGiving/datagetter.git@d565d59700a380fe64836402689dff95705871bf#egg=datagetter
-Django==2.2.9
+Django==2.2.10
 djangorestframework==3.10.3
 django-filter==2.2.0
 django-prettyjson==0.4.1
@@ -11,7 +11,7 @@ certifi==2019.6.16
 chardet==3.0.4
 contextlib2==0.5.5
 et-xmlfile==1.0.1
-flattentool==0.9.0
+flattentool==0.10.0
 idna==2.8
 jdcal==1.4.1
 jsonref==0.2

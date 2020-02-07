@@ -1,5 +1,5 @@
 -e git+https://github.com/ThreeSixtyGiving/datagetter.git@d565d59700a380fe64836402689dff95705871bf#egg=datagetter
-Django==2.2.9
+Django==2.2.10
 djangorestframework==3.10.3
 django-filter==2.2.0
 django-prettyjson==0.4.1
@@ -7,14 +7,18 @@ psycopg2==2.8
 prometheus-client==0.7.0
 selenium==3.141.0
 flake8==3.7.9
+isort==4.3.21
+black==19.10b0
 ## The following requirements were added by pip freeze:
+appdirs==1.4.3
 attrs==19.1.0
 certifi==2019.6.16
 chardet==3.0.4
+Click==7.0
 contextlib2==0.5.5
 entrypoints==0.3
 et-xmlfile==1.0.1
-flattentool==0.9.0
+flattentool==0.10.0
 idna==2.8
 jdcal==1.4.1
 jsonref==0.2
@@ -23,12 +27,14 @@ LEPL==5.1.3
 lxml==4.4.1
 mccabe==0.6.1
 openpyxl==2.6.2
+pathspec==0.7.0
 
 pycodestyle==2.5.0
 pyflakes==2.1.1
 pyrsistent==0.15.4
 PySocks==1.7.0
 pytz==2019.2
+regex==2020.1.8
 requests==2.22.0
 rfc3987==1.3.8
 rfc6266==0.0.4
@@ -37,5 +43,7 @@ six==1.12.0
 sqlparse==0.3.0
 standardjson==0.3.1
 strict-rfc3339==0.7
+toml==0.10.0
+typed-ast==1.4.1
 urllib3==1.25.3
 xmltodict==0.12.0
