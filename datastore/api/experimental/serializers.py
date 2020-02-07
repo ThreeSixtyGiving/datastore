@@ -6,4 +6,4 @@ import db.models as db
 class GrantSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Grant
-        fields = ('__all__')
+        fields = "__all__"

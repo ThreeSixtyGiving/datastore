@@ -8,13 +8,13 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--total',
-            action='store_true',
+            "--total",
+            action="store_true",
             help="Just output the total datagetter runs in the db",
         )
 
     def handle(self, *args, **options):
-        if options.get('total'):
+        if options.get("total"):
             print("%s" % GetterRun.objects.count(), file=self.stdout)
             return
 

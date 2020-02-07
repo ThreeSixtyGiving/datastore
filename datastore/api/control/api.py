@@ -12,7 +12,7 @@ import db.models as db
 class StatusView(View):
     def get(self, *args, **kwargs):
         ret = {
-            'statuses': list(db.Status.objects.all().values('what', 'status')),
+            "statuses": list(db.Status.objects.all().values("what", "status")),
         }
 
         return JsonResponse(ret, safe=False)
@@ -22,8 +22,10 @@ class TriggerDataGetter(View):
     def get(self, *args, **kwargs):
         AbortDataGetter.abort()
 
-        with open(settings.DATA_RUN_PID_FILE, 'w+') as pidf:
-            process = subprocess.Popen(["bash", settings.DATA_RUN_SCRIPT], start_new_session=True)
+        with open(settings.DATA_RUN_PID_FILE, "w+") as pidf:
+            process = subprocess.Popen(
+                ["bash", settings.DATA_RUN_SCRIPT], start_new_session=True
+            )
             pidf.write(str(process.pid))
 
         return JsonResponse({"error": "OK", "pid": process.pid})

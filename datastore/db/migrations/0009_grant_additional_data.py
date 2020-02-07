@@ -7,13 +7,15 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('db', '0008_remove_latest_total_grants'),
+        ("db", "0008_remove_latest_total_grants"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='grant',
-            name='additional_data',
-            field=django.contrib.postgres.fields.jsonb.JSONField(blank=True, null=True, verbose_name='Additional Grant data'),
+            model_name="grant",
+            name="additional_data",
+            field=django.contrib.postgres.fields.jsonb.JSONField(
+                blank=True, null=True, verbose_name="Additional Grant data"
+            ),
         ),
     ]

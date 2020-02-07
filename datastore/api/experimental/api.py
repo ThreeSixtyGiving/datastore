@@ -14,10 +14,12 @@ class CurrentLatestGrants(generics.ListAPIView):
     serializer_class = serializers.GrantSerializer
     pagination_class = CurrentLatestGrantsPaginator
 
-    search_fields = ('$data',)
-    filter_fields = ('grant_id', 'id')
-    filter_backends = (filters.SearchFilter, django_filters.rest_framework.DjangoFilterBackend)
+    search_fields = ("$data",)
+    filter_fields = ("grant_id", "id")
+    filter_backends = (
+        filters.SearchFilter,
+        django_filters.rest_framework.DjangoFilterBackend,
+    )
 
     def get_queryset(self):
-        return db.Latest.objects.get(
-            series=db.Latest.CURRENT).grant_set.all()
+        return db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.all()

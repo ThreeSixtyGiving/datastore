@@ -5,9 +5,10 @@ from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 class BrowserTests(StaticLiveServerTestCase):
     """ Browser test using latest Chrome/Chromium stable"""
+
     def setUp(self, *args, **kwargs):
         capabilities = DesiredCapabilities.CHROME
-        capabilities['loggingPrefs'] = {'browser': 'ALL'}
+        capabilities["loggingPrefs"] = {"browser": "ALL"}
 
         self.driver = webdriver.Chrome(
             service_args=["--verbose", "--log-path=selenium.log"],

@@ -15,8 +15,8 @@ class GrantNavPollForNewData(View):
 
         # Turn the status into a key val dict
         for status_ob in statuses:
-            ret[status_ob.what] = {'status': status_ob.status, 'when': status_ob.when}
+            ret[status_ob.what] = {"status": status_ob.status, "when": status_ob.when}
             if db.Statuses.GRANTNAV_DATA_PACKAGE in status_ob.what:
-                ret[status_ob.what]['download'] = settings.GRANTNAV_PACKAGE_DOWNLOAD_URL
+                ret[status_ob.what]["download"] = settings.GRANTNAV_PACKAGE_DOWNLOAD_URL
 
         return JsonResponse(ret, safe=False)

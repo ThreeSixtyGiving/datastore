@@ -7,18 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('db', '0003_status'),
+        ("db", "0003_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='status',
-            name='when',
+            model_name="status",
+            name="when",
             field=models.DateTimeField(default=django.utils.timezone.now),
         ),
         migrations.AlterField(
-            model_name='status',
-            name='status',
-            field=models.CharField(default='idle', max_length=200),
+            model_name="status",
+            name="status",
+            field=models.CharField(default="idle", max_length=200),
         ),
     ]

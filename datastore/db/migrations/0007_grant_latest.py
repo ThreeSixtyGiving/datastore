@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('db', '0006_auto_20191028_2225'),
+        ("db", "0006_auto_20191028_2225"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='grant',
-            name='latest',
-            field=models.ManyToManyField(to='db.Latest'),
+            model_name="grant",
+            name="latest",
+            field=models.ManyToManyField(to="db.Latest"),
         ),
     ]

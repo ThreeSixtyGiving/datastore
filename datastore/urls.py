@@ -19,8 +19,12 @@ from django.urls import include, path
 # This is the root urlconf
 
 urlpatterns = [
-    path('', include('ui.urls', namespace='ui'), name="ui_index"),
-    path('api/', include('api.urls', namespace='api'), name="api_index"),
-    path('prometheus/', include('prometheus.urls', namespace="prometheus"), name="prom_index"),
-    path('admin/', admin.site.urls, name='admin'),
+    path("", include("ui.urls", namespace="ui"), name="ui_index"),
+    path("api/", include("api.urls", namespace="api"), name="api_index"),
+    path(
+        "prometheus/",
+        include("prometheus.urls", namespace="prometheus"),
+        name="prom_index",
+    ),
+    path("admin/", admin.site.urls, name="admin"),
 ]

@@ -8,16 +8,16 @@ import db.models as db
 class JSONFieldAdmin(admin.ModelAdmin):
     list_per_page = 20
     formfield_overrides = {
-        JSONField: {'widget': PrettyJSONWidget(attrs={'initial': 'parsed'})}
+        JSONField: {"widget": PrettyJSONWidget(attrs={"initial": "parsed"})}
     }
 
 
 class PublisherAdmin(JSONFieldAdmin):
-    search_fields = ['name']
+    search_fields = ["name"]
 
 
 class GrantAdmin(JSONFieldAdmin):
-    search_fields = ['grant_id']
+    search_fields = ["grant_id"]
 
 
 admin.site.site_header = "360 Giving Datastore Developer"

@@ -10,7 +10,7 @@ from urls import urlpatterns as root_urls
 
 # test urls/views Adapted from YQN by Michael Wood GPLv2
 class UrlsTests(LiveServerTestCase):
-    fixtures = ['test_data.json']
+    fixtures = ["test_data.json"]
 
     def _test_url(self, path, namespace=False):
         if type(path) is not URLPattern or path.name is None:
@@ -34,7 +34,9 @@ class UrlsTests(LiveServerTestCase):
 
         print("Tested %s = %s" % (url, response.status_code))
 
-        self.assertTrue(response.status_code == 200, "Url %s did not return a 200 response" % url)
+        self.assertTrue(
+            response.status_code == 200, "Url %s did not return a 200 response" % url
+        )
 
     def test_url_responds(self):
         """ Basic test to make sure all urls/views return """
@@ -43,8 +45,8 @@ class UrlsTests(LiveServerTestCase):
 
         for path in api_urls:
             db.Status.objects.create(
-                what=db.Statuses.GRANTNAV_DATA_PACKAGE,
-                status=db.Statuses.READY)
+                what=db.Statuses.GRANTNAV_DATA_PACKAGE, status=db.Statuses.READY
+            )
 
             self._test_url(path, "api")
 

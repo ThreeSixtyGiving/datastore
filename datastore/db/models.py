@@ -7,15 +7,11 @@ from django.utils import timezone
 class Latest(models.Model):
     """ Latest best data we have """
 
-    NEXT = 'NEXT'
-    CURRENT = 'CURRENT'
-    PREVIOUS = 'PREVIOUS'
+    NEXT = "NEXT"
+    CURRENT = "CURRENT"
+    PREVIOUS = "PREVIOUS"
 
-    SERIES_CHOICES = [
-        (NEXT, 'Next'),
-        (CURRENT, 'Current'),
-        (PREVIOUS, 'Previous')
-    ]
+    SERIES_CHOICES = [(NEXT, "Next"), (CURRENT, "Current"), (PREVIOUS, "Previous")]
 
     series = models.TextField(choices=SERIES_CHOICES)
     updated = models.DateTimeField(default=timezone.now)
@@ -31,9 +27,9 @@ class Latest(models.Model):
         grant_count = 0
 
         # All the good downloads
-        for good_source in latest_getter.sourcefile_set.filter(downloads=True,
-                                                               data_valid=True,
-                                                               acceptable_license=True):
+        for good_source in latest_getter.sourcefile_set.filter(
+            downloads=True, data_valid=True, acceptable_license=True
+        ):
             # Extra check make sure the source actually has grants.
             # It isn't much good if not.
             source_grant_count = good_source.grant_set.count()
@@ -44,17 +40,18 @@ class Latest(models.Model):
                 latest_next.sourcefile_set.add(good_source)
 
         for failed_source in latest_getter.sourcefile_set.filter(
-                models.Q(downloads=False) |
-                models.Q(data_valid=False)):
+            models.Q(downloads=False) | models.Q(data_valid=False)
+        ):
 
-            failed_id = failed_source.data['identifier']
+            failed_id = failed_source.data["identifier"]
 
             # Find a replacement source for a failed one
             for candidate_replacement_source in SourceFile.objects.filter(
-                    data__identifier=failed_id,
-                    data_valid=True,
-                    acceptable_license=True,
-                    downloads=True).order_by("-getter_run"):
+                data__identifier=failed_id,
+                data_valid=True,
+                acceptable_license=True,
+                downloads=True,
+            ).order_by("-getter_run"):
 
                 # Extra check make sure the source actually has grants.
                 # It isn't much good if not.
@@ -63,8 +60,10 @@ class Latest(models.Model):
                 grant_count += source_grant_count
 
                 if source_grant_count > 0:
-                    print("found new source for failed_source %s which is %s" %
-                          (failed_id, candidate_replacement_source))
+                    print(
+                        "found new source for failed_source %s which is %s"
+                        % (failed_id, candidate_replacement_source)
+                    )
                     latest_next.sourcefile_set.add(candidate_replacement_source)
                     # We found a replacement:
                     break
@@ -90,8 +89,12 @@ class Latest(models.Model):
             ThroughModel = Latest.grant_set.through
             grants_for_latest = []
 
-            for grant in latest_next.sourcefile_set.values_list('grant', flat=True).iterator():
-                grants_for_latest.append(ThroughModel(grant_id=grant, latest_id=latest_current.pk))
+            for grant in latest_next.sourcefile_set.values_list(
+                "grant", flat=True
+            ).iterator():
+                grants_for_latest.append(
+                    ThroughModel(grant_id=grant, latest_id=latest_current.pk)
+                )
 
             ThroughModel.objects.bulk_create(grants_for_latest)
 
@@ -129,16 +132,18 @@ class SourceFile(models.Model):
         try:
             # These keys could be missing because the download failed
             # and therefore it can't validate or check the license
-            self.data_valid = self.data['datagetter_metadata']['valid']
-            self.acceptable_license = self.data['datagetter_metadata']['acceptable_license']
+            self.data_valid = self.data["datagetter_metadata"]["valid"]
+            self.acceptable_license = self.data["datagetter_metadata"][
+                "acceptable_license"
+            ]
         except KeyError:
             pass
-        self.datagetter_data = self.data['datagetter_metadata']
-        self.downloads = self.data['datagetter_metadata']['downloads']
+        self.datagetter_data = self.data["datagetter_metadata"]
+        self.downloads = self.data["datagetter_metadata"]["downloads"]
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.data['datagetter_metadata']['datetime_downloaded']
+        return self.data["datagetter_metadata"]["datetime_downloaded"]
 
 
 class Publisher(models.Model):
@@ -154,10 +159,10 @@ class Publisher(models.Model):
     #  Update the convenience fields
     def save(self, *args, **kwargs):
         if not self.name:
-            self.name = self.data['name']
+            self.name = self.data["name"]
 
         if not self.prefix:
-            self.prefix = self.data['prefix']
+            self.prefix = self.data["prefix"]
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -177,9 +182,9 @@ class Grant(models.Model):
     # Convenience shortcut to latest->grants
     latest = models.ManyToManyField(Latest)
 
-    additional_data = JSONField(verbose_name="Additional Grant data",
-                                null=True,
-                                blank=True)
+    additional_data = JSONField(
+        verbose_name="Additional Grant data", null=True, blank=True
+    )
 
     @staticmethod
     def estimated_total():
@@ -191,7 +196,7 @@ class Grant(models.Model):
                     " SELECT (reltuples/relpages) * (pg_relation_size('db_grant') / "
                     " (current_setting('block_size')::integer)) "
                     " FROM pg_class where relname = 'db_grant'"
-                    )
+                )
                 return int(c.fetchone()[0])
         except DataError:
             return Grant.objects.count()
