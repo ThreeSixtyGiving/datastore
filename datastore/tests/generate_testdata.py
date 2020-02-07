@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-import json
-import copy
-import subprocess
-import random
-import os
 import argparse
+import copy
+import json
+import os
+import random
+import subprocess
 
 # Generates some test data for loading into the data store
 # requires pwgen binary

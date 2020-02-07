@@ -1,9 +1,9 @@
 from django.urls import path
 from django.views.generic import TemplateView
 
-import api.grantnav.api
 import api.control.api
 import api.experimental.api
+import api.grantnav.api
 
 app_name = 'api'
 

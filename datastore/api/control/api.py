@@ -1,11 +1,12 @@
-from django.views.generic import View
-from django.http.response import JsonResponse
-from django.conf import settings
-
-import db.models as db
-import subprocess
 import os
 import signal
+import subprocess
+
+from django.conf import settings
+from django.http.response import JsonResponse
+from django.views.generic import View
+
+import db.models as db
 
 
 class StatusView(View):

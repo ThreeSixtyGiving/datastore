@@ -1,7 +1,7 @@
-import sys
-import time
-import threading
 import os
+import sys
+import threading
+import time
 
 
 # Spinner - Michael Wood - Toaster - lsupdates GPLv2

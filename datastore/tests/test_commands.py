@@ -1,10 +1,12 @@
+from io import StringIO
+from tempfile import TemporaryDirectory
+
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.test import TestCase
-from io import StringIO
-from tempfile import TemporaryDirectory
-from tests.generate_testdata import generate_data
+
 import db.models as db
+from tests.generate_testdata import generate_data
 
 
 class CustomMgmtCommandsTest(TestCase):

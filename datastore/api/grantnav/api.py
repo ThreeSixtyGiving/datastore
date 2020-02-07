@@ -1,7 +1,8 @@
+from django.conf import settings
 from django.http.response import JsonResponse
 from django.views import View
+
 import db.models as db
-from django.conf import settings
 
 
 class GrantNavPollForNewData(View):

@@ -1,11 +1,11 @@
-from django.views.generic import TemplateView
+import datetime
+import os
+import subprocess
+
 from django.conf import settings
+from django.views.generic import TemplateView
 
 import db.models as db
-
-import subprocess
-import os
-import datetime
 
 # Note To require login use LoginRequiredMixin
 # from django.contrib.auth.mixins import LoginRequiredMixin

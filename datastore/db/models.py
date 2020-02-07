@@ -1,8 +1,7 @@
-from django.db import models
-from django.db.utils import DataError
-from django.db import connection
-from django.utils import timezone
 from django.contrib.postgres.fields import JSONField
+from django.db import connection, models
+from django.db.utils import DataError
+from django.utils import timezone
 
 
 class Latest(models.Model):

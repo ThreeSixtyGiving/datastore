@@ -1,12 +1,12 @@
+import json
+import os
+
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
-import os
-import json
-
 import db.models as db
-from db.management.spinner import Spinner
 from additional_data.grant import GrantAdditionalDataGenerator
+from db.management.spinner import Spinner
 
 
 class Command(BaseCommand):

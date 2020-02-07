@@ -1,14 +1,12 @@
+import re
+
+from django.conf import settings
+from django.http.response import HttpResponse
+from django.views import View
 from prometheus_client import Gauge
 from prometheus_client.exposition import generate_latest
 
-from django.http.response import HttpResponse
-from django.views import View
-from django.conf import settings
-
-import re
-
 import db.models as db
-
 
 NUM_ERRORS_LOGGED = Gauge(
     "total_service_errors_logged",

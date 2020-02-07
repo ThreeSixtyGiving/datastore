@@ -1,10 +1,10 @@
+import json
+import os
+
 from django.core.management.base import BaseCommand
 
-from db.models import Latest
 from db.management.spinner import Spinner
-
-import os
-import json
+from db.models import Latest
 
 
 class Command(BaseCommand):

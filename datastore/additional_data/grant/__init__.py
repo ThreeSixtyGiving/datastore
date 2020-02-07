@@ -1,7 +1,7 @@
-import json
-import os
 import csv
 import gzip
+import json
+import os
 
 # Based on grantnav/import_to_elastic_search by David Raznick and Ben Webb
 # https://github.com/ThreeSixtyGiving/grantnav/tree/master/dataload

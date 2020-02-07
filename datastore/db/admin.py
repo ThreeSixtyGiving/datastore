@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.postgres.fields import JSONField
 from prettyjson import PrettyJSONWidget
+
 import db.models as db
 
 

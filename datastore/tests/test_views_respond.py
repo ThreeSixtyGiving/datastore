@@ -1,11 +1,11 @@
-from django.urls import URLPattern, reverse_lazy
 from django.test import LiveServerTestCase
-from urls import urlpatterns as root_urls
+from django.urls import URLPattern, reverse_lazy
 
-from api.urls import urlpatterns as api_urls
-from ui.urls import urlpatterns as ui_urls
-from prometheus.urls import urlpatterns as prom_urls
 import db.models as db
+from api.urls import urlpatterns as api_urls
+from prometheus.urls import urlpatterns as prom_urls
+from ui.urls import urlpatterns as ui_urls
+from urls import urlpatterns as root_urls
 
 
 # test urls/views Adapted from YQN by Michael Wood GPLv2

@@ -1,11 +1,13 @@
-from html.parser import HTMLParser
-import requests
-from io import StringIO
-import zipfile
-import os
 import csv
-import titlecase
 import json
+import os
+import zipfile
+from html.parser import HTMLParser
+from io import StringIO
+
+import requests
+
+import titlecase
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 # Example poller script to be run periodically on grantnav server
 
-import requests
 import argparse
 import subprocess
+
+import requests
 
 
 def fetch_data_package(download_url, auth):

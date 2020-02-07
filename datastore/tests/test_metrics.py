@@ -1,7 +1,8 @@
-from django.test import TestCase
-import prometheus.views
-
 import tempfile
+
+from django.test import TestCase
+
+import prometheus.views
 
 
 class TestMetrics(TestCase):

@@ -1,9 +1,6 @@
-from rest_framework import generics
-
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework import filters
-
 import django_filters.rest_framework
+from rest_framework import filters, generics
+from rest_framework.pagination import LimitOffsetPagination
 
 import db.models as db
 from api.experimental import serializers
