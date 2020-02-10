@@ -43,3 +43,5 @@ script:
   - "./datastore/manage.py test tests"
   - "datagetter.py --help" # Verify it compiles and is installed
   - "flake8"
+  - "isort --check-only --recursive ./"
+  - "black --check ./"
