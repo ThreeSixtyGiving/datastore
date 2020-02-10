@@ -7,7 +7,7 @@ from api.experimental import serializers
 
 
 class CurrentLatestGrantsPaginator(LimitOffsetPagination):
-    default_limit = 360
+    default_limit = 60
 
 
 class CurrentLatestGrants(generics.ListAPIView):
