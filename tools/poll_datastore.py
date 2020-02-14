@@ -2,14 +2,15 @@
 # Example poller script to be run periodically on grantnav server
 
 import argparse
+import datetime
 import subprocess
 
 import requests
-import datetime
 
 
 def d_print(msg):
     print("%s: %s" % (datetime.datetime.now().strftime("%c"), msg))
+
 
 def fetch_data_package(download_url, auth):
     d_print("Downloading data package %s" % download_url)
