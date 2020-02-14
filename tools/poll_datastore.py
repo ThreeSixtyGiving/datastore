@@ -5,10 +5,14 @@ import argparse
 import subprocess
 
 import requests
+import datetime
 
+
+def d_print(msg):
+    print("%s: %s" % (datetime.datetime.now().strftime("%c"), msg))
 
 def fetch_data_package(download_url, auth):
-    print("Downloading data package %s" % download_url)
+    d_print("Downloading data package %s" % download_url)
     with requests.get(download_url, stream=True, auth=auth) as r:
         r.raise_for_status()
         with open("latest_grantnav_data.tar.gz", "wb") as f:
@@ -46,7 +50,7 @@ def main():
     grantnav_dp_status = data.get("grantnav_data_package", None)
 
     if grantnav_dp_status is None:
-        print("No grantnav_data_packages status yet")
+        d_print("No grantnav_data_packages status yet")
         return
 
     if "ready" in grantnav_dp_status["status"]:
@@ -56,7 +60,7 @@ def main():
                 # If the file contains a date we already have and is not blank then
                 # skip it
                 if len(last_data) > 0 and last_data in grantnav_dp_status["when"]:
-                    print("Already got this package. Skipping")
+                    d_print("Already got this package. Skipping")
                     return
         except FileNotFoundError:
             pass
