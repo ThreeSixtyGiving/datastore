@@ -1,6 +1,6 @@
 ## Python
 
-Python code should pass flake8
+Python code should pass (through) black, flake8 and isort
 
 
 ## Commits
@@ -10,7 +10,7 @@ Commit messages should be formatted:
 ```
 parent-module file/object Change message
 
-Longer message if needed to describe change here
+Longer message if needed to describe change here and url to issue tracker
 ```
 
 For example

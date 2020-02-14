@@ -56,4 +56,6 @@ Alternatively edit the selenium test setup in test_browser to use your preferred
 ```
 $ ./manage.py test tests
 $ flake8
+$ isort --check-only --recursive ./
+$ black --check ./
 ```
