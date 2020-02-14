@@ -69,8 +69,9 @@ def main():
         # Update the file with the last update date
         with open("last_grantnav_fetch", "w+") as last_fetchfp:
             last_fetchfp.write(grantnav_dp_status["when"])
-            fetch_data_package(grantnav_dp_status["download"], auth)
-            subprocess.check_call(["bash", args.load_grantnav_script])
+
+        fetch_data_package(grantnav_dp_status["download"], auth)
+        subprocess.check_call(["bash", args.load_grantnav_script])
 
 
 if __name__ == "__main__":
