@@ -44,6 +44,8 @@ class Latest(models.Model):
         ):
 
             failed_id = failed_source.data["identifier"]
+            print("Processing the failed source\n%s" % failed_source.data)
+            replacement_found = False
 
             # Find a replacement source for a failed one
             for candidate_replacement_source in SourceFile.objects.filter(
@@ -61,12 +63,16 @@ class Latest(models.Model):
 
                 if source_grant_count > 0:
                     print(
-                        "found new source for failed_source %s which is %s"
+                        "Found new source for failed_source %s which is %s"
                         % (failed_id, candidate_replacement_source)
                     )
                     latest_next.sourcefile_set.add(candidate_replacement_source)
                     # We found a replacement:
+                    replacement_found = True
                     break
+
+            if not replacement_found:
+                print("Warning - No replacement source available for %s" % failed_id)
 
         # Before we set this as current check that there are more than 0 grants
         # Do the switcher-round
