@@ -74,6 +74,10 @@
     <div class="list-group-item">
       <h4>{{grant.grant_id}}</h4>
       {% prettyjson grant.data %}
+      <div class="ml-4 mt-2">
+        <h5>additional_data</h5>
+        {% prettyjson grant.additional_data  initial="parsed" %}
+      </div>
     </div>
   {% endfor %}
 
