@@ -57,7 +57,7 @@ echo "Load the downloaded datagetter data into datastore"
 
 ./datastore/manage.py set_status --what datastore --status IDLE
 
-echo "Create grant nav package"
+echo "Create GrantNav package"
 ./datastore/manage.py set_status --what grantnav_data_package --status LOADING_DATA
 
 
@@ -71,7 +71,7 @@ if [ $TOTAL_RUNS -gt $MAX_TOTAL_RUNS_IN_DB ]; then
     ./datastore/manage.py delete_datagetter_data --oldest --no-prompt
 fi
 
-echo "Deleting old grantnav packages"
+echo "Deleting old GrantNav packages"
 find $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR -name "data_*.tar.gz" -mtime +$MAX_PACKAGE_AGE_DAYS | xargs rm -f
 
 # Remove old data dump
