@@ -81,3 +81,14 @@ class OrgInfoCache(models.Model):
             return "%s - %s" % (self.data["name"], self.org_id)
         else:
             return "%s" % self.org_id
+
+
+class NSPL(models.Model):
+    # Postcode without whitespaces and uppercase.
+    postcode = models.CharField(max_length=7, db_index=True)
+    data = JSONField()
+
+
+class CodeName(models.Model):
+    code = models.CharField(max_length=9)
+    data = JSONField()
