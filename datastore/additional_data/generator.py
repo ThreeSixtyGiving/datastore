@@ -1,5 +1,6 @@
 from additional_data.sources.find_that_charity import FindThatCharitySource
 from additional_data.sources.local_files import LocalFilesSource
+from additional_data.sources.nspl import NSPLSource
 
 
 class AdditionalDataGenerator(object):
@@ -8,6 +9,7 @@ class AdditionalDataGenerator(object):
     def __init__(self):
         self.local_files_source = LocalFilesSource()
         self.find_that_charity_source = FindThatCharitySource()
+        self.nspl_source = NSPLSource()
         # Initialise Other Sources heres
 
     def create(self, grant):
@@ -19,5 +21,6 @@ class AdditionalDataGenerator(object):
         # Add other additional_data updaters here
         self.local_files_source.update_additional_data(grant, additional_data)
         self.find_that_charity_source.update_additional_data(grant, additional_data)
+        self.nspl_source.update_additional_data(grant, additional_data)
 
         return additional_data
