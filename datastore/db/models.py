@@ -44,7 +44,9 @@ class Latest(models.Model):
         ):
 
             failed_id = failed_source.data["identifier"]
-            print("Processing the failed source %s\n%s" % (failed_id, failed_source.data))
+            print(
+                "Processing the failed source %s\n%s" % (failed_id, failed_source.data)
+            )
             replacement_found = False
 
             # Find a replacement source for a failed one
