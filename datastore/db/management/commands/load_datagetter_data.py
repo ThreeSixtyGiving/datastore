@@ -76,7 +76,7 @@ class Command(BaseCommand):
                         additional_data = grant_additional_data_generator.create(grant)
                     except Exception as e:
                         print(
-                            "Generating metadata for grant %s failed %e"
+                            "Generating additional for grant %s failed %s"
                             % (grant["id"], e),
                             file=self.stderr,
                         )
@@ -96,6 +96,7 @@ class Command(BaseCommand):
                 db.Grant.objects.bulk_create(grant_bulk_insert)
                 grants_added = grants_added + len(grant_data["grants"])
             except (FileNotFoundError, KeyError, TypeError) as e:
+                raise e
                 print(
                     "Skipping '%s' as it does not exist in supplied dataset" % e,
                     file=self.stdout,
