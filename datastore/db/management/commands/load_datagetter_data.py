@@ -5,7 +5,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 import db.models as db
-from additional_data.grant import GrantAdditionalDataGenerator
+from additional_data.generator import AdditionalDataGenerator
 from db.management.spinner import Spinner
 
 
@@ -51,8 +51,8 @@ class Command(BaseCommand):
         with open(new_path, encoding="utf-8") as f:
             return json.loads(f.read())
 
-    def extact_data(self):
-        grant_additional_data_generator = GrantAdditionalDataGenerator()
+    def load_data(self):
+        grant_additional_data_generator = AdditionalDataGenerator()
         grants_added = 0
         dataset = self.load_dataset_data()
 
@@ -114,7 +114,7 @@ class Command(BaseCommand):
         spinner.start()
 
         with transaction.atomic():
-            grants_added = self.extact_data()
+            grants_added = self.load_data()
 
         spinner.stop()
         print("\nData loaded: %s grants added" % grants_added, file=self.stdout)
