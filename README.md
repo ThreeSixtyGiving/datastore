@@ -1,12 +1,11 @@
-# Data storage tool for 360 Giving
+# DataStore for [360 Giving](https://threesixtygiving.org) data
 
-This repo is in flux and very much a work in progress!
 
 ## Postgres setup
 
 Example:
 
-In this example we create a user test and password test for dev useage
+In this example we create a user test and password test for dev usage.
 
 ```
 $ sudo apt-get install postgresql-10 postgresql-server-dev-10
@@ -59,3 +58,46 @@ $ flake8
 $ isort --check-only --recursive ./
 $ black --check ./
 ```
+
+## Key modules in the datastore
+
+## db
+
+This module is the central datastore for 360 Giving data. It contains the models which define the database and the ORM for accessing, creating and updating the grant data.
+
+A key function is managing the `Latest` data which represent the created datasets that are built from `datagetter` grant data. These datasets are used in GrantNav.
+
+Management commands here allow for loading and managing datasets as well as a mechanism for external scripts to update the current status of the system (status is used in the UI and for GrantNav API).
+
+## api
+
+This contains the API endpoints that are used to control the system from the UI, indicate the status and data download url for GrantNav updates as well as an experimental REST API built using django-rest-framework.
+
+## ui
+
+Templates and staic html/js live here, there is a basic dashboard which shows the current status of the system as well as a mechanism to trigger a full datarun (fetch and load).
+
+## additional_data 
+
+During the load of grant data (`datagetter` data) that is done by the `db` module command `load_datagetter_data` each grant is passed to the `create` method of the `AdditionalDataGenerator`, here various sources are used to add to an `additional_data` object that is available on the `Grant` model.
+
+`additional_data` data sources come in various forms, static files which are loaded, as well as caches of data in our local database (for example postcode lookups).
+
+The `generator` ensures a particular order to additional_data fields being added which allows for dependencies of one source to another.
+
+
+## prometheus
+
+Provides a [prometheus](https://prometheus.io/) endpoint to monitor vital metrics on the datastore 
+
+## tools
+
+An example datarun script. This is an orchestrator of running a datagetter, updating the statuses and loading the data into the datastore.
+
+## settings
+
+Django Settings for the datastore. Includes location for data run logs, the data run script / pid
+
+## tests 
+
+Various cross-module tests.
