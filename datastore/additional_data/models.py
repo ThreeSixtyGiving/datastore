@@ -99,3 +99,22 @@ class NSPL(models.Model):
 class CodeName(models.Model):
     code = models.CharField(max_length=9, db_index=True)
     data = JSONField()
+
+
+class GeoLookup(models.Model):
+
+    LSOA = "lsoa"
+    MSOA = "msoa"
+    LA = "la"
+    WARD = "ward"
+
+    AREA_TYPE = [
+        (LSOA, "Lower Super Output Area"),
+        (MSOA, "Middle Super Output Area"),
+        (LA, "Local Authority"),
+        (WARD, "Ward"),
+    ]
+
+    areacode = models.CharField(max_length=200, unique=True, db_index=True)
+    areatype = models.CharField(max_length=20, choices=AREA_TYPE, db_index=True)
+    data = JSONField()
