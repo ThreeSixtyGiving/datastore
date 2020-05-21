@@ -1,0 +1,20 @@
+LADCD,LADNM,LAD20CD,LAD20NM,UTLACD,UTLANM,CAUTHCD,CAUTHNM,RGNCD,RGNNM,CTRYCD,CTRYNM,EWCD,EWNM,GBCD,GBNM,UKCD,UKNM,Current
+E06000001,Hartlepool,E06000001,Hartlepool,E06000001,Hartlepool,E47000006,Tees Valley,E12000001,North East,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000002,Middlesbrough,E06000002,Middlesbrough,E06000002,Middlesbrough,E47000006,Tees Valley,E12000001,North East,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000003,Redcar and Cleveland,E06000003,Redcar and Cleveland,E06000003,Redcar and Cleveland,E47000006,Tees Valley,E12000001,North East,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000004,Stockton-on-Tees,E06000004,Stockton-on-Tees,E06000004,Stockton-on-Tees,E47000006,Tees Valley,E12000001,North East,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000005,Darlington,E06000005,Darlington,E06000005,Darlington,E47000006,Tees Valley,E12000001,North East,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000006,Halton,E06000006,Halton,E06000006,Halton,E47000004,Liverpool City Region,E12000002,North West,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000007,Warrington,E06000007,Warrington,E06000007,Warrington,,,E12000002,North West,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000008,Blackburn with Darwen,E06000008,Blackburn with Darwen,E06000008,Blackburn with Darwen,,,E12000002,North West,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000009,Blackpool,E06000009,Blackpool,E06000009,Blackpool,,,E12000002,North West,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000010,"Kingston upon Hull, City of",E06000010,"Kingston upon Hull, City of",E06000010,"Kingston upon Hull, City of",,,E12000003,Yorkshire and The Humber,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000011,East Riding of Yorkshire,E06000011,East Riding of Yorkshire,E06000011,East Riding of Yorkshire,,,E12000003,Yorkshire and The Humber,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000012,North East Lincolnshire,E06000012,North East Lincolnshire,E06000012,North East Lincolnshire,,,E12000003,Yorkshire and The Humber,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000013,North Lincolnshire,E06000013,North Lincolnshire,E06000013,North Lincolnshire,,,E12000003,Yorkshire and The Humber,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000014,York,E06000014,York,E06000014,York,,,E12000003,Yorkshire and The Humber,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000015,Derby,E06000015,Derby,E06000015,Derby,,,E12000004,East Midlands,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000016,Leicester,E06000016,Leicester,E06000016,Leicester,,,E12000004,East Midlands,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000017,Rutland,E06000017,Rutland,E06000017,Rutland,,,E12000004,East Midlands,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000018,Nottingham,E06000018,Nottingham,E06000018,Nottingham,,,E12000004,East Midlands,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
+E06000019,"Herefordshire, County of",E06000019,"Herefordshire, County of",E06000019,"Herefordshire, County of",,,E12000005,West Midlands,E92000001,England,K04000001,England and Wales,K03000001,Great Britain,K02000001,United Kingdom,TRUE
