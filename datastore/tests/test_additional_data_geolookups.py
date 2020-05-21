@@ -1,5 +1,3 @@
-import json
-
 import requests_mock
 from django.test import TestCase
 

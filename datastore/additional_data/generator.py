@@ -1,7 +1,7 @@
 from additional_data.sources.find_that_charity import FindThatCharitySource
+from additional_data.sources.geo_lookup import GeoLookupSource
 from additional_data.sources.local_files import LocalFilesSource
 from additional_data.sources.nspl import NSPLSource
-from additional_data.sources.geo_lookup import GeoLookupSource
 
 
 class AdditionalDataGenerator(object):

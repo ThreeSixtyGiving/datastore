@@ -96,16 +96,16 @@ class CodeName(models.Model):
 
 class GeoLookup(models.Model):
 
-    LSOA = 'lsoa'
-    MSOA = 'msoa'
-    LA = 'la'
-    WARD = 'ward'
+    LSOA = "lsoa"
+    MSOA = "msoa"
+    LA = "la"
+    WARD = "ward"
 
     AREA_TYPE = [
-        (LSOA, 'Lower Super Output Area'),
-        (MSOA, 'Middle Super Output Area'),
-        (LA, 'Local Authority'),
-        (WARD, 'Ward'),
+        (LSOA, "Lower Super Output Area"),
+        (MSOA, "Middle Super Output Area"),
+        (LA, "Local Authority"),
+        (WARD, "Ward"),
     ]
 
     areacode = models.CharField(max_length=200, unique=True)
