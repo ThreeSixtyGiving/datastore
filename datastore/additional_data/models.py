@@ -1,4 +1,5 @@
 from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.indexes import GinIndex
 from django.db import models
 
 
@@ -61,7 +62,10 @@ class OrgInfoCache(models.Model):
     # organisations can have multiple org_ids for example if they're comprised of a charity and
     # a limited company.
     org_ids = ArrayField(
-        models.CharField(max_length=100, blank=True), blank=True, null=True
+        models.CharField(max_length=100, blank=True),
+        blank=True,
+        null=True,
+        db_index=True,
     )
 
     # Future convert to models.TextChoices
@@ -81,3 +85,6 @@ class OrgInfoCache(models.Model):
             return "%s - %s" % (self.data["name"], self.org_id)
         else:
             return "%s" % self.org_id
+
+    class Meta:
+        indexes = [GinIndex(fields=["org_ids"])]
