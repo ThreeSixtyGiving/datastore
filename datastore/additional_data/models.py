@@ -108,6 +108,6 @@ class GeoLookup(models.Model):
         (WARD, "Ward"),
     ]
 
-    areacode = models.CharField(max_length=200, unique=True)
-    areatype = models.CharField(max_length=20, choices=AREA_TYPE)
+    areacode = models.CharField(max_length=200, unique=True, db_index=True)
+    areatype = models.CharField(max_length=20, choices=AREA_TYPE, db_index=True)
     data = JSONField()
