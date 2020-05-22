@@ -40,7 +40,6 @@ class FindThatCharitySource(object):
                 org_infos = self._cache[org_id]
                 additional_data[self.ADDITIONAL_DATA_KEY] = org_infos
             except KeyError:
-                org_infos = OrgInfoCache.objects.filter(org_ids__contains=[org_id])
                 org_infos = list(
                     OrgInfoCache.objects.filter(org_ids__contains=[org_id]).values_list(
                         "data", flat=True
