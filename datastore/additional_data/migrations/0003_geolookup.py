@@ -7,17 +7,36 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('additional_data', '0002_codename_nspl'),
+        ("additional_data", "0002_codename_nspl"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='GeoLookup',
+            name="GeoLookup",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('areacode', models.CharField(max_length=200, unique=True)),
-                ('areatype', models.CharField(choices=[('lsoa', 'Lower Super Output Area'), ('msoa', 'Middle Super Output Area'), ('la', 'Local Authority'), ('ward', 'Ward')], max_length=20)),
-                ('data', django.contrib.postgres.fields.jsonb.JSONField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("areacode", models.CharField(max_length=200, unique=True)),
+                (
+                    "areatype",
+                    models.CharField(
+                        choices=[
+                            ("lsoa", "Lower Super Output Area"),
+                            ("msoa", "Middle Super Output Area"),
+                            ("la", "Local Authority"),
+                            ("ward", "Ward"),
+                        ],
+                        max_length=20,
+                    ),
+                ),
+                ("data", django.contrib.postgres.fields.jsonb.JSONField()),
             ],
         ),
     ]
