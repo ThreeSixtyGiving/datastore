@@ -43,33 +43,33 @@ class GeoLookupSource(object):
     def __init__(self):
         pass
 
-    def get_lookup_data(self, areatype, a, areas):
-        def clean_fields(row, a):
-            for k, v in row.items():
-                k = k.lower()
-                if k == a.get("field_areacode"):
-                    k = "areacode"
-                if k == a.get("field_areaname"):
-                    k = "areaname"
-                if a.get("field_transforms", {}).get(k):
-                    k = a.get("field_transforms", {}).get(k)
-                yield k, v
+    def get_lookup_data(self, areatype, areadata, areas):
+        def clean_fields(row):
+            for field, value in row.items():
+                field = field.lower()
+                if field == areadata.get("field_areacode"):
+                    field = "areacode"
+                if field == areadata.get("field_areaname"):
+                    field = "areaname"
+                if areadata.get("field_transforms", {}).get(field):
+                    field = areadata.get("field_transforms", {}).get(field)
+                yield field, value
 
-        r = requests.get(a.get("url_lookup"), stream=True)
+        r = requests.get(areadata.get("url_lookup"), stream=True)
         area_csv = io.StringIO(r.text)
         reader = csv.DictReader(area_csv)
         for r in reader:
-            data = {k: v for k, v in clean_fields(r, a)}
+            data = dict(clean_fields(r))
             data["areatype"] = areatype
             if data["areacode"] not in areas:
                 areas[data["areacode"]] = data
 
-        if a.get("url_latlong"):
-            r = requests.get(a.get("url_latlong"), stream=True)
+        if areadata.get("url_latlong"):
+            r = requests.get(areadata.get("url_latlong"), stream=True)
             area_csv = io.StringIO(r.text)
             reader = csv.DictReader(area_csv)
             for r in reader:
-                data = {k: v for k, v in clean_fields(r, a)}
+                data = dict(clean_fields(r))
                 areas[data["areacode"]]["latitude"] = float(data["latitude"])
                 areas[data["areacode"]]["longitude"] = float(data["longitude"])
 
@@ -77,9 +77,9 @@ class GeoLookupSource(object):
 
     def import_geo_lookups(self, urls=SOURCE_URLS):
         data = {}
-        for areatype, a in urls.items():
+        for areatype, areadata in urls.items():
             print("fetching {}".format(areatype))
-            data = self.get_lookup_data(areatype, a, data)
+            data = self.get_lookup_data(areatype, areadata, data)
 
         if GeoLookup.objects.exists():
             GeoLookup.objects.all().delete()
@@ -92,8 +92,8 @@ class GeoLookupSource(object):
 
     def get_area_by_code(self, areacode):
         try:
-            a = GeoLookup.objects.get(areacode=areacode)
-            return a.data
+            area = GeoLookup.objects.get(areacode=areacode)
+            return area.data
         except GeoLookup.DoesNotExist:
             pass
 
@@ -103,11 +103,11 @@ class GeoLookupSource(object):
 
         for location in grant.get("beneficiaryLocation", []):
             if location.get("geoCode"):
-                a = self.get_area_by_code(location.get("geoCode"))
-                if a:
-                    a["source"] = "beneficiaryLocation"
-                    a["sourceCode"] = location.get("geoCode")
-                    additional_data["locationLookup"].append(a)
+                area = self.get_area_by_code(location.get("geoCode"))
+                if area:
+                    area["source"] = "beneficiaryLocation"
+                    area["sourceCode"] = location.get("geoCode")
+                    additional_data["locationLookup"].append(area)
 
         if additional_data["locationLookup"]:
             # if we've found data then return
@@ -116,11 +116,11 @@ class GeoLookupSource(object):
         for recipient in grant.get("recipientOrganization", []):
             for location in recipient.get("location", []):
                 if location.get("geoCode"):
-                    a = self.get_area_by_code(location.get("geoCode"))
-                    if a:
-                        a["source"] = "recipientOrganizationLocation"
-                        a["sourceCode"] = location.get("geoCode")
-                        additional_data["locationLookup"].append(a)
+                    area = self.get_area_by_code(location.get("geoCode"))
+                    if area:
+                        area["source"] = "recipientOrganizationLocation"
+                        area["sourceCode"] = location.get("geoCode")
+                        additional_data["locationLookup"].append(area)
 
         if additional_data["locationLookup"]:
             # if we've found data then return
@@ -128,8 +128,8 @@ class GeoLookupSource(object):
 
         lsoa = additional_data.get("recipientOrganizationLocation", {}).get("lsoa11")
         if lsoa:
-            a = self.get_area_by_code(lsoa)
-            if a:
-                a["source"] = "recipientOrganizationPostcode"
-                a["sourceCode"] = lsoa
-                additional_data["locationLookup"].append(a)
+            area = self.get_area_by_code(lsoa)
+            if area:
+                area["source"] = "recipientOrganizationPostcode"
+                area["sourceCode"] = lsoa
+                additional_data["locationLookup"].append(area)
