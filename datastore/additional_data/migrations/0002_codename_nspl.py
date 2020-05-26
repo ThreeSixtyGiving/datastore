@@ -12,19 +12,35 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='CodeName',
+            name="CodeName",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('code', models.CharField(max_length=9)),
-                ('data', django.contrib.postgres.fields.jsonb.JSONField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("code", models.CharField(max_length=9)),
+                ("data", django.contrib.postgres.fields.jsonb.JSONField()),
             ],
         ),
         migrations.CreateModel(
-            name='NSPL',
+            name="NSPL",
             fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('postcode', models.CharField(db_index=True, max_length=7)),
-                ('data', django.contrib.postgres.fields.jsonb.JSONField()),
+                (
+                    "id",
+                    models.AutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("postcode", models.CharField(db_index=True, max_length=7)),
+                ("data", django.contrib.postgres.fields.jsonb.JSONField()),
             ],
         ),
     ]
