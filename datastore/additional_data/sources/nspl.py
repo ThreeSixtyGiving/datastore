@@ -27,8 +27,7 @@ class NSPLSource(object):
 
         return zipfile.ZipFile(io.BytesIO(r.content))
 
-    def get_location_data(self, zip_file):
-        postcodes = []
+    def process_nspl_data(self, zip_file):
 
         for file in zip_file.filelist:
             if not file.filename.endswith(".csv") or not file.filename.startswith(
@@ -41,10 +40,13 @@ class NSPLSource(object):
             postcode_count = 0
 
             with zip_file.open(file, "r") as postcode_csv:
+
                 postcode_csv = io.TextIOWrapper(postcode_csv)
                 reader = csv.DictReader(postcode_csv)
 
+                postcodes = []
                 for record in reader:
+
                     # null any blank fields (or ones with a dummy code in)
                     for key in record:
                         if record[key] == "" or record[key] in [
@@ -91,9 +93,10 @@ class NSPLSource(object):
 
                     postcodes.append(record)
                     postcode_count += 1
-                print("[postcodes] Processed %s postcodes" % postcode_count)
 
-        return postcodes
+                self.save_nspl_data(postcodes)
+
+                print("[postcodes] Processed %s postcodes" % postcode_count)
 
     def save_nspl_data(self, data):
         bulk_save = []
@@ -131,8 +134,7 @@ class NSPLSource(object):
             NSPL.objects.all().delete()
 
         zip_file = self.get_zipfile(url)
-        data = self.get_location_data(zip_file)
-
+        self.process_nspl_data(zip_file)
 
     def get_location_data_by_postcode(self, postcode):
         format_postcode = "".join(postcode.split()).upper()
