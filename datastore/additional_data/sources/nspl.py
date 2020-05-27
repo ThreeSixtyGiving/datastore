@@ -19,7 +19,8 @@ class NSPLSource(object):
     NSPL_URL = "https://www.arcgis.com/sharing/rest/content/items/1951e70c3cc3483c9e643902d858355b/data"
 
     def __init__(self):
-        pass
+        self._nspl_cache = {}
+        self._code_name_cache = {}
 
     def get_zipfile(self, url=NSPL_URL):
         r = requests.get(url, stream=True)
@@ -126,28 +127,43 @@ class NSPLSource(object):
         }
         Field names information can be found in NSPL User Guide at https://geoportal.statistics.gov.uk/
         """
+        if NSPL.objects.exists():
+            NSPL.objects.all().delete()
+
         zip_file = self.get_zipfile(url)
         data = self.get_location_data(zip_file)
 
-        if NSPL.objects.exists():
-            NSPL.objects.all().delete()
-        self.save_nspl_data(data)
 
     def get_location_data_by_postcode(self, postcode):
         format_postcode = "".join(postcode.split()).upper()
         try:
-            nspl = NSPL.objects.get(postcode=format_postcode)
-            return nspl.data
-        except NSPL.DoesNotExist:
-            pass
+            return self._nspl_cache[format_postcode]
+        except KeyError:
+            try:
+                nspl = NSPL.objects.get(postcode=format_postcode)
+                self._nspl_cache[format_postcode] = nspl.data
+                return nspl.data
+            except NSPL.DoesNotExist:
+                self._nspl_cache[format_postcode] = None
+                pass
 
     def update_location_data_code_names(self, location_data):
         """Adds new entries to location data dict with code names."""
         for field_name, field_value in location_data.copy().items():
-            try:
-                code_name_obj = CodeName.objects.get(code=field_value)
-            except CodeName.DoesNotExist:
+            if type(field_value) is not str:
                 continue
+
+            try:
+                code_name_obj = self._code_name_cache[field_value]
+                if code_name_obj is None:
+                    continue
+            except KeyError:
+                try:
+                    code_name_obj = CodeName.objects.get(code=field_value)
+                    self._code_name_cache[field_value] = code_name_obj
+                except CodeName.DoesNotExist:
+                    self._code_name_cache[field_value] = None
+                    continue
 
             code_name = code_name_obj.data.get("name")
             location_data["{}_name".format(field_name)] = code_name
