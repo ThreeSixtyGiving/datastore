@@ -90,5 +90,5 @@ class NSPL(models.Model):
 
 
 class CodeName(models.Model):
-    code = models.CharField(max_length=9)
+    code = models.CharField(max_length=9, db_index=True)
     data = JSONField()
