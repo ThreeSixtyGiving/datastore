@@ -10,6 +10,16 @@ import os
 class LocalFilesSource(object):
     """ Adds additional data to grant data """
 
+    # Fields added to additional_data by this source.
+    # These are currently used in GrantNav.
+    ADDITIONAL_FIELDS = [
+        "recipientWardNameGeoCode",
+        "recipientWardName" "recipientDistrictName" "recipientDistrictGeoCode",
+        "recipientRegionName",
+        "recipientLocation",
+        "id_and_name",
+    ]
+
     def __init__(self):
         self.id_name_org_mappings = {
             "fundingOrganization": {},
