@@ -3,6 +3,7 @@ import os
 
 from django.core.management.base import BaseCommand
 
+from additional_data.sources.local_files import LocalFilesSource
 from db.management.spinner import Spinner
 from db.models import Latest
 
@@ -54,7 +55,13 @@ class Command(BaseCommand):
             out_grant = {}
             out_grant.update(in_grant["data"])
             try:
-                out_grant.update(in_grant["additional_data"])
+                # Just the additional_data fields that we use in grantnav
+                for field in LocalFilesSource.ADDITIONAL_FIELDS:
+                    try:
+                        out_grant[field] = in_grant["additional_data"][field]
+                    except KeyError:
+                        pass
+
                 out_grant["additional_data_added"] = True
             except TypeError:
                 # We may not have any additional_data and therefore it will be
