@@ -14,7 +14,9 @@ class LocalFilesSource(object):
     # These are currently used in GrantNav.
     ADDITIONAL_FIELDS = [
         "recipientWardNameGeoCode",
-        "recipientWardName" "recipientDistrictName" "recipientDistrictGeoCode",
+        "recipientWardName",
+        "recipientDistrictName",
+        "recipientDistrictGeoCode",
         "recipientRegionName",
         "recipientLocation",
         "id_and_name",
