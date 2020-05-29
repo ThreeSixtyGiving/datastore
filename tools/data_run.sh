@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash -xe
 # Example data_run.sh with proxy
 
 CONFIG_FILE=~/data_run_config.sh
@@ -22,8 +22,6 @@ else
 fi
 
 source $DATASTORE/.ve/bin/activate
-
-#set -e
 
 mkdir -p $DOWNLOAD_DIR
 mkdir -p $GRANTNAV_DATA_DIR
