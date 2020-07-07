@@ -153,6 +153,9 @@ class SourceFile(models.Model):
     def __str__(self):
         return self.data["datagetter_metadata"]["datetime_downloaded"]
 
+    class Meta:
+        ordering = ["data__publisher__prefix"]
+
 
 class Publisher(models.Model):
 
@@ -178,6 +181,7 @@ class Publisher(models.Model):
 
     class Meta:
         unique_together = ("getter_run", "prefix")
+        ordering = ["prefix"]
 
 
 class Grant(models.Model):
