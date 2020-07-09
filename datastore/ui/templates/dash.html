@@ -17,14 +17,16 @@
 
 
 <div class="container">
+
   <div class="row bg-light">
     <div class="col">
 
-      <h3>Info</h3>
+      <h1>Info</h1>
       <p>Datastore running at revision <a
           href="https://github.com/ThreeSixtyGiving/datastore/commit/{{git_rev}}">{{git_rev}}</a>.</p>
       <p>Total Grants in the system is approximately {{total_grants|intcomma}} from {{total_datagetter_runs}} Datagetter
         runs.</p>
+
     </div>
   </div>
 
@@ -88,20 +90,64 @@
           </tr>
         </tbody>
       </table>
+
     </div>
   </div>
+
 </div>
 
 <div class="container mt-3">
   <div class="row bg-light">
     <div class="col">
-      <h2 class="d-inline-block">Status</h2> <small>(updates every 5 seconds)</small>
+
+      <h2>Problem Sources Summary ({{problem_sources|length}})</h2>
+      {% if problem_sources|length > 0 %}
+      <p><a href="{% url "ui:log" 'data_run' %}">{{last_datagetter_run.datetime|date:"r"}}</a></p>
+      <table class="table table-hover">
+        <thead>
+          <th scope="col">Source</th>
+          <th scope="col">Issue(s)</th>
+        </thead>
+        <tbody>
+
+      {% for problem_source in problem_sources %}
+      <tr>
+      <td><!-- db ID:{{problem_source.pk }} -->
+        {{problem_source.data.publisher.prefix}} - {{problem_source.data.title}} {% for dist in problem_source.data.distribution %}<a class="d-block" href="{{dist.downloadURL}}">{{forloop.counter}} - Download URL</a> {% endfor %}
+      </td>
+      <td>
+        {% if problem_source.downloads == False %}<span class="d-block text-break">Download failed {{problem_source.data.datagetter_metadata.error}}</span>{% endif %}
+        {% if problem_source.acceptable_license == False %}<span class="d-block">No acceptable license</span>{% endif %}
+        {% if problem_source.data_valid == False %}<span class="d-block">Validation error</span>{% endif %}
+      </td>
+      </tr>
+
+      {% endfor %}
+      </tbody>
+      </table>
+
+      {% else %}
+      <p>No problem sources!</p>
+
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+
+<div class="container mt-3 mb-3">
+  <div class="row bg-light">
+    <div class="col">
+
+      <h2 class="d-inline-block">System Status</h2> <small>(updates every 5 seconds)</small>
       <pre id="checked-time"></pre>
 
       <div id="status-area" style="height: 100px; overflow: auto;" class="border mb-2 p-1 bg-white">
       </div>
       <button class="btn btn-sm btn-danger" id="run-datagetter-btn">Run Datagetter process</button>
       <button class="btn btn-sm btn-secondary" id="abort-datagetter-btn">Abort Datagetter process</button>
+
     </div>
   </div>
 </div>

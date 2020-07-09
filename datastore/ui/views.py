@@ -3,6 +3,7 @@ import os
 import subprocess
 
 from django.conf import settings
+from django.db.models import Q
 from django.views.generic import TemplateView
 
 import db.models as db
@@ -119,6 +120,12 @@ class DashBoardView(TemplateView):
             context["git_rev"] = DashBoardView.git_revision()
         except Exception:
             pass
+
+        context["problem_sources"] = context[
+            "last_datagetter_run"
+        ].sourcefile_set.filter(
+            Q(data_valid=False) | Q(downloads=False) | Q(acceptable_license=False)
+        )
 
         return context
 
