@@ -37,9 +37,12 @@ class getFirstExtractFile(HTMLParser):
 
 
 def download_latest_file():
+    base_url = "https://register-of-charities.charitycommission.gov.uk/register/full-register-download"
     parser = getFirstExtractFile()
-    parser.feed(requests.get("http://data.charitycommission.gov.uk/default.aspx").text)
-    response = requests.get(parser.first_url)
+    parser.feed(requests.get(base_url).text)
+    response = requests.get(
+        requests.compat.urljoin(base_url, parser.first_url), stream=True
+    )
 
     with open(latest_zip_file, "wb+") as fd:
         for chunk in response.iter_content(10000):
