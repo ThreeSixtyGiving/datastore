@@ -1,5 +1,8 @@
+import re
+
 from django.contrib.postgres.fields import ArrayField, JSONField
 from django.contrib.postgres.indexes import GinIndex
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -118,3 +121,36 @@ class GeoLookup(models.Model):
     areacode = models.CharField(max_length=200, unique=True, db_index=True)
     areatype = models.CharField(max_length=20, choices=AREA_TYPE, db_index=True)
     data = JSONField()
+
+
+class TSGOrgType(models.Model):
+    """ ThreeSixtyGiving Org Type mappings """
+
+    def validate_regex(value):
+        """ Check that the input regex is valid """
+        try:
+            re.compile(value)
+        except re.error as e:
+            raise ValidationError(e.msg)
+
+    regex = models.CharField(
+        max_length=200,
+        help_text="Regex pattern to match the funder org-id",
+        validators=[validate_regex],
+    )
+    priority = models.IntegerField(
+        unique=True, help_text="Which pattern will take precedence"
+    )
+    tsg_org_type = models.CharField(
+        max_length=200,
+        unique=True,
+        verbose_name="ThreeSixtyGiving Org Type",
+        help_text="Value that will be added to the additional data",
+    )
+
+    class Meta:
+        verbose_name = "ThreeSixtyGiving Org Type"
+        ordering = ["priority"]
+
+    def __str__(self):
+        return self.tsg_org_type

@@ -2,6 +2,7 @@ from additional_data.sources.find_that_charity import FindThatCharitySource
 from additional_data.sources.geo_lookup import GeoLookupSource
 from additional_data.sources.local_files import LocalFilesSource
 from additional_data.sources.nspl import NSPLSource
+from additional_data.sources.tsg_org_types import TSGOrgTypesSource
 
 
 class AdditionalDataGenerator(object):
@@ -12,6 +13,7 @@ class AdditionalDataGenerator(object):
         self.find_that_charity_source = FindThatCharitySource()
         self.nspl_source = NSPLSource()
         self.geo_lookup = GeoLookupSource()
+        self.tsg_org_types = TSGOrgTypesSource()
         # Initialise Other Sources heres
 
     def create(self, grant):
@@ -25,5 +27,6 @@ class AdditionalDataGenerator(object):
         self.find_that_charity_source.update_additional_data(grant, additional_data)
         self.nspl_source.update_additional_data(grant, additional_data)
         self.geo_lookup.update_additional_data(grant, additional_data)
+        self.tsg_org_types.update_additional_data(grant, additional_data)
 
         return additional_data

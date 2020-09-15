@@ -13,3 +13,5 @@ class JSONFieldAdmin(admin.ModelAdmin):
 
 
 admin.site.register(db.OrgInfoCache, JSONFieldAdmin)
+
+admin.site.register(db.TSGOrgType)
