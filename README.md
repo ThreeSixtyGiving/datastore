@@ -30,11 +30,25 @@ $ manage.py createsuperuser
 $ manage.py runserver
 ```
 
-## Loading data
+## Loading grant data
+_Note: before loading grant data you may wish to load additional_data sources_
 ```
 $ manage.py load_datagetter_data ../path/to/data/dir/from/datagetter/
 ```
+
+## Loading data for additional data
+A number of the sources for additional_data have their own local caches these can be loaded via:
+
+```
+$ manage.py load_code_names
+$ manage.py load_geolookups
+$ manage.py load_nspl
+$ manage.py load_org_data
+$ manage.py loaddata default_tsg_org_types
+```
+
 ## Other useful commands
+There are many useful management commands see:
 ```
 $ manage.py --help # !
 ```
@@ -59,6 +73,14 @@ $ isort --check-only --recursive ./
 $ black --check ./
 ```
 
+### Running specific tests
+
+You can run any particular tests individually e.g.:
+```
+$ manage.py test tests.test_additional_data_tsgorgtype
+```
+_see `manage.py test --help` for more info_
+
 ## Key modules in the datastore
 
 ## db
@@ -77,7 +99,7 @@ This contains the API endpoints that are used to control the system from the UI,
 
 Templates and staic html/js live here, there is a basic dashboard which shows the current status of the system as well as a mechanism to trigger a full datarun (fetch and load).
 
-## additional_data 
+## additional_data
 
 During the load of grant data (`datagetter` data) that is done by the `db` module command `load_datagetter_data` each grant is passed to the `create` method of the `AdditionalDataGenerator`, here various sources are used to add to an `additional_data` object that is available on the `Grant` model.
 
@@ -88,7 +110,7 @@ The `generator` ensures a particular order to additional_data fields being added
 
 ## prometheus
 
-Provides a [prometheus](https://prometheus.io/) endpoint to monitor vital metrics on the datastore 
+Provides a [prometheus](https://prometheus.io/) endpoint to monitor vital metrics on the datastore
 
 ## tools
 
@@ -98,6 +120,6 @@ An example datarun script. This is an orchestrator of running a datagetter, upda
 
 Django Settings for the datastore. Includes location for data run logs, the data run script / pid
 
-## tests 
+## tests
 
 Various cross-module tests.
