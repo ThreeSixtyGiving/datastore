@@ -19,7 +19,7 @@ class TestTSGOrgTypeAdditionalData(TestCase):
         tsg_org_types.update_additional_data(grant.data, additional_data)
 
         lowest_priority_org_type = (
-            TSGOrgType.objects.order_by("priority").last().tsg_org_type
+            TSGOrgType.objects.order_by("priority").first().tsg_org_type
         )
 
         self.assertTrue(
