@@ -4,7 +4,7 @@
         "pk": 1,
         "fields": {
             "regex": "GB-(LAE|LANI|LAS|PLA)-.*",
-            "priority": 30,
+            "priority": 10,
             "tsg_org_type": "Local Government"
         }
     },
@@ -22,7 +22,7 @@
         "pk": 3,
         "fields": {
             "regex": "GB-COH-RC000766|360G-blf|GB-CHC-1036733|GB-GOR-PC390|GB-GOR-PB188",
-            "priority": 10,
+            "priority": 30,
             "tsg_org_type": "National Lottery"
         }
     },
@@ -31,7 +31,7 @@
         "pk": 4,
         "fields": {
             "regex": ".*",
-            "priority": 99,
+            "priority": 0,
             "tsg_org_type": "Grantmaking Organisation"
         }
     }
