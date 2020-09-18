@@ -15,7 +15,7 @@ class TSGOrgTypesSource(object):
 
         # Order - The highest priority rule gets added last as this is the one that will
         # be processed last and therefore overwrite any existing value.
-        for tsg_org_type_rule in TSGOrgType.objects.all().order_by("-priority"):
+        for tsg_org_type_rule in TSGOrgType.objects.all().order_by("priority"):
             try:
                 self.tsg_org_type_rules.append(
                     (

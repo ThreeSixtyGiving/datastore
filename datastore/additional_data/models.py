@@ -139,7 +139,8 @@ class TSGOrgType(models.Model):
         validators=[validate_regex],
     )
     priority = models.IntegerField(
-        unique=True, help_text="Which pattern will take precedence"
+        unique=True,
+        help_text="Which pattern will take precedence (Higher number = higher priority)",
     )
     tsg_org_type = models.CharField(
         max_length=200,
