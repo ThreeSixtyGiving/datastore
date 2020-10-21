@@ -116,9 +116,12 @@
         {{problem_source.data.publisher.prefix}} - {{problem_source.data.title}} {% for dist in problem_source.data.distribution %}<a class="d-block" href="{{dist.downloadURL}}">{{forloop.counter}} - Download URL</a> {% endfor %}
       </td>
       <td>
-        {% if problem_source.downloads == False %}<span class="d-block text-break">Download failed {{problem_source.data.datagetter_metadata.error}}</span>{% endif %}
-        {% if problem_source.acceptable_license == False %}<span class="d-block">No acceptable license</span>{% endif %}
-        {% if problem_source.data_valid == False %}<span class="d-block">Validation error</span>{% endif %}
+        {% if problem_source.downloads == False %}
+          <span class="d-block text-break">Download failed {{problem_source.data.datagetter_metadata.error}}</span>
+        {% else %}
+          {% if problem_source.acceptable_license == False %}<span class="d-block">No acceptable license</span>{% endif %}
+          {% if problem_source.data_valid == False %}<span class="d-block">Validation error</span>{% endif %}
+        {% endif %}
       </td>
       </tr>
 
