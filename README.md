@@ -1,5 +1,7 @@
 # DataStore for [360 Giving](https://threesixtygiving.org) data
 
+[![Build Status](https://travis-ci.com/ThreeSixtyGiving/datastore.svg?branch=master)](https://travis-ci.com/ThreeSixtyGiving/datastore)
+
 
 ## Postgres setup
 
