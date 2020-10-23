@@ -9,6 +9,7 @@ selenium==3.141.0
 flake8==3.8.3
 black==19.10b0
 requests-mock==1.8.0
+coveralls==2.1.2
 ## The following requirements were added by pip freeze:
 appdirs==1.4.3
 attrs==19.1.0

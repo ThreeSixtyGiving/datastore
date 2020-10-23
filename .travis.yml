@@ -40,7 +40,9 @@ before_script:
 
 script:
   - "./datastore/manage.py migrate"
-  - "./datastore/manage.py test tests"
+  - "coverage run --source='./datastore' ./datastore/manage.py test tests"
   - "datagetter.py --help" # Verify it compiles and is installed
   - "flake8"
   - "black --check ./"
+
+after_success: coveralls

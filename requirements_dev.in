@@ -2,3 +2,4 @@ selenium
 flake8
 black
 requests_mock
+coveralls
