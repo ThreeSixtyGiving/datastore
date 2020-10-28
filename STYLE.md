@@ -1,6 +1,14 @@
 ## Python
 
-Python code should pass (through) black, flake8 and isort
+Python code should pass (through) black and flake8.
+
+Imports should be grouped in the following order:
+
+1. Standard library imports.
+2. Related third party imports.
+3. Local application/library specific imports.
+
+A blank line should be added between each group of imports.
 
 
 ## Commits

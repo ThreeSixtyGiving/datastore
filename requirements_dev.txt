@@ -7,7 +7,6 @@ psycopg2==2.8
 prometheus-client==0.7.0
 selenium==3.141.0
 flake8==3.8.3
-isort==4.3.21
 black==19.10b0
 requests-mock==1.8.0
 ## The following requirements were added by pip freeze:

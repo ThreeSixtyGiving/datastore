@@ -1,5 +1,4 @@
 selenium
 flake8
-isort
 black
 requests_mock
