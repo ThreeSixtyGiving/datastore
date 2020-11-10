@@ -75,7 +75,7 @@ find $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR -name "data_*.tar.gz" -mtime +$MAX_PACK
 # Remove old data dump
 rm -rf $GRANTNAV_DATA_DIR/data || true
 
-./datastore/manage.py create_datagetter_data --dir $GRANTNAV_DATA_DIR/data
+./datastore/manage.py create_data_package --dir $GRANTNAV_DATA_DIR/data
 
 NEW_PACKAGE_NAME=data_$(date +%F).tar.gz
 
