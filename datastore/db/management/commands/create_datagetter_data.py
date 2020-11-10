@@ -30,13 +30,13 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        """ Create grantnav package:
+        """Create grantnav package:
 
-          - data_all.json (all sources)
-          - json_all/
-                |- grants.json (lists of grants)
-                |- grants.json
-                ...
+        - data_all.json (all sources)
+        - json_all/
+              |- grants.json (lists of grants)
+              |- grants.json
+              ...
         """
         spinner = Spinner()
         spinner.start()

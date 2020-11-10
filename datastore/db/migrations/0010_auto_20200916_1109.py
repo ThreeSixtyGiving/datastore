@@ -11,9 +11,11 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterModelOptions(
-            name="publisher", options={"ordering": ["prefix"]},
+            name="publisher",
+            options={"ordering": ["prefix"]},
         ),
         migrations.AlterModelOptions(
-            name="sourcefile", options={"ordering": ["data__publisher__prefix"]},
+            name="sourcefile",
+            options={"ordering": ["data__publisher__prefix"]},
         ),
     ]

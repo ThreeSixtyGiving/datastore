@@ -17,14 +17,20 @@ class GeoLookupSource(object):
             "url_latlong": "https://raw.githubusercontent.com/drkane/geo-lookups/master/lsoa_latlong.csv",
             "field_areacode": "lsoa11cd",
             "field_areaname": "lsoa11nm",
-            "field_transforms": {"lad20cd": "ladcd", "lad20nm": "ladnm",},
+            "field_transforms": {
+                "lad20cd": "ladcd",
+                "lad20nm": "ladnm",
+            },
         },
         "msoa": {
             "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/msoa_la.csv",
             "url_latlong": "https://raw.githubusercontent.com/drkane/geo-lookups/master/msoa_latlong.csv",
             "field_areacode": "msoa11cd",
             "field_areaname": "msoa11hclnm",
-            "field_transforms": {"lad20cd": "ladcd", "lad20nm": "ladnm",},
+            "field_transforms": {
+                "lad20cd": "ladcd",
+                "lad20nm": "ladnm",
+            },
         },
         "ward": {
             "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/ward_all_codes.csv",
@@ -36,7 +42,10 @@ class GeoLookupSource(object):
             "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/la_all_codes.csv",
             "field_areacode": "ladcd",
             "field_areaname": "ladnm",
-            "field_transforms": {"lad20cd": "ladcd", "lad20nm": "ladnm",},
+            "field_transforms": {
+                "lad20cd": "ladcd",
+                "lad20nm": "ladnm",
+            },
         },
     }
 
