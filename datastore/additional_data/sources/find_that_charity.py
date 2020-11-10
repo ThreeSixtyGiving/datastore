@@ -7,8 +7,8 @@ from additional_data.models import OrgInfoCache
 
 
 class FindThatCharitySource(object):
-    """ This is responsible for inputting and outputting data from the
-    FindThatCharity (FTC) organisation info data sources """
+    """This is responsible for inputting and outputting data from the
+    FindThatCharity (FTC) organisation info data sources"""
 
     ADDITIONAL_DATA_KEY = "recipientOrgInfos"
 
