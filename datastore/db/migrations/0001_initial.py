@@ -50,7 +50,9 @@ class Migration(migrations.Migration):
                 ),
                 ("prefix", models.CharField(default=0, max_length=300)),
             ],
-            options={"unique_together": {("getter_run", "prefix")},},
+            options={
+                "unique_together": {("getter_run", "prefix")},
+            },
         ),
         migrations.CreateModel(
             name="SourceFile",
