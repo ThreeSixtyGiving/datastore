@@ -139,7 +139,8 @@ class TestAdditionalDataGeoLookup(TestCase):
 
         self.assertIn("locationLookup", additional_data)
         self.assertEqual(
-            len(additional_data["locationLookup"]), 1,
+            len(additional_data["locationLookup"]),
+            1,
         )
 
     def test_nspl_update_additional_data_recipientOrganization(self):

@@ -8,7 +8,9 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--no-prompt", action="store_true", help="Don't prompt before delete",
+            "--no-prompt",
+            action="store_true",
+            help="Don't prompt before delete",
         )
 
     def handle(self, *args, **options):

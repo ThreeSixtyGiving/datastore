@@ -11,6 +11,8 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.AlterField(
-            model_name="status", name="when", field=models.DateTimeField(auto_now=True),
+            model_name="status",
+            name="when",
+            field=models.DateTimeField(auto_now=True),
         ),
     ]

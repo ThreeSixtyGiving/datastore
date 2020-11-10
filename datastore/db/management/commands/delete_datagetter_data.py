@@ -16,11 +16,15 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
-            "--no-prompt", action="store_true", help="Don't prompt for deletes",
+            "--no-prompt",
+            action="store_true",
+            help="Don't prompt for deletes",
         )
 
         parser.add_argument(
-            "--oldest", action="store_true", help="Delete the oldest datagetter data",
+            "--oldest",
+            action="store_true",
+            help="Delete the oldest datagetter data",
         )
 
     def handle(self, *args, **options):

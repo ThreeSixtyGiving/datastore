@@ -97,7 +97,8 @@ class Command(BaseCommand):
                 grants_added = grants_added + len(grant_data["grants"])
             except (FileNotFoundError, KeyError, TypeError, json.JSONDecodeError) as e:
                 print(
-                    "Skipping loading due to: '%s'" % e, file=self.stdout,
+                    "Skipping loading due to: '%s'" % e,
+                    file=self.stdout,
                 )
                 pass
 

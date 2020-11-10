@@ -10,5 +10,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(model_name="latest", name="total_grants",),
+        migrations.RemoveField(
+            model_name="latest",
+            name="total_grants",
+        ),
     ]
