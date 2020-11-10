@@ -14,10 +14,10 @@ class CustomMgmtCommandsTest(TestCase):
 
     fixtures = ["test_data.json"]
 
-    def test_create_datagetter_data(self):
+    def test_create_data_package(self):
         err_out = StringIO()
         with TemporaryDirectory() as tmpdir:
-            call_command("create_datagetter_data", dir=tmpdir, stderr=err_out)
+            call_command("create_data_package", dir=tmpdir, stderr=err_out)
             self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
 
     def test_delete_datagetter_data(self):

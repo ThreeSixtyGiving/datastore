@@ -8,7 +8,7 @@ from db.models import Latest
 
 
 class Command(BaseCommand):
-    help = "Outputs a grantnav compatible datadump of our best Latest data"
+    help = "Outputs a data package of our best Latest data"
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -30,7 +30,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        """Create grantnav package:
+        """Create data package with the structure:
 
         - data_all.json (all sources)
         - json_all/
@@ -50,7 +50,7 @@ class Command(BaseCommand):
         data_all_file = "%s/data_all.json" % options["dir"]
 
         def flatten_grant(in_grant):
-            """ Flattens grant object to make compatible with grantnav """
+            """ Add the additional_data inside grant object """
             out_grant = {}
             out_grant.update(in_grant["data"])
             try:
