@@ -8,19 +8,18 @@ import os
 
 
 class LocalFilesSource(object):
-    """ Adds additional data to grant data """
+    """Adds additional data to grant data
 
-    # Fields added to additional_data by this source.
-    # These are currently used in GrantNav.
-    ADDITIONAL_FIELDS = [
-        "recipientWardNameGeoCode",
-        "recipientWardName",
-        "recipientDistrictName",
-        "recipientDistrictGeoCode",
-        "recipientRegionName",
-        "recipientLocation",
-        "id_and_name",
-    ]
+    Fields added to additional_data by this source.
+       "recipientWardNameGeoCode",
+       "recipientWardName",
+       "recipientDistrictName",
+       "recipientDistrictGeoCode",
+       "recipientRegionName",
+       "recipientLocation",
+       "recipientOrganizationCanonical",
+       "fundingOrganizationCanonical"
+    """
 
     def __init__(self):
         self.id_name_org_mappings = {
@@ -48,6 +47,7 @@ class LocalFilesSource(object):
         self.update_additional_with_org_mappings(
             grant, "recipientOrganization", additional_data
         )
+
         self.update_additional_with_region(grant, additional_data)
 
     def _setup_charity_mappings(self):
@@ -166,7 +166,11 @@ class LocalFilesSource(object):
             if not found_name:
                 mapping[org_id] = name
                 found_name = name
-            additional_data["id_and_name"] = json.dumps([found_name, org_id])
+
+            additional_data["{}Canonical".format(org_key)] = {
+                "id": org_id,
+                "name": found_name,
+            }
 
     def _add_area_to_grant(self, area, additional_data):
         if area.get("ward_code"):
