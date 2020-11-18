@@ -1,0 +1,50 @@
+name: Test
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:11
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432/tcp
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.6
+        architecture: x64
+    - uses: actions/cache@v1
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-${{ hashFiles('**/requirements_dev.txt') }}
+
+    # For generating random data
+    - run: sudo apt-get install pwgen
+
+    - run: pip install -r requirements.txt
+    - run: pip install -r requirements_dev.txt
+    # FIXME manual install datagetter requirements
+    - run: pip install -r src/datagetter/requirements.txt
+
+    - run: echo "localhost:5432:postgres:postgres:postgres" > ~/.pgpass && chmod 600 ~/.pgpass
+    - run: psql -c 'CREATE DATABASE "360givingdatastore";' -W -h localhost postgres postgres
+    - run: psql -c "CREATE USER test WITH ENCRYPTED PASSWORD 'test'; GRANT ALL PRIVILEGES ON DATABASE \"360givingdatastore\" TO test; ALTER USER test CREATEDB;" -W -h localhost postgres postgres
+
+    - run: ./datastore/manage.py migrate
+    - run: coverage run --source='./datastore' ./datastore/manage.py test tests
+    - name: Verify it compiles and is installed
+      run: datagetter.py --help
+
+    - env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: coveralls
