@@ -18,6 +18,18 @@ from django.urls import include, path
 
 # This is the root urlconf
 
+
+
+
+
+
+
+
+
+
+
+
+
 urlpatterns = [
     path("", include("ui.urls", namespace="ui"), name="ui_index"),
     path("api/", include("api.urls", namespace="api"), name="api_index"),
