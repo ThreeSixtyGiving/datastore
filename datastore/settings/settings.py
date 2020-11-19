@@ -11,6 +11,13 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import environ
+
+env = environ.Env(  # set default values and casting
+    # TODO could use $XDG_RUNTIME_DIR ?
+    DATA_RUN_PID_FILE=(str, "/var/run/user/%s/datarun.pid" % os.getuid()),
+)
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -147,8 +154,7 @@ CACHES = {
     }
 }
 
-# TODO could use $XDG_RUNTIME_DIR ?
-DATA_RUN_PID_FILE = "/var/run/user/%s/datarun.pid" % os.getuid()
+DATA_RUN_PID_FILE = env("DATA_RUN_PID_FILE")
 
 DATA_RUN_SCRIPT = "data_run.sh"
 
