@@ -6,7 +6,6 @@ from html.parser import HTMLParser
 from io import StringIO
 
 import requests
-
 import titlecase
 
 current_dir = os.path.dirname(os.path.realpath(__file__))

@@ -3,3 +3,4 @@ flake8
 black
 requests_mock
 coveralls
+isort

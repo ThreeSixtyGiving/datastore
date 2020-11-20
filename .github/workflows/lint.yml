@@ -22,3 +22,4 @@ jobs:
     - run: flake8
     # To avoid datagetter errors, we must specifically exclude src/datagetter
     - run: black --check --exclude "/(\.eggs|\.git|_cache|src\/datagetter)/" ./
+    - run: cd datastore && isort --check-only *.py */
