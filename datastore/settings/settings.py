@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+
 import environ
+
+from django.utils.crypto import get_random_string
 
 env = environ.Env(  # set default values and casting
     # TODO could use $XDG_RUNTIME_DIR ?
@@ -26,8 +29,8 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "uo!#)vsu)6@)-u1l#1yvaa2_@9*pb8+662jx-(u=0kw*1k8+(9"
+SECRET_KEY = get_random_string(50, "abcdefghijklmnopqrstuvwxyz0123456789!@#%^&*(-_=+")
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
