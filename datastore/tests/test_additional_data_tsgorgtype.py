@@ -2,6 +2,7 @@ from django.test import TestCase
 
 from additional_data.models import TSGOrgType
 from additional_data.sources.tsg_org_types import TSGOrgTypesSource
+from additional_data.sources.tsg_org_types import TSGRecipientOrgTypeSource
 from db.models import Grant
 
 
@@ -42,4 +43,20 @@ class TestTSGOrgTypeAdditionalData(TestCase):
             "National Lottery"
             in additional_data[TSGOrgTypesSource.ADDITIONAL_DATA_KEY],
             "Expected National Lottery",
+        )
+
+    def test_recipient_tsg_org_type(self):
+        tsg_recipient_org_types = TSGRecipientOrgTypeSource()
+        grant = Grant.objects.last()
+
+        # Pre-filled additional data as if the recipientOrgInfo has already been looked up
+        additional_data = {
+            "recipientOrgInfos": [{"active": True, "organisationType": ["Charity"]},]
+        }
+
+        tsg_recipient_org_types.update_additional_data(grant.data, additional_data)
+
+        self.assertTrue(
+            "Charity" in additional_data[TSGRecipientOrgTypeSource.ADDITIONAL_DATA_KEY],
+            "Expected Charity as the TSG recipient org type",
         )

@@ -37,3 +37,21 @@ class TSGOrgTypesSource(object):
         for org_type_rule in self.tsg_org_type_rules:
             if org_type_rule[self.REGEX].match(funding_org_id):
                 additional_data[self.ADDITIONAL_DATA_KEY] = org_type_rule[self.VALUE]
+
+
+class TSGRecipientOrgTypeSource(object):
+    """ This adds a custom ThreeSixtyGiving organisation type for the funding organisation to the additional data
+    This depends on find_that_charity source having aded recipientOrgInfos
+    """
+
+    ADDITIONAL_DATA_KEY = "TSGRecipientOrgType"
+
+    def update_additional_data(self, grant, additional_data):
+
+        # Take the first active recipientOrgInfo's first organisation Type
+        for org_info in additional_data["recipientOrgInfos"]:
+            if org_info["active"]:
+                additional_data[self.ADDITIONAL_DATA_KEY] = org_info[
+                    "organisationType"
+                ][0]
+                break
