@@ -16,7 +16,7 @@
 ./manage.py load_org_data https://findthatcharity.uk/orgid/source/pla.csv
 ./manage.py load_org_data https://findthatcharity.uk/orgid/source/nhsods.csv
 ./manage.py load_org_data https://findthatcharity.uk/orgid/source/rsl.csv
-./manage.py load_org_data https://findthatcharity.uk/orgid/source/schools_gias.csv
-./manage.py load_org_data https://findthatcharity.uk/orgid/source/schools_ni.csv
-./manage.py load_org_data https://findthatcharity.uk/orgid/source/schools_scotland.csv
-./manage.py load_org_data https://findthatcharity.uk/orgid/source/schools_wales.csv
+./manage.py load_org_data https://findthatcharity.uk/orgid/source/gias.csv
+./manage.py load_org_data https://findthatcharity.uk/orgid/source/nideptofeducation.csv
+./manage.py load_org_data https://findthatcharity.uk/orgid/source/schoolsscotland.csv
+./manage.py load_org_data https://findthatcharity.uk/orgid/source/walesschools.csv
