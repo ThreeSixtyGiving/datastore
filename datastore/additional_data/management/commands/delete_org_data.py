@@ -12,6 +12,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        confirm = "n"
 
         if not options["no_prompt"]:
             confirm = input("Confirm delete y/n: ")
