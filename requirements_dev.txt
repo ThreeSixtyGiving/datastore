@@ -61,11 +61,12 @@ django==2.2.20
     #   -r requirements.in
     #   django-filter
     #   django-prettyjson
-djangorestframework==3.10.3
+    #   djangorestframework
+djangorestframework==3.11.2
     # via -r requirements.in
 docopt==0.6.2
     # via coveralls
-et-xmlfile==1.0.1
+et_xmlfile==1.0.1
     # via
     #   datagetter
     #   openpyxl
@@ -186,7 +187,7 @@ transaction==3.0.1
     # via
     #   datagetter
     #   zodb
-typed-ast==1.4.2
+typed-ast==1.4.3
     # via black
 typing-extensions==3.7.4.3
     # via black
