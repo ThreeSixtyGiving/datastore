@@ -49,9 +49,10 @@ django==2.2.20
     #   -r requirements.in
     #   django-filter
     #   django-prettyjson
-djangorestframework==3.10.3
+    #   djangorestframework
+djangorestframework==3.11.2
     # via -r requirements.in
-et_xmlfile==1.0.1
+et-xmlfile==1.0.1
     # via
     #   datagetter
     #   openpyxl
