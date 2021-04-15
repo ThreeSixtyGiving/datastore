@@ -1,9 +1,8 @@
 # DataStore for [360 Giving](https://threesixtygiving.org) data
 
-
 [![Build Status](https://travis-ci.com/ThreeSixtyGiving/datastore.svg?branch=master)](https://travis-ci.com/ThreeSixtyGiving/datastore)
 [![Coverage Status](https://coveralls.io/repos/github/ThreeSixtyGiving/Dashboard/badge.svg?branch=master)](https://coveralls.io/github/ThreeSixtyGiving/Dashboard?branch=master)
-   
+
 ## Postgres setup
 
 Example:
@@ -34,12 +33,15 @@ $ manage.py runserver
 ```
 
 ## Loading grant data
+
 _Note: before loading grant data you may wish to load additional_data sources_
+
 ```
 $ manage.py load_datagetter_data ../path/to/data/dir/from/datagetter/
 ```
 
 ## Loading data for additional data
+
 A number of the sources for additional_data have their own local caches these can be loaded via:
 
 ```
@@ -51,13 +53,16 @@ $ manage.py loaddata default_tsg_org_types
 ```
 
 ## Other useful commands
+
 There are many useful management commands see:
+
 ```
 $ manage.py --help # !
 ```
-## Testing
 
-### Requirements
+# Testing
+
+## Requirements
 
 ```
 $ pip install -r ./requirements_dev.txt
@@ -69,6 +74,7 @@ see https://chromedriver.chromium.org/downloads
 Alternatively edit the selenium test setup in test_browser to use your preferred selenium setup.
 
 ### Run tests
+
 ```
 $ ./manage.py test tests
 $ flake8
@@ -78,12 +84,20 @@ $ black --check ./
 ### Running specific tests
 
 You can run any particular tests individually e.g.:
+
 ```
 $ manage.py test tests.test_additional_data_tsgorgtype
 ```
+
 _see `manage.py test --help` for more info_
 
-## Key modules in the datastore
+# Updating requirements
+
+We target python3.6 for our requirements.
+
+Use `pip-compile` provided by `pip-tools` package to process requirements .in files.
+
+# Key modules in the datastore
 
 ## db
 
@@ -108,7 +122,6 @@ During the load of grant data (`datagetter` data) that is done by the `db` modul
 `additional_data` data sources come in various forms, static files which are loaded, as well as caches of data in our local database (for example postcode lookups).
 
 The `generator` ensures a particular order to additional_data fields being added which allows for dependencies of one source to another.
-
 
 ## prometheus
 
