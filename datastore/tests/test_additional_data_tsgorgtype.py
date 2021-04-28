@@ -39,7 +39,7 @@ class TestTSGOrgTypeAdditionalData(TestCase):
         tsg_org_types.update_additional_data(grant.data, additional_data)
 
         self.assertTrue(
-            "National Lottery"
+            "Lottery Distributor"
             in additional_data[TSGOrgTypesSource.ADDITIONAL_DATA_KEY],
-            "Expected National Lottery",
+            "Expected 'Lottery Distributor'",
         )
