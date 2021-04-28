@@ -115,17 +115,21 @@ class DashBoardView(TemplateView):
         except db.Latest.DoesNotExist:
             pass
 
+        # May not be generated yet
+        try:
+            context["problem_sources"] = context[
+                "last_datagetter_run"
+            ].sourcefile_set.filter(
+                Q(data_valid=False) | Q(downloads=False) | Q(acceptable_license=False)
+            )
+        except AttributeError:
+            pass
+
         # Not critical if this fails e.g. git not installed
         try:
             context["git_rev"] = DashBoardView.git_revision()
         except Exception:
             pass
-
-        context["problem_sources"] = context[
-            "last_datagetter_run"
-        ].sourcefile_set.filter(
-            Q(data_valid=False) | Q(downloads=False) | Q(acceptable_license=False)
-        )
 
         return context
 
@@ -134,7 +138,7 @@ class LogView(TemplateView):
     template_name = "log.html"
 
     def read_log_file(self, log_file):
-        """ Returns log content and datetime of modified """
+        """Returns log content and datetime of modified"""
         try:
             with open(log_file, "r") as f:
                 return (
