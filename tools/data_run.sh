@@ -1,5 +1,5 @@
 #!/bin/bash -xe
-# Example data_run.sh with proxy
+# Example data_run.sh with optional proxy
 
 CONFIG_FILE=~/data_run_config.sh
 
@@ -30,22 +30,31 @@ mkdir -p $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR
 # Clear out old download dir contents
 rm -rf $DOWNLOAD_DIR/*
 
-echo "Start the proxy"
-ssh -D $SOCKS5_PORT -q -C -N $SSH_SERVER &
-PROXY_PID=$!
+if [[ $SOCKS5_PORT && $SSH_SERVER ]]; then
+  echo "Start the proxy"
+  ssh -D $SOCKS5_PORT -q -C -N $SSH_SERVER &
+  PROXY_PID=$!
+fi
 
 cd $DATASTORE
 ./datastore/manage.py set_status --what datagetter --status IN_PROGRESS
 
 echo "Running the datagetter"
-datagetter.py --threads $DATAGETTER_THREADS --socks5 socks5://localhost:$SOCKS5_PORT --data-dir $DOWNLOAD_DIR/data
+if [ $PROXY_PID ]; then
+  datagetter.py --threads $DATAGETTER_THREADS --socks5 socks5://localhost:$SOCKS5_PORT --data-dir $DOWNLOAD_DIR/data
+else
+  datagetter.py --threads $DATAGETTER_THREADS --data-dir $DOWNLOAD_DIR/data
+fi
+
 # Comment for quick TESTING!!
 #cp -r ~/data $DOWNLOAD_DIR/data
 
 ./datastore/manage.py set_status --what datagetter --status IDLE
 
-echo "Shutting down proxy"
-kill -HUP $PROXY_PID
+if [ $PROXY_PID ]; then
+  echo "Shutting down proxy"
+  kill -HUP $PROXY_PID
+fi
 
 
 echo "Load the downloaded datagetter data into datastore"
