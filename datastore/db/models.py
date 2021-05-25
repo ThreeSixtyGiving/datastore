@@ -145,6 +145,11 @@ class SourceFile(models.Model):
     downloads = models.BooleanField(default=False)
     grants = models.IntegerField(default=0)
 
+    # We have this as an array but for now we can assume it will only have
+    # one item for the purposes of our api.
+    def get_distribution(self):
+        return self.data['distribution'][0]
+
     def save(self, *args, **kwargs):
         try:
             # These keys could be missing because the download failed
@@ -175,6 +180,9 @@ class Publisher(models.Model):
     # Convenience fields
     name = models.TextField(null=True, blank=True)
     prefix = models.CharField(max_length=300)
+
+    def get_sourcefiles(self):
+        return SourceFile.objects.filter(getter_run=self.getter_run, data__publisher__prefix=self.prefix)
 
     #  Update the convenience fields
     def save(self, *args, **kwargs):
