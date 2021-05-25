@@ -6,6 +6,7 @@ from django.db import transaction
 
 import db.models as db
 from additional_data.generator import AdditionalDataGenerator
+from data_quality import quality_data
 from db.management.spinner import Spinner
 
 
@@ -64,10 +65,19 @@ class Command(BaseCommand):
                 getter_run=getter_run, prefix=prefix, data=ob["publisher"]
             )
 
-            source_file = db.SourceFile.objects.create(data=ob, getter_run=getter_run)
-
             try:
                 grant_data = self.load_grant_data(ob["datagetter_metadata"]["json"])
+
+                source_file = db.SourceFile.objects.create(
+                    data=ob, getter_run=getter_run, grants=len(grant_data["grants"])
+                )
+                # Create data quality data for this dataset
+                try:
+                    source_file.quality = quality_data.create(grant_data)
+                    source_file.save()
+                except Exception as e:
+                    print("Could not create data quality data %s" % e, file=self.stderr)
+                    raise e
 
                 grant_bulk_insert = []
 
