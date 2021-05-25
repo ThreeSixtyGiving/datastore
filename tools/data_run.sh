@@ -74,8 +74,8 @@ echo "Create GrantNav package"
 TOTAL_RUNS=`./datastore/manage.py list_datagetter_runs --total`
 
 if [ $TOTAL_RUNS -gt $MAX_TOTAL_RUNS_IN_DB ]; then
-    echo "Deleteing oldest datagetter data"
-    ./datastore/manage.py delete_datagetter_data --oldest --no-prompt
+    echo "Archiving oldest datagetter data"
+    ./datastore/manage.py archive_datagetter_data --oldest --no-prompt
 fi
 
 echo "Deleting old GrantNav packages"
