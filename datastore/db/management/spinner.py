@@ -6,7 +6,7 @@ import time
 
 # Spinner - Michael Wood - Toaster - lsupdates GPLv2
 class Spinner(threading.Thread):
-    """ A simple progress spinner to indicate download/parsing is happening"""
+    """A simple progress spinner to indicate download/parsing is happening"""
 
     def __init__(self, *args, **kwargs):
         super(Spinner, self).__init__(*args, **kwargs)

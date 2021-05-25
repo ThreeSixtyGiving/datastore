@@ -5,7 +5,7 @@ from selenium.webdriver.chrome.options import Options
 
 
 class BrowserTests(StaticLiveServerTestCase):
-    """ Browser test using latest Chrome/Chromium stable"""
+    """Browser test using latest Chrome/Chromium stable"""
 
     def setUp(self, *args, **kwargs):
         capabilities = DesiredCapabilities.CHROME

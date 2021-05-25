@@ -10,9 +10,10 @@ app_name = "api"
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="api.html"), name="index"),
-    path("dashboard/publishers",
+    path(
+        "dashboard/publishers",
         api.dashboard.api.Publishers.as_view(),
-        name="publishers"
+        name="publishers",
     ),
     path(
         "grantnav/updates",

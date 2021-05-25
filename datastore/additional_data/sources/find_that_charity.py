@@ -53,7 +53,7 @@ class FindThatCharitySource(object):
             self._cache[org_id] = None
 
     def process_csv(self, file_data, org_type):
-        """ Returns total added. file_data array from csv """
+        """Returns total added. file_data array from csv"""
         added = 0
         bulk_list = []
 
@@ -89,7 +89,7 @@ class FindThatCharitySource(object):
         return added
 
     def import_from_path(self, path, org_type=None):
-        """ Path can be http or file path, org_type if omitted we guess from the filename """
+        """Path can be http or file path, org_type if omitted we guess from the filename"""
         added = 0
 
         # Have a guess at the org type from the path

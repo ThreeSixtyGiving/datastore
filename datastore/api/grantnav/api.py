@@ -6,7 +6,7 @@ import db.models as db
 
 
 class GrantNavPollForNewData(View):
-    """ API endpoint for GrantNav to poll to know that new data is available """
+    """API endpoint for GrantNav to poll to know that new data is available"""
 
     def get(self, *args, **kwargs):
         statuses = db.Status.objects.all()

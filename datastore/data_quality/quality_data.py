@@ -3,8 +3,6 @@ from lib360dataquality.cove.threesixtygiving import (
     common_checks_360,
 )
 from lib360dataquality.cove.schema import Schema360
-
-import json
 from tempfile import TemporaryDirectory
 
 schema = Schema360()

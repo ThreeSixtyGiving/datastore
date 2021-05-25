@@ -7,18 +7,18 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('db', '0010_auto_20200916_1109'),
+        ("db", "0010_auto_20200916_1109"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='getterrun',
-            name='archived',
+            model_name="getterrun",
+            name="archived",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='sourcefile',
-            name='quality',
+            model_name="sourcefile",
+            name="quality",
             field=django.contrib.postgres.fields.jsonb.JSONField(null=True),
         ),
     ]

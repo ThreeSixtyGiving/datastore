@@ -124,10 +124,10 @@ class GeoLookup(models.Model):
 
 
 class TSGOrgType(models.Model):
-    """ ThreeSixtyGiving Org Type mappings """
+    """ThreeSixtyGiving Org Type mappings"""
 
     def validate_regex(value):
-        """ Check that the input regex is valid """
+        """Check that the input regex is valid"""
         try:
             re.compile(value)
         except re.error as e:

@@ -23,7 +23,7 @@ class Command(BaseCommand):
         )
 
     def check_dir_looks_right(self):
-        """ Quickly check if the supplied dir looks correct """
+        """Quickly check if the supplied dir looks correct"""
         ls = os.listdir(self.options["data_dir"][0])
 
         if "data_all.json" not in ls or "json_all" not in ls:
@@ -33,13 +33,13 @@ class Command(BaseCommand):
             )
 
     def load_dataset_data(self):
-        """ Loads the dataset data which describes the grant data """
+        """Loads the dataset data which describes the grant data"""
         path = os.path.join(self.options["data_dir"][0], "data_all.json")
         with open(path, encoding="utf-8") as f:
             return json.loads(f.read())
 
     def load_grant_data(self, path):
-        """ return the grant json for the given path """
+        """return the grant json for the given path"""
 
         # As we want to use the path given by option to the command
         # reconstruct the file path with this value

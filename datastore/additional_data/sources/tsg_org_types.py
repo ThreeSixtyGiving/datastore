@@ -4,7 +4,7 @@ from additional_data.models import TSGOrgType
 
 
 class TSGOrgTypesSource(object):
-    """ This adds a custom ThreeSixtyGiving organisation type of the funding organisation to the additional data"""
+    """This adds a custom ThreeSixtyGiving organisation type of the funding organisation to the additional data"""
 
     ADDITIONAL_DATA_KEY = "TSGFundingOrgType"
 
