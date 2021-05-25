@@ -115,11 +115,18 @@ class Latest(models.Model):
 
 class GetterRun(models.Model):
     datetime = models.DateTimeField(default=timezone.now)
+    archived = models.BooleanField(default=False)
 
     def delete_all_data_from_run(self):
         self.grant_set.all().delete()
         self.sourcefile_set.all().delete()
         self.publisher_set.all().delete()
+
+    def archive_run(self):
+        """ Archive the run and delete grant data """
+        self.grant_set.all().delete()
+        self.archived = True
+        self.save()
 
     def __str__(self):
         return str(self.datetime)
@@ -129,12 +136,14 @@ class SourceFile(models.Model):
     data = JSONField()
     getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
     latest = models.ManyToManyField(Latest)
+    quality = JSONField(null=True)
 
     # Convenience fields
     datagetter_data = JSONField(null=True)
     data_valid = models.BooleanField(default=False)
     acceptable_license = models.BooleanField(default=False)
     downloads = models.BooleanField(default=False)
+    grants = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         try:
