@@ -68,3 +68,39 @@ class CustomMgmtCommandsTest(TestCase):
             self.assertTrue("Not enough parameters" in str(e), "Unexpected exception")
 
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+
+    def test_archive_getter_run_no_options(self):
+        err_out = StringIO()
+        try:
+            call_command("archive_getter_run", stderr=err_out)
+        except CommandError as e:
+            self.assertTrue("No datagetter data specified" in str(e), "Unexpected exception")
+
+        self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+
+    def test_archive_getter_run(self):
+        err_out = StringIO()
+        initial_sourcefile_count = db.SourceFile.objects.count()
+        initial_publisher_count = db.Publisher.objects.count()
+
+        call_command("archive_getter_run", "--oldest", "--no-prompt", stderr=err_out)
+
+        # This will throw an exception if there is more than one
+        archived_getter_run = db.GetterRun.objects.get(archived=True)
+
+        self.assertEqual(
+            archived_getter_run.grant_set.count(),
+            0,
+            "Grants weren't deleted from archived getter run",
+        )
+
+        self.assertEqual(
+            db.SourceFile.objects.count(),
+            initial_sourcefile_count,
+            "SourceFile count reduced unexpectedly",
+        )
+        self.assertEqual(
+            db.Publisher.objects.count(),
+            initial_publisher_count,
+            "Publisher count reduced unexpectedly",
+        )
