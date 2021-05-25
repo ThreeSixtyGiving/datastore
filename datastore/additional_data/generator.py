@@ -6,7 +6,7 @@ from additional_data.sources.tsg_org_types import TSGOrgTypesSource
 
 
 class AdditionalDataGenerator(object):
-    """ Adds additional data to grant data """
+    """Adds additional data to grant data"""
 
     def __init__(self):
         self.local_files_source = LocalFilesSource()
@@ -17,7 +17,7 @@ class AdditionalDataGenerator(object):
         # Initialise Other Sources heres
 
     def create(self, grant):
-        """ Takes a grant's data and returns a dict of additional data """
+        """Takes a grant's data and returns a dict of additional data"""
 
         additional_data = {}
 

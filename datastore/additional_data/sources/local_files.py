@@ -51,7 +51,7 @@ class LocalFilesSource(object):
         self.update_additional_with_region(grant, additional_data)
 
     def _setup_charity_mappings(self):
-        """ Setup info for charity names """
+        """Setup info for charity names"""
 
         with open(os.path.join(self.data_files_dir, "charity_names.json")) as fd:
 
@@ -59,7 +59,7 @@ class LocalFilesSource(object):
         self.id_name_org_mappings["recipientOrganization"].update(charity_names)
 
     def _setup_org_name_mappings(self):
-        """ Setup overrides for org name """
+        """Setup overrides for org name"""
 
         with open(
             os.path.join(self.data_files_dir, "primary_funding_org_name.json")
@@ -68,7 +68,7 @@ class LocalFilesSource(object):
         self.id_name_org_mappings["fundingOrganization"].update(funding_org_name)
 
     def _setup_area_mappings(self):
-        """ Setup the area/district mappings """
+        """Setup the area/district mappings"""
 
         with open(
             os.path.join(self.data_files_dir, "codelist.csv")

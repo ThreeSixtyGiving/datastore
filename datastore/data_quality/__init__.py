@@ -4,8 +4,6 @@ from lib360dataquality.cove.threesixtygiving import (
 )
 from lib360dataquality.cove.schema import Schema360
 
-import json
-
 schema = Schema360()
 
 

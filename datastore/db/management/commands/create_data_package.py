@@ -50,7 +50,7 @@ class Command(BaseCommand):
         data_all_file = "%s/data_all.json" % options["dir"]
 
         def flatten_grant(in_grant):
-            """ Add the additional_data inside grant object """
+            """Add the additional_data inside grant object"""
             out_grant = {}
             out_grant.update(in_grant["data"])
             try:

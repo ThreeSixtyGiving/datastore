@@ -2,7 +2,6 @@ from django.test import TestCase
 
 from data_quality import quality_data
 import db.models as db
-import json
 
 
 class TestDataQualityData(TestCase):

@@ -5,7 +5,7 @@ from django.utils import timezone
 
 
 class Latest(models.Model):
-    """ Latest best data we have """
+    """Latest best data we have"""
 
     NEXT = "NEXT"
     CURRENT = "CURRENT"
@@ -123,7 +123,7 @@ class GetterRun(models.Model):
         self.publisher_set.all().delete()
 
     def archive_run(self):
-        """ Archive the run and delete grant data """
+        """Archive the run and delete grant data"""
         self.grant_set.all().delete()
         self.archived = True
         self.save()
@@ -148,7 +148,7 @@ class SourceFile(models.Model):
     # We have this as an array but for now we can assume it will only have
     # one item for the purposes of our api.
     def get_distribution(self):
-        return self.data['distribution'][0]
+        return self.data["distribution"][0]
 
     def save(self, *args, **kwargs):
         try:
@@ -182,7 +182,9 @@ class Publisher(models.Model):
     prefix = models.CharField(max_length=300)
 
     def get_sourcefiles(self):
-        return SourceFile.objects.filter(getter_run=self.getter_run, data__publisher__prefix=self.prefix)
+        return SourceFile.objects.filter(
+            getter_run=self.getter_run, data__publisher__prefix=self.prefix
+        )
 
     #  Update the convenience fields
     def save(self, *args, **kwargs):
@@ -217,7 +219,7 @@ class Grant(models.Model):
 
     @staticmethod
     def estimated_total():
-        """ Big table count() is expensive so estimate instead """
+        """Big table count() is expensive so estimate instead"""
         try:
             with connection.cursor() as c:
                 # https://www.citusdata.com/blog/2016/10/12/count-performance/

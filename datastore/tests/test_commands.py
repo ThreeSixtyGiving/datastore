@@ -10,7 +10,7 @@ from tests.generate_testdata import generate_data
 
 
 class CustomMgmtCommandsTest(TestCase):
-    """ Test custom management commands """
+    """Test custom management commands"""
 
     fixtures = ["test_data.json"]
 
@@ -74,7 +74,9 @@ class CustomMgmtCommandsTest(TestCase):
         try:
             call_command("archive_getter_run", stderr=err_out)
         except CommandError as e:
-            self.assertTrue("No datagetter data specified" in str(e), "Unexpected exception")
+            self.assertTrue(
+                "No datagetter data specified" in str(e), "Unexpected exception"
+            )
 
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
 
