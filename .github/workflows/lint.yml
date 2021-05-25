@@ -20,5 +20,5 @@ jobs:
     - run: pip install -r requirements_dev.txt
 
     - run: flake8
-    # To avoid datagetter errors, we must specifically exclude src/datagetter
-    - run: black --check --exclude "/(\.eggs|\.git|_cache|src\/datagetter)/" ./
+    # To local srcs, we must specifically exclude src
+    - run: black --check --exclude "/(\.eggs|\.git|_cache|src)/" ./
