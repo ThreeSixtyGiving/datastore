@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "api",
     "prometheus",
     "additional_data",
+    "data_quality",
     # Useful Django apps:
     "django.contrib.admin",
     "django.contrib.auth",
