@@ -4,6 +4,7 @@ from lib360dataquality.cove.threesixtygiving import (
     common_checks_360,
 )
 from lib360dataquality.cove.schema import Schema360
+from lib360dataquality import check_field_present
 from tempfile import TemporaryDirectory
 
 schema = Schema360()
@@ -13,6 +14,17 @@ def create(grants):
     """grants: grants json"""
 
     cove_results = {"file_type": "json"}
+
+    # Inject some extra tests to the default set of USEFULNESS TEST CLASS
+
+    TEST_CLASSES[USEFULNESS_TEST_CLASS] = TEST_CLASSES[USEFULNESS_TEST_CLASS] + [
+        check_field_present.ClassificationNotPresent,
+        check_field_present.BeneficiaryLocationNameNotPresent,
+        check_field_present.BeneficiaryLocationCountryCodeNotPresent,
+        check_field_present.BeneficiaryLocationGeoCodeNotPresent,
+        check_field_present.PlannedDurationNotPresent,
+        check_field_present.GrantProgrammeTitleNotPresent,
+    ]
 
     with TemporaryDirectory() as tempdir:
         common_checks_360(
