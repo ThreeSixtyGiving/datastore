@@ -24,11 +24,15 @@ class Command(BaseCommand):
                 series=db.Latest.CURRENT
             ).sourcefile_set.all()
         else:
-            source_files = db.SourceFile.objects.filter(getter_run=options["getter_run"])
+            source_files = db.SourceFile.objects.filter(
+                getter_run=options["getter_run"]
+            )
 
         for source_file in source_files:
             grants_list = {
                 "grants": list(source_file.grant_set.values_list("data", flat=True))
             }
-            source_file.quality = quality_data.create(grants_list)
+            source_file.quality, source_file.aggregate = quality_data.create(
+                grants_list
+            )
             source_file.save()

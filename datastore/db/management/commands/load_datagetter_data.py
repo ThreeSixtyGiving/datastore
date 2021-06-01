@@ -73,11 +73,12 @@ class Command(BaseCommand):
                 )
                 # Create data quality data for this dataset
                 try:
-                    source_file.quality = quality_data.create(grant_data)
+                    source_file.quality, source_file.aggregates = quality_data.create(
+                        grant_data
+                    )
                     source_file.save()
                 except Exception as e:
                     print("Could not create data quality data %s" % e, file=self.stderr)
-                    raise e
 
                 grant_bulk_insert = []
 
