@@ -137,6 +137,7 @@ class SourceFile(models.Model):
     getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
     latest = models.ManyToManyField(Latest)
     quality = JSONField(null=True)
+    aggregate = JSONField(null=True)
 
     # Convenience fields
     datagetter_data = JSONField(null=True)
