@@ -24,7 +24,7 @@ class Command(BaseCommand):
                 series=db.Latest.CURRENT
             ).sourcefile_set.all()
         else:
-            source_files = db.SourceFile.object.filter(getter_run=options["getter_run"])
+            source_files = db.SourceFile.objects.filter(getter_run=options["getter_run"])
 
         for source_file in source_files:
             grants_list = {
