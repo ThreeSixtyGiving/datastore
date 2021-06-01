@@ -41,4 +41,11 @@ def create(grants):
             "count": test[0]["count"],
         }
 
-    return quality_results
+    aggregates = {
+        "count": cove_results["grants_aggregates"]["count"],
+        "max_award_date": cove_results["grants_aggregates"]["max_award_date"],
+        "min_award_date": cove_results["grants_aggregates"]["min_award_date"],
+        "currencies": cove_results["grants_aggregates"]["currencies"],
+    }
+
+    return quality_results, aggregates
