@@ -55,6 +55,12 @@ def create(grants):
 
     aggregates = {
         "count": cove_results["grants_aggregates"]["count"],
+        "recipients": len(
+            cove_results["grants_aggregates"]["distinct_recipient_org_identifier"]
+        ),
+        "funders": len(
+            cove_results["grants_aggregates"]["distinct_funding_org_identifier"]
+        ),
         "max_award_date": cove_results["grants_aggregates"]["max_award_date"],
         "min_award_date": cove_results["grants_aggregates"]["min_award_date"],
         "currencies": cove_results["grants_aggregates"]["currencies"],
