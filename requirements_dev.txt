@@ -44,8 +44,6 @@ coverage==5.5
     # via coveralls
 coveralls==3.0.1
     # via -r requirements_dev.in
-dataclasses==0.8
-    # via black
 defusedxml==0.7.1
     # via
     #   datagetter
@@ -56,7 +54,7 @@ django-filter==2.2.0
     # via -r requirements.in
 django-prettyjson==0.4.1
     # via -r requirements.in
-django==2.2.20
+django==2.2.21
     # via
     #   -r requirements.in
     #   django-filter
@@ -66,7 +64,7 @@ djangorestframework==3.11.2
     # via -r requirements.in
 docopt==0.6.2
     # via coveralls
-et_xmlfile==1.0.1
+et-xmlfile==1.0.1
     # via
     #   datagetter
     #   openpyxl
@@ -83,10 +81,7 @@ ijson==3.1.4
     #   datagetter
     #   flattentool
 importlib-metadata==1.7.0
-    # via
-    #   datagetter
-    #   flake8
-    #   jsonschema
+    # via datagetter
 jdcal==1.4.1
     # via
     #   datagetter
