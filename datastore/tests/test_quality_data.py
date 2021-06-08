@@ -13,6 +13,6 @@ class TestDataQualityData(TestCase):
         grant = db.Grant.objects.first()
         quality = quality_data.create({"grants": [grant.data]})
 
-        # Our test data in the test_data.json currently generates 10
+        # Our test data in the test_data.json currently generates 2
         # data quality usefulness results
-        self.assertEqual(len(quality), 10)
+        self.assertEqual(len(quality), 2)
