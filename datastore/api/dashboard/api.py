@@ -2,7 +2,7 @@ from django.http.response import JsonResponse
 from django.views import View
 from django.db.models import Sum, Q
 from django.db.models.expressions import RawSQL
-
+from django.core.cache import cache
 
 import django_filters.rest_framework
 from rest_framework import filters, generics
@@ -239,6 +239,13 @@ class Overview(View):
         return ret
 
     def get(self, *args, **kwargs):
+        # If we have a cache of this uri then return that.
+        # All caches are cleared if the dataload happens
+        full_request_uri = self.request.build_absolute_uri()
+        ret = cache.get(full_request_uri)
+
+        if ret:
+            return JsonResponse(ret, safe=False)
 
         mode = self.request.GET.get("mode")
 
@@ -268,5 +275,7 @@ class Overview(View):
             },
             "stats": self.stats(source_file_set, mode, total_grants, latest),
         }
+
+        cache.set(full_request_uri, ret)
 
         return JsonResponse(ret, safe=False)

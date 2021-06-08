@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand
+from django.core import cache
 
 from data_quality import quality_data
 import db.models as db
@@ -36,3 +37,6 @@ class Command(BaseCommand):
                 grants_list
             )
             source_file.save()
+
+        # Clear all caches - data has changed
+        cache.clear()

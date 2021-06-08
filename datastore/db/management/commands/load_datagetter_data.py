@@ -3,6 +3,7 @@ import os
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.core.cache import cache
 
 import db.models as db
 from additional_data.generator import AdditionalDataGenerator
@@ -132,3 +133,6 @@ class Command(BaseCommand):
 
         print("Updating Latest", file=self.stdout)
         db.Latest.update()
+
+        # Clear all cached objects - The latest data as well as new data has been added
+        cache.clear()
