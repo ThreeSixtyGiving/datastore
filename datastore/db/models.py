@@ -151,6 +151,11 @@ class SourceFile(models.Model):
     def get_distribution(self):
         return self.data["distribution"][0]
 
+    def get_publisher(self):
+        return Publisher.objects.get(
+            getter_run=self.getter_run, prefix=self.data["publisher"]["prefix"]
+        )
+
     def save(self, *args, **kwargs):
         try:
             # These keys could be missing because the download failed
@@ -175,6 +180,8 @@ class SourceFile(models.Model):
 class Publisher(models.Model):
 
     data = JSONField()
+    quality = JSONField(null=True)
+    aggregate = JSONField(null=True)
 
     getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
 
@@ -185,6 +192,15 @@ class Publisher(models.Model):
     def get_sourcefiles(self):
         return SourceFile.objects.filter(
             getter_run=self.getter_run, data__publisher__prefix=self.prefix
+        )
+
+    def get_quality_stats(self):
+        from data_quality import quality_data
+
+        return quality_data.aggregated_stats(
+            self.get_sourcefiles(),
+            "publishers_list",
+            "publishers_list_%s" % self.prefix,
         )
 
     #  Update the convenience fields
