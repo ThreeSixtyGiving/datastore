@@ -21,6 +21,11 @@ urlpatterns = [
         name="overview",
     ),
     path(
+        "dashboard/publisher/<str:publisher_prefix>",
+        api.dashboard.api.Publisher.as_view(),
+        name="publisher",
+    ),
+    path(
         "grantnav/updates",
         api.grantnav.api.GrantNavPollForNewData.as_view(),
         name="grantnav-updates",

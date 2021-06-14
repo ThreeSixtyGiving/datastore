@@ -46,6 +46,15 @@ class Publishers(generics.ListAPIView):
         return db.Publisher.objects.filter(getter_run=db.GetterRun.objects.last())
 
 
+class Publisher(generics.RetrieveAPIView):
+    lookup_field = "prefix"
+    lookup_url_kwarg = "publisher_prefix"
+    serializer_class = serializers.PublishersSerializer
+
+    def get_queryset(self):
+        return db.Publisher.objects.filter(getter_run=db.GetterRun.objects.last())
+
+
 class Sources(generics.ListAPIView):
     serializer_class = serializers.SourcesSerializer
     #  pagination_class = CurrentLatestGrantsPaginator
