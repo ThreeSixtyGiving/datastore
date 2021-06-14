@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
-from db.models import GetterRun
+from db.models import GetterRun, Latest
 
 
 class Command(BaseCommand):
@@ -27,6 +27,12 @@ class Command(BaseCommand):
             help="Delete the oldest datagetter data",
         )
 
+        parser.add_argument(
+            "--update-latest-best",
+            action="store_true",
+            help="Update the latest best data set after deleting data",
+        )
+
     def handle(self, *args, **options):
         if options.get("oldest"):
             to_delete = GetterRun.objects.order_by("datetime").first()
@@ -50,3 +56,7 @@ class Command(BaseCommand):
 
             except GetterRun.DoesNotExist:
                 raise CommandError("Run id '%s' doesn't exist " % run)
+
+        if options.get("update_latest_best"):
+            print("Updating latest")
+            Latest.update()
