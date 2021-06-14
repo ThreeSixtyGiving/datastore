@@ -292,6 +292,20 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
             except TypeError:
                 ret["quality"][metric] = "NA"
 
+        aggregate_queries = {
+            "jsonFiles": json_files,
+            "csvFiles": csv_files,
+            "xlsxFiles": xlsx_files,
+            "odsFiles": ods_files,
+        }
+
+        total_source_files = source_file_set.count()
+
+        for metric, query in aggregate_queries.items():
+            ret["aggregate"][metric] = (
+                total_source_files - query.count()
+            ) / total_source_files
+
         # Awarded in these years
         award_years = {}
         this_year_int = int(this_year)
