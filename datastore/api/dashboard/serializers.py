@@ -31,6 +31,17 @@ class PublishersSerializer(serializers.ModelSerializer):
 
     files = SourcesSerializer(source="get_sourcefiles", many=True)
 
+    aggregate = serializers.JSONField()
+    quality = serializers.JSONField()
+
     class Meta:
         model = db.Publisher
-        fields = ("name", "logo", "prefix", "website", "files")
+        fields = (
+            "name",
+            "logo",
+            "prefix",
+            "website",
+            "aggregate",
+            "quality",
+            "files",
+        )  # , "files")

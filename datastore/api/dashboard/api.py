@@ -10,8 +10,22 @@ from rest_framework import filters, generics
 import db.models as db
 from api.dashboard import serializers
 from api.dashboard.permissions import ReadOnly
+from data_quality import quality_data
 
 import datetime
+
+
+class PublisherFilters(django_filters.rest_framework.FilterSet):
+    quality__hasGrantProgrammeTitle = django_filters.CharFilter(
+        method="hasGrantProgrammeTitle_filter", label="hasGrantProgrammeTitle"
+    )
+
+    def hasGrantProgrammeTitle_filter(self, queryset, name, value):
+        return queryset.filter(quality__hasGrantProgrammeTitle__iexact=value)
+
+    class Meta:
+        model = db.Publisher
+        fields = ["quality__hasGrantProgrammeTitle"]
 
 
 class Publishers(generics.ListAPIView):
@@ -24,10 +38,9 @@ class Publishers(generics.ListAPIView):
         filters.OrderingFilter,
     )
 
+    filterset_class = PublisherFilters
     search_fields = ("^data__name",)
-    filterset_fields = ["name", "prefix"]
-
-    ordering_fields = ["data__name"]
+    ordering_fields = ["data__name", "aggregate__publishedThisYear"]
 
     def get_queryset(self):
         return db.Publisher.objects.filter(getter_run=db.GetterRun.objects.last())
@@ -42,7 +55,8 @@ class Sources(generics.ListAPIView):
 
 
 class Overview(View):
-    def stats(self, source_file_set, mode, total_grants, latest):
+    @staticmethod
+    def stats(source_file_set, mode, total_grants, latest):
         total_publishers = source_file_set.distinct("data__publisher__prefix").count()
 
         # The quality metrics we have are based on "Not" having something and we want to know if they DO have something
@@ -247,35 +261,12 @@ class Overview(View):
         if ret:
             return JsonResponse(ret, safe=False)
 
-        mode = self.request.GET.get("mode")
+        mode = "overview_%s" % self.request.GET.get("mode")
 
         latest = db.Latest.objects.get(series=db.Latest.CURRENT)
-
         source_file_set = latest.sourcefile_set.all()
 
-        total_grants_sql = RawSQL("((aggregate->>%s)::numeric)", ("count",))
-        total_grants = source_file_set.annotate(total=total_grants_sql).aggregate(
-            Sum("total")
-        )["total__sum"]
-
-        totalGBP = RawSQL(
-            "((aggregate->'currencies'->'GBP'->>%s)::numeric)", ("total_amount",)
-        )
-        totalRecipients = RawSQL("((aggregate->>%s)::numeric)", ("recipients",))
-
-        ret = {
-            "total": {
-                "grants": total_grants,
-                "GBP": source_file_set.annotate(total=totalGBP).aggregate(Sum("total"))[
-                    "total__sum"
-                ],
-                "recipients": source_file_set.annotate(total=totalRecipients).aggregate(
-                    Sum("total")
-                )["total__sum"],
-            },
-            "stats": self.stats(source_file_set, mode, total_grants, latest),
-        }
-
+        ret = quality_data.aggregated_stats(source_file_set, mode)
         cache.set(full_request_uri, ret)
 
         return JsonResponse(ret, safe=False)
