@@ -64,10 +64,12 @@ class Overview(View):
         # If we have a cache of this uri then return that.
         # All caches are cleared if the dataload happens
         full_request_uri = self.request.build_absolute_uri()
-        ret = cache.get(full_request_uri)
 
-        if ret:
-            return JsonResponse(ret, safe=False)
+        # Don't cache if we have ?nocache in the query
+        if not self.request.GET.get("nocache"):
+            ret = cache.get(full_request_uri)
+            if ret:
+                return JsonResponse(ret, safe=False)
 
         mode = "overview_%s" % self.request.GET.get("mode")
 
