@@ -45,7 +45,7 @@ class Publishers(generics.ListAPIView):
 class Publisher(generics.RetrieveAPIView):
     lookup_field = "prefix"
     lookup_url_kwarg = "publisher_prefix"
-    serializer_class = serializers.PublishersSerializer
+    serializer_class = serializers.PublisherSerializer
 
     def get_queryset(self):
         return db.Publisher.objects.filter(getter_run=db.GetterRun.objects.last())
