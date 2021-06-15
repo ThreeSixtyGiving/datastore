@@ -351,16 +351,32 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
             ret["quality"][metric] = total_source_files - query.count()
 
         # Awarded in these years
+        max_award_date_in_set = (
+            source_file_set.exclude(aggregate=None)
+            .order_by("-aggregate__max_award_date")[0]
+            .aggregate["max_award_date"]
+        )
+        min_award_date_in_set = (
+            source_file_set.exclude(aggregate=None)
+            .order_by("aggregate__min_award_date")[0]
+            .aggregate["min_award_date"]
+        )
+
+        # Turn this into an int and a year by parsing yyyy-mm-ddd
+        max_award_date_in_set = int(max_award_date_in_set.split("-")[0])
+        min_award_date_in_set = int(min_award_date_in_set.split("-")[0])
+
         award_years = {}
-        this_year_int = int(this_year)
 
-        for i in range(0, 10):
-            year_str = str(this_year_int - i)
-            award_years[year_str] = source_file_set.filter(
-                aggregate__min_award_date__startswith=year_str
-            ).count()
+        for year in range(min_award_date_in_set, max_award_date_in_set):
+            year_str = str(year)
+            award_years[year_str] = 0
+            for source_file in source_file_set:
+                award_years[year_str] += source_file.grant_set.filter(
+                    data__awardDate__startswith=year_str
+                ).count()
 
-        ret["aggregate"]["minAwardYears"] = award_years
+        ret["aggregate"]["awardYears"] = award_years
         ret["aggregate"]["lastLastModified"] = (
             source_file_set.order_by("-data__modified").first().data["modified"]
         )
