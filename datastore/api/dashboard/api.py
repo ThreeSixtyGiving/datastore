@@ -35,8 +35,10 @@ class Publishers(generics.ListAPIView):
     )
 
     filterset_class = PublisherFilters
-    search_fields = ("^data__name",)
-    ordering_fields = ["data__name", "aggregate__publishedThisYear"]
+    search_fields = ("^data__name", "^prefix")
+    ordering_fields = [
+        "data__name",
+    ]
 
     def get_queryset(self):
         return db.Publisher.objects.filter(getter_run=db.GetterRun.objects.last())
