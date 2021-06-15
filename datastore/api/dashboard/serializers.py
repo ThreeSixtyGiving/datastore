@@ -10,6 +10,7 @@ class SourcesSerializer(serializers.ModelSerializer):
     grants = serializers.IntegerField()
     distribution = serializers.JSONField(source="get_distribution")
     quality = serializers.JSONField()
+    aggregate = serializers.JSONField()
 
     class Meta:
         model = db.SourceFile
@@ -20,6 +21,7 @@ class SourcesSerializer(serializers.ModelSerializer):
             "distribution",
             "modified",
             "quality",
+            "aggregate",
         )
 
 
