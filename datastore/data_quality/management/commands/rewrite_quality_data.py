@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.core.cache import cache
+from django.db import connection
 
 from data_quality import quality_data
 import db.models as db
@@ -45,6 +46,7 @@ class Command(BaseCommand):
                 grants_list
             )
             source_file.save()
+            connection.close()
 
         with Pool(4) as process_pool:
             process_pool.starmap(process_source_file, zip(source_files))
@@ -66,6 +68,7 @@ class Command(BaseCommand):
             publisher.aggregate = ret["aggregate"]
             publisher.quality = ret["quality"]
             publisher.save()
+            connection.close()
 
         #        for source_file in source_files.distinct("data__publisher__prefix"):
         #           process_publishers(source_file)
