@@ -1,13 +1,13 @@
 import json
 import os
 
+from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.core.cache import cache
 
 import db.models as db
 from additional_data.generator import AdditionalDataGenerator
-from data_quality import quality_data
 from db.management.spinner import Spinner
 
 
@@ -72,14 +72,6 @@ class Command(BaseCommand):
                 source_file = db.SourceFile.objects.create(
                     data=ob, getter_run=getter_run, grants=len(grant_data["grants"])
                 )
-                # Create data quality data for this dataset
-                try:
-                    source_file.quality, source_file.aggregates = quality_data.create(
-                        grant_data
-                    )
-                    source_file.save()
-                except Exception as e:
-                    print("Could not create data quality data %s" % e, file=self.stderr)
 
                 grant_bulk_insert = []
 
@@ -107,12 +99,13 @@ class Command(BaseCommand):
 
                 db.Grant.objects.bulk_create(grant_bulk_insert)
                 grants_added = grants_added + len(grant_data["grants"])
+
             except (FileNotFoundError, KeyError, TypeError, json.JSONDecodeError) as e:
                 print(
                     "Skipping loading due to: '%s'" % e,
                     file=self.stdout,
                 )
-                pass
+                continue
 
         return grants_added
 
@@ -133,6 +126,7 @@ class Command(BaseCommand):
 
         print("Updating Latest", file=self.stdout)
         db.Latest.update()
+        call_command("rewrite_quality_data", "latest")
 
         # Clear all cached objects - The latest data as well as new data has been added
         cache.clear()
