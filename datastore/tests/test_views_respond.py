@@ -50,7 +50,6 @@ class UrlsTests(LiveServerTestCase):
         )
 
         # For the quality dash data we need to have these objects present
-        db.Latest.update()
         call_command("rewrite_quality_data", "latest")
 
         for path in root_urls:
