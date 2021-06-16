@@ -59,14 +59,10 @@ class Command(BaseCommand):
             print("processing publisher %s %s" % (publisher, publisher.pk))
 
             ### FIXME this is fairly inefficient round trip
-            ret = quality_data.aggregated_stats(
-                publisher.get_sourcefiles(), "publishers"
-            )
-
-            print(ret)
-
-            publisher.aggregate = ret["aggregate"]
-            publisher.quality = ret["quality"]
+            (
+                publisher.quality,
+                publisher.aggregate,
+            ) = quality_data.create_publisher_aggregate(publisher.get_sourcefiles())
             publisher.save()
             connection.close()
 

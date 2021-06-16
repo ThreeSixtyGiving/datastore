@@ -56,7 +56,7 @@ def create(grants):
     for available_test in TEST_CLASSES[USEFULNESS_TEST_CLASS]:
         quality_results[available_test.__name__] = {"count": 0}
 
-    # Update with the results
+    # Update with -Error failed to generated publisher quality and aggregate date int() argument must be a string, a bytes-like object or a number, not 'NoneType'the results
     for test in cove_results["usefulness_checks"]:
         quality_results[test[0]["type"]] = {
             "heading": test[0]["heading"],
@@ -77,6 +77,12 @@ def create(grants):
     }
 
     return quality_results, aggregates
+
+
+def create_publisher_aggregate(source_file_set):
+    """Wrapper around aggregated_stats for consistency"""
+    ret = aggregated_stats(source_file_set, "publishers")
+    return ret["quality"], ret["aggregate"]
 
 
 def aggregated_stats(source_file_set, mode, cache_key=None):
@@ -106,6 +112,12 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
     except TypeError:
         # Happens if the source file has no GBP
         total_gbp = 0
+
+    if not total_grants:
+        raise Exception(
+            "SourceFile did not contain expected aggregate data %s"
+            % source_file_set.values_list()
+        )
 
     ret = {
         "aggregate": {
