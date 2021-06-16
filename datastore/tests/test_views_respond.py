@@ -1,5 +1,7 @@
 from django.test import LiveServerTestCase
 from django.urls import URLPattern, reverse_lazy
+from django.core.management import call_command
+
 
 import db.models as db
 from api.urls import urlpatterns as api_urls
@@ -7,8 +9,11 @@ from prometheus.urls import urlpatterns as prom_urls
 from ui.urls import urlpatterns as ui_urls
 from urls import urlpatterns as root_urls
 
+import time
 
 # test urls/views Adapted from YQN by Michael Wood GPLv2
+
+
 class UrlsTests(LiveServerTestCase):
     fixtures = ["test_data.json"]
 
@@ -25,8 +30,8 @@ class UrlsTests(LiveServerTestCase):
             url = reverse_lazy(path_name, args=("test", 1))
         elif "int" in path.pattern.describe():
             url = reverse_lazy(path_name, args=(1,))
-        elif "slug" in path.pattern.describe():
-            url = reverse_lazy(path_name, args=("test",))
+        elif "slug" in path.pattern.describe() or "str" in path.pattern.describe():
+            url = reverse_lazy(path_name, args=("360g-aiXie3nohf",))
         else:
             url = reverse_lazy(path_name)
 
@@ -40,14 +45,21 @@ class UrlsTests(LiveServerTestCase):
 
     def test_url_responds(self):
         """Basic test to make sure all urls/views return"""
+        db.Status.objects.create(
+            what=db.Statuses.GRANTNAV_DATA_PACKAGE, status=db.Statuses.READY
+        )
+
+        # For the quality dash data we need to have these objects present
+        db.Latest.update()
+        call_command("rewrite_quality_data", "latest")
+
         for path in root_urls:
             self._test_url(path)
 
         for path in api_urls:
-            db.Status.objects.create(
-                what=db.Statuses.GRANTNAV_DATA_PACKAGE, status=db.Statuses.READY
-            )
-
+            # Avoid hitting the throttle limit on the api
+            # Tried to @override_settings this but doesn't work
+            time.sleep(0.5)
             self._test_url(path, "api")
 
         for path in ui_urls:
