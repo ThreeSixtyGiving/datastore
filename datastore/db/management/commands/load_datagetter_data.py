@@ -126,7 +126,12 @@ class Command(BaseCommand):
 
         print("Updating Latest", file=self.stdout)
         db.Latest.update()
-        call_command("rewrite_quality_data", "latest")
+
+        print("Updating quality data", file=self.stdout)
+        try:
+            call_command("rewrite_quality_data", "latest")
+        except Exception as e:
+            print("Error running rewrite_quality_data %s" % e, file=self.stderr)
 
         # Clear all cached objects - The latest data as well as new data has been added
         cache.clear()
