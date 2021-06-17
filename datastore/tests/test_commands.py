@@ -3,13 +3,13 @@ from tempfile import TemporaryDirectory
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 import db.models as db
 from tests.generate_testdata import generate_data
 
 
-class CustomMgmtCommandsTest(TestCase):
+class CustomMgmtCommandsTest(TransactionTestCase):
     """Test custom management commands"""
 
     fixtures = ["test_data.json"]
