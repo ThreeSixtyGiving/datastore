@@ -56,7 +56,7 @@ django==2.2.24
     #   djangorestframework
 djangorestframework==3.11.2
     # via -r requirements.in
-et-xmlfile==1.0.1
+et_xmlfile==1.0.1
     # via
     #   datagetter
     #   openpyxl
@@ -72,6 +72,7 @@ ijson==3.1.4
     # via
     #   datagetter
     #   flattentool
+    #   lib360dataquality
 importlib-metadata==1.7.0
     # via datagetter
 jdcal==1.4.1
@@ -135,7 +136,7 @@ pytz==2021.1
     #   flattentool
 rangedict==0.1.6
     # via lib360dataquality
-requests[socks]==2.25.1
+requests==2.25.1
     # via
     #   datagetter
     #   libcove

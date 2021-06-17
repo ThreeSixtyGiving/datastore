@@ -60,7 +60,7 @@ django-filter==2.2.0
     # via -r requirements.in
 django-prettyjson==0.4.1
     # via -r requirements.in
-django==2.2.23
+django==2.2.24
     # via
     #   -r requirements.in
     #   django-filter
@@ -70,7 +70,7 @@ djangorestframework==3.11.2
     # via -r requirements.in
 docopt==0.6.2
     # via coveralls
-et-xmlfile==1.0.1
+et_xmlfile==1.0.1
     # via
     #   datagetter
     #   openpyxl
@@ -88,6 +88,7 @@ ijson==3.1.4
     # via
     #   datagetter
     #   flattentool
+    #   lib360dataquality
 importlib-metadata==1.7.0
     # via datagetter
 jdcal==1.4.1
