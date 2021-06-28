@@ -6,7 +6,6 @@ from django.core.management.base import CommandError
 from django.test import TransactionTestCase
 
 import db.models as db
-from tests.generate_testdata import generate_data
 
 
 class CustomMgmtCommandsTest(TransactionTestCase):
@@ -34,15 +33,6 @@ class CustomMgmtCommandsTest(TransactionTestCase):
         call_command("list_datagetter_runs", stdout=out, stderr=err_out)
         self.assertIn("1 |", out.getvalue())
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
-
-    def test_load_datagetter_data(self):
-        err_out = StringIO()
-        with TemporaryDirectory() as tmpdir:
-            generate_data(tmpdir)
-            call_command("load_datagetter_data", tmpdir, stderr=err_out)
-            self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
-            # 50 in the Fixture and 50 from generate_data
-            self.assertEqual(db.Grant.objects.count(), 100)
 
     def test_set_status(self):
         err_out = StringIO()
