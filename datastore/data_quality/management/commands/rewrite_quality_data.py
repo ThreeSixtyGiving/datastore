@@ -31,14 +31,8 @@ class Command(BaseCommand):
             source_files = db.SourceFile.objects.filter(
                 getter_run=options["getter_run"]
             )
-        print(
-            source_files.distinct("data__publisher__prefix").values_list(
-                "data__publisher__prefix"
-            )
-        )
 
         def process_source_file(source_file):
-            print("processing source_file: %s %s" % (source_file, source_file.pk))
             grants_list = {
                 "grants": list(source_file.grant_set.values_list("data", flat=True))
             }
@@ -56,7 +50,6 @@ class Command(BaseCommand):
 
         def process_publishers(source_file):
             publisher = source_file.get_publisher()
-            print("processing publisher %s %s" % (publisher, publisher.pk))
 
             ### FIXME this is fairly inefficient round trip
             (
