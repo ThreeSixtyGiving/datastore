@@ -130,6 +130,7 @@ class Command(BaseCommand):
             call_command("rewrite_quality_data", "latest")
         except Exception as e:
             print("Error running rewrite_quality_data %s" % e, file=self.stderr)
+            pass
 
         # Clear all cached objects - The latest data as well as new data has been added
         cache.clear()
