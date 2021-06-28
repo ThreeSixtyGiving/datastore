@@ -7,7 +7,6 @@ class SourcesSerializer(serializers.ModelSerializer):
     id = serializers.JSONField(source="data.identifier")
     datagetter_data = serializers.JSONField()
     modified = serializers.JSONField(source="data.modified")
-    grants = serializers.IntegerField()
     distribution = serializers.JSONField(source="get_distribution")
     quality = serializers.JSONField()
     aggregate = serializers.JSONField()
@@ -17,7 +16,6 @@ class SourcesSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "datagetter_data",
-            "grants",
             "distribution",
             "modified",
             "quality",
