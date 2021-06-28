@@ -144,7 +144,6 @@ class SourceFile(models.Model):
     data_valid = models.BooleanField(default=False)
     acceptable_license = models.BooleanField(default=False)
     downloads = models.BooleanField(default=False)
-    grants = models.IntegerField(default=0)
 
     # We have this as an array but for now we can assume it will only have
     # one item for the purposes of our api.

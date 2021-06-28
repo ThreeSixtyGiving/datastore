@@ -66,12 +66,10 @@ class Command(BaseCommand):
                 getter_run=getter_run, prefix=prefix, data=ob["publisher"]
             )
 
+            source_file = db.SourceFile.objects.create(data=ob, getter_run=getter_run)
+
             try:
                 grant_data = self.load_grant_data(ob["datagetter_metadata"]["json"])
-
-                source_file = db.SourceFile.objects.create(
-                    data=ob, getter_run=getter_run, grants=len(grant_data["grants"])
-                )
 
                 grant_bulk_insert = []
 
