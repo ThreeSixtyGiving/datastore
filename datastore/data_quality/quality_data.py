@@ -119,11 +119,14 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
             % source_file_set.values_list()
         )
 
+    total_publishers = source_file_set.distinct("data__publisher__prefix").count()
+
     ret = {
         "aggregate": {
             "total": {
                 "grants": int(total_grants),
                 "GBP": total_gbp,
+                "publishers": total_publishers,
                 "recipients": int(
                     source_file_set.annotate(total=totalRecipients).aggregate(
                         Sum("total")
@@ -133,8 +136,6 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
         },
         "quality": {},
     }
-
-    total_publishers = source_file_set.distinct("data__publisher__prefix").count()
 
     # The quality metrics we have are based on "Not" having something and we want to know if they DO have something
     # later we process the counts and filters to do total_publishers - not xyz / total_publishers
