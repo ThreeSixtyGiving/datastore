@@ -7,7 +7,7 @@ from lib360dataquality.cove.schema import Schema360
 from lib360dataquality import check_field_present
 
 from django.db.models import Count
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, F
 from django.db.models.expressions import RawSQL
 from django.core.cache import cache
 
@@ -93,9 +93,9 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
             return ret
 
     total_grants_sql = RawSQL("((aggregate->>%s)::numeric)", ("count",))
-    total_grants = source_file_set.annotate(total=total_grants_sql).aggregate(
+    total_grants = int(source_file_set.annotate(total=total_grants_sql).aggregate(
         Sum("total")
-    )["total__sum"]
+    )["total__sum"])
 
     totalRecipients = RawSQL("((aggregate->>%s)::numeric)", ("recipients",))
 
@@ -124,7 +124,7 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
     ret = {
         "aggregate": {
             "total": {
-                "grants": int(total_grants),
+                "grants": total_grants,
                 "GBP": total_gbp,
                 "publishers": total_publishers,
                 "recipients": int(
@@ -137,32 +137,22 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
         "quality": {},
     }
 
-    # The quality metrics we have are based on "Not" having something and we want to know if they DO have something
-    # later we process the counts and filters to do total_publishers - not xyz / total_publishers
-    # to give the total publishers that do have it.
+    count_parameter = "aggregate__count"
+    query_parameters = {
+        "hasBeneficiaryLocationName": "quality__BeneficiaryLocationNameNotPresent__count",
+        "hasRecipientOrgLocations": "quality__IncompleteRecipientOrg__count",
+        "hasGrantDuration": "quality__PlannedDurationNotPresent__count",
+        "hasGrantProgrammeTitle": "quality__GrantProgrammeTitleNotPresent__count",
+        "hasGrantClassification": "quality__ClassificationNotPresent__count",
+    }
+    filtered_source_file_sets = {}
 
-    has_no_location_codes = source_file_set.filter(
-        Q(quality__BeneficiaryLocationCountryCodeNotPresent__count__gte=1)
-        | Q(quality__BeneficiaryLocationGeoCodeNotPresent__count__gte=1)
-    )
+    # for debug
+    source_file = source_file_set[0]
 
-    # TODO There is a more clever way to pass the filter field names in using **kwargs
-    has_no_location_names = source_file_set.filter(
-        quality__BeneficiaryLocationNameNotPresent__count__gte=1
-    )
+    for ret_parameter, query_parameter in query_parameters.items():
+        filtered_source_file_sets[ret_parameter] = source_file_set.filter(**{query_parameter: F(count_parameter)})
 
-    has_no_recipient_org_location = source_file_set.filter(
-        quality__IncompleteRecipientOrg__count__gte=1
-    )
-    has_no_grant_duration = source_file_set.filter(
-        quality__PlannedDurationNotPresent__count__gte=1
-    )
-    has_no_grant_programme_title = source_file_set.filter(
-        quality__GrantProgrammeTitleNotPresent__count__gte=1
-    )
-    has_no_grant_classification = source_file_set.filter(
-        quality__ClassificationNotPresent__count__gte=1
-    )
 
     json_files = source_file_set.exclude(
         data__datagetter_metadata__file_type__contains="json"
@@ -187,15 +177,6 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
         data__modified__startswith=this_month
     )
 
-    queries = {
-        "hasBeneficiaryLocationCodes": has_no_location_codes,
-        "hasRecipientOrgLocations": has_no_recipient_org_location,
-        "hasBeneficiaryLocationName": has_no_location_names,
-        "hasGrantDuration": has_no_grant_duration,
-        "hasGrantProgrammeTitle": has_no_grant_programme_title,
-        "hasGrantClassification": has_no_grant_classification,
-    }
-
     # We look at the distinct publishers so that if any source file from a publisher
     # contains a quality problem in any of their source files then that publisher is counted
     # as not having that value
@@ -218,7 +199,7 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
             ) / total_publishers
 
         # Run data quality queries
-        for metric, query in queries.items():
+        for metric, query in filtered_source_file_sets.items():
             ret["quality"][metric] = (
                 total_publishers - query.distinct("data__publisher__prefix").count()
             ) / total_publishers
