@@ -14,7 +14,7 @@ from django.core.cache import cache
 import db.models as db
 
 from tempfile import TemporaryDirectory
-import datetime
+from datetime import datetime, timedelta
 
 schema = Schema360()
 
@@ -137,45 +137,38 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
         "quality": {},
     }
 
+    quality_filtered_file_sets = {}
     count_parameter = "aggregate__count"
-    query_parameters = {
+    quality_query_parameters = {
         "hasBeneficiaryLocationName": "quality__BeneficiaryLocationNameNotPresent__count",
         "hasRecipientOrgLocations": "quality__IncompleteRecipientOrg__count",
         "hasGrantDuration": "quality__PlannedDurationNotPresent__count",
         "hasGrantProgrammeTitle": "quality__GrantProgrammeTitleNotPresent__count",
         "hasGrantClassification": "quality__ClassificationNotPresent__count",
     }
-    filtered_source_file_sets = {}
-
-    # for debug
-    source_file = source_file_set[0]
-
-    for ret_parameter, query_parameter in query_parameters.items():
-        filtered_source_file_sets[ret_parameter] = source_file_set.filter(**{query_parameter: F(count_parameter)})
-
-
-    json_files = source_file_set.exclude(
-        data__datagetter_metadata__file_type__contains="json"
-    )
-    csv_files = source_file_set.exclude(
-        data__datagetter_metadata__file_type__contains="csv"
-    )
-    xlsx_files = source_file_set.exclude(
-        data__datagetter_metadata__file_type__contains="xlsx"
-    )
-    ods_files = source_file_set.exclude(
-        data__datagetter_metadata__file_type__contains="ods"
+    for ret_parameter, query_parameter in quality_query_parameters.items():
+        quality_filtered_file_sets[ret_parameter] = source_file_set.filter(**{query_parameter: F(count_parameter)})
+    
+    has_no_location_codes = source_file_set.filter(
+        Q(quality__BeneficiaryLocationCountryCodeNotPresent__count=F(count_parameter))
+        | Q(quality__BeneficiaryLocationGeoCodeNotPresent__count=F(count_parameter))
     )
 
-    this_month = datetime.datetime.now().strftime("%Y-%m")
-    this_year = datetime.datetime.now().strftime("%Y")
+    metadata_filtered_file_sets = {}
+    metadata_query_parameter = {
+        "json_files": "json",
+        "csv_files": "csv",
+        "xlsx_files": "xlsx",
+        "ods_files": "ods",
+    }
+    for ret_parameter, query_parameter in metadata_query_parameter.items():
+        metadata_filtered_file_sets[ret_parameter] = source_file_set.exclude(data__datagetter_metadata__file_type__contains=query_parameter)
 
-    published_data_this_year = source_file_set.exclude(
-        data__modified__startswith=this_year
-    )
-    published_data_this_month = source_file_set.exclude(
-        data__modified__startswith=this_month
-    )
+    this_month = datetime.now() - timedelta(days=31)
+    this_year = datetime.now() - timedelta(days=366)
+
+    published_data_this_month = source_file_set.annotate(modified=RawSQL("(data->>'modified')::timestamp", [])).filter(modified__gte=this_month)
+    published_data_this_year = source_file_set.annotate(modified=RawSQL("(data->>'modified')::timestamp", [])).filter(modified__gte=this_year)
 
     # We look at the distinct publishers so that if any source file from a publisher
     # contains a quality problem in any of their source files then that publisher is counted
@@ -184,12 +177,9 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
 
         # All this could be re-written to look at the published objects rather than aggregating the source file info
         aggregate_queries = {
-            "publishedThisYear": published_data_this_year,
             "publishedThisMonth": published_data_this_month,
-            "jsonFiles": json_files,
-            "csvFiles": csv_files,
-            "xlsxFiles": xlsx_files,
-            "odsFiles": ods_files,
+            "publishedThisYear": published_data_this_year,
+            **metadata_filtered_file_sets
         }
 
         # Run aggregate queries
@@ -199,14 +189,14 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
             ) / total_publishers
 
         # Run data quality queries
-        for metric, query in filtered_source_file_sets.items():
+        for metric, filtered_source_file_set in quality_filtered_file_sets.items():
             ret["quality"][metric] = (
-                total_publishers - query.distinct("data__publisher__prefix").count()
+                total_publishers - filtered_source_file_set.distinct("data__publisher__prefix").count()
             ) / total_publishers
 
         # Awarded in these years
         award_years = {}
-        this_year_int = int(this_year)
+        this_year_int = int(datetime.now().strftime("%Y"))
 
         for i in range(0, 10):
             year_str = str(this_year_int - i)
