@@ -146,10 +146,13 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
         "hasGrantProgrammeTitle": "quality__GrantProgrammeTitleNotPresent__count",
         "hasGrantClassification": "quality__ClassificationNotPresent__count",
     }
+
+    # It was hard to verify the output of these calculations because I had very little data to work with
+    # I think it is moving in the right direction
     for ret_parameter, query_parameter in quality_query_parameters.items():
         quality_filtered_file_sets[ret_parameter] = source_file_set.filter(**{query_parameter: F(count_parameter)})
     
-    has_no_location_codes = source_file_set.filter(
+    quality_filtered_file_sets['hasBeneficiaryLocationCodes'] = source_file_set.filter(
         Q(quality__BeneficiaryLocationCountryCodeNotPresent__count=F(count_parameter))
         | Q(quality__BeneficiaryLocationGeoCodeNotPresent__count=F(count_parameter))
     )
@@ -167,6 +170,7 @@ def aggregated_stats(source_file_set, mode, cache_key=None):
     this_month = datetime.now() - timedelta(days=31)
     this_year = datetime.now() - timedelta(days=366)
 
+    # Can we coerce things into timestamps like this? I don't think timezones matter too much in this context
     published_data_this_month = source_file_set.annotate(modified=RawSQL("(data->>'modified')::timestamp", [])).filter(modified__gte=this_month)
     published_data_this_year = source_file_set.annotate(modified=RawSQL("(data->>'modified')::timestamp", [])).filter(modified__gte=this_year)
 
