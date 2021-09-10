@@ -54,18 +54,18 @@ defusedxml==0.7.1
     # via
     #   datagetter
     #   odfpy
-django-environ==0.4.5
-    # via -r requirements.in
-django-filter==2.2.0
-    # via -r requirements.in
-django-prettyjson==0.4.1
-    # via -r requirements.in
 django==2.2.23
     # via
     #   -r requirements.in
     #   django-filter
     #   django-prettyjson
     #   djangorestframework
+django-environ==0.4.5
+    # via -r requirements.in
+django-filter==2.2.0
+    # via -r requirements.in
+django-prettyjson==0.4.1
+    # via -r requirements.in
 djangorestframework==3.11.2
     # via -r requirements.in
 docopt==0.6.2
@@ -88,6 +88,7 @@ ijson==3.1.4
     # via
     #   datagetter
     #   flattentool
+    #   lib360dataquality
 importlib-metadata==1.7.0
     # via datagetter
 jdcal==1.4.1
@@ -163,14 +164,14 @@ rangedict==0.1.6
     # via lib360dataquality
 regex==2021.4.4
     # via black
-requests-mock==1.9.2
-    # via -r requirements_dev.in
 requests[socks]==2.25.1
     # via
     #   coveralls
     #   datagetter
     #   libcove
     #   requests-mock
+requests-mock==1.9.2
+    # via -r requirements_dev.in
 rfc3987==1.3.8
     # via
     #   datagetter
@@ -191,7 +192,7 @@ six==1.15.0
     #   python-dateutil
     #   requests-mock
     #   zodb
-sqlparse==0.4.1
+sqlparse==0.4.2
     # via django
 standardjson==0.3.1
     # via django-prettyjson
