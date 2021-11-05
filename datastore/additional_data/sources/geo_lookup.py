@@ -47,6 +47,26 @@ class GeoLookupSource(object):
                 "lad20nm": "ladnm",
             },
         },
+        "rgn": {
+            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/rgn_all_codes.csv",
+            "field_areacode": "rgncd",
+            "field_areaname": "rgnnm",
+        },
+        "ctry": {
+            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/ctry_all_codes.csv",
+            "field_areacode": "ctrycd",
+            "field_areaname": "ctrynm",
+        },
+        "utla": {
+            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/utla_all_codes.csv",
+            "field_areacode": "utlacd",
+            "field_areaname": "utlanm",
+        },
+        "cuath": {
+            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/cauth_all_codes.csv",
+            "field_areacode": "cauthcd",
+            "field_areaname": "cauthnm",
+        },
     }
 
     def __init__(self):
@@ -65,6 +85,7 @@ class GeoLookupSource(object):
                 yield field, value
 
         r = requests.get(areadata.get("url_lookup"), stream=True)
+        r.encoding = "utf-8-sig"
         area_csv = io.StringIO(r.text)
         reader = csv.DictReader(area_csv)
         for r in reader:
@@ -75,6 +96,7 @@ class GeoLookupSource(object):
 
         if areadata.get("url_latlong"):
             r = requests.get(areadata.get("url_latlong"), stream=True)
+            r.encoding = "utf-8-sig"
             area_csv = io.StringIO(r.text)
             reader = csv.DictReader(area_csv)
             for r in reader:

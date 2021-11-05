@@ -35,7 +35,7 @@ class TestAdditionalDataGeoLookup(TestCase):
 
             geo.import_geo_lookups()
 
-            self.assertEqual(len(GeoLookup.objects.all()), 60)
+            self.assertEqual(len(GeoLookup.objects.all()), 281)
 
             # check one example
             geo_object = GeoLookup.objects.filter(areacode=self.EXISTING_AREA)
@@ -85,7 +85,7 @@ class TestAdditionalDataGeoLookup(TestCase):
 
             geo.import_geo_lookups()
 
-            self.assertEqual(len(GeoLookup.objects.all()), 60)
+            self.assertEqual(len(GeoLookup.objects.all()), 281)
 
             # check one example
             self.assertTrue(
@@ -93,7 +93,7 @@ class TestAdditionalDataGeoLookup(TestCase):
             )
 
             geo.import_geo_lookups()
-            self.assertEqual(len(GeoLookup.objects.all()), 60)
+            self.assertEqual(len(GeoLookup.objects.all()), 281)
 
     def save_mock_data(self):
         geo = GeoLookupSource()
