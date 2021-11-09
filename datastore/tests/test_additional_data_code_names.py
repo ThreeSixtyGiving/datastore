@@ -1,8 +1,11 @@
 import requests_mock
+from pathlib import PurePath
 from django.test import TestCase
 
 from additional_data.models import CodeName
 from additional_data.sources.code_names import CodeNamesSource
+
+test_files_dir = PurePath(__file__).parent.joinpath("files")
 
 
 class TestAdditionalDataCodeNames(TestCase):
@@ -11,7 +14,7 @@ class TestAdditionalDataCodeNames(TestCase):
 
         with requests_mock.Mocker() as m:
             with open(
-                "./datastore/tests/files/code_names_with_data.zip", "rb"
+                test_files_dir.joinpath("code_names_with_data.zip"), "rb"
             ) as infile:
                 # Change History Data url returns a zipfile. We are replacing the zipfile by mocking it.
                 m.get("{}".format(code_names.CHD_URL), body=infile)
@@ -51,7 +54,7 @@ class TestAdditionalDataCodeNames(TestCase):
 
         with requests_mock.Mocker() as m:
             with open(
-                "./datastore/tests/files/code_names_with_no_data.zip", "rb"
+                test_files_dir.joinpath("code_names_with_no_data.zip"), "rb"
             ) as infile:
                 # Change History Data url returns a zipfile. We are replacing the zipfile by mocking it.
                 m.get("{}".format(code_names.CHD_URL), body=infile)
@@ -65,7 +68,7 @@ class TestAdditionalDataCodeNames(TestCase):
 
         with requests_mock.Mocker() as m:
             with open(
-                "./datastore/tests/files/code_names_with_data.zip", "rb"
+                test_files_dir.joinpath("code_names_with_data.zip"), "rb"
             ) as infile:
                 # Change History Data url returns a zipfile. We are replacing the zipfile by mocking it.
                 m.get("{}".format(code_names.CHD_URL), body=infile)
@@ -74,7 +77,7 @@ class TestAdditionalDataCodeNames(TestCase):
                 self.assertTrue(CodeName.objects.filter(code="S12000015").first())
 
                 with open(
-                    "./datastore/tests/files/code_names_with_data_bis.zip", "rb"
+                    test_files_dir.joinpath("code_names_with_data_bis.zip"), "rb"
                 ) as infile:
                     # Change History Data url returns a zipfile. We are replacing the zipfile by mocking it.
                     m.get("{}".format(code_names.CHD_URL), body=infile)

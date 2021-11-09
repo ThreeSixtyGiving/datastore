@@ -1,9 +1,12 @@
 import requests_mock
+from pathlib import PurePath
 from django.test import TestCase
 
 from additional_data.models import GeoLookup
 from additional_data.sources.geo_lookup import GeoLookupSource
 from db.models import Grant
+
+test_files_dir = PurePath(__file__).parent.joinpath("files").joinpath("geolookups")
 
 
 class TestAdditionalDataGeoLookup(TestCase):
@@ -16,16 +19,12 @@ class TestAdditionalDataGeoLookup(TestCase):
 
             # mock the CSV downloads
             url_filename = a["url_lookup"].split("/")[-1]
-            with open(
-                "./datastore/tests/files/geolookups/{}".format(url_filename), "r"
-            ) as infile:
+            with open(test_files_dir.joinpath(url_filename), "r") as infile:
                 m.get("{}".format(a["url_lookup"]), text=infile.read())
 
             if a.get("url_latlong"):
                 url_filename = a["url_latlong"].split("/")[-1]
-                with open(
-                    "./datastore/tests/files/geolookups/{}".format(url_filename), "r"
-                ) as infile:
+                with open(test_files_dir.joinpath(url_filename), "r") as infile:
                     m.get("{}".format(a["url_latlong"]), text=infile.read())
 
     def test_import_geolookups_with_data(self):
