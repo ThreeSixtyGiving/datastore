@@ -8,7 +8,7 @@
     # via -r requirements.in
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@main#egg=lib360dataquality
     # via -r requirements.in
-attrs==20.3.0
+attrs==21.2.0
     # via
     #   datagetter
     #   jsonschema
@@ -16,25 +16,25 @@ backports-datetime-fromisoformat==1.0.0
     # via
     #   datagetter
     #   flattentool
-btrees==4.7.2
+btrees==4.9.2
     # via
     #   datagetter
     #   zodb
 cached-property==1.5.2
     # via libcove
-certifi==2020.12.5
+certifi==2021.10.8
     # via
     #   datagetter
     #   requests
-cffi==1.14.5
+cffi==1.15.0
     # via
     #   datagetter
     #   persistent
-chardet==4.0.0
+charset-normalizer==2.0.7
     # via
     #   datagetter
     #   requests
-contextlib2==0.6.0.post1
+contextlib2==21.6.0
     # via
     #   datagetter
     #   schema
@@ -42,7 +42,7 @@ defusedxml==0.7.1
     # via
     #   datagetter
     #   odfpy
-django-environ==0.4.5
+django-environ==0.8.1
     # via -r requirements.in
 django-filter==2.2.0
     # via -r requirements.in
@@ -56,15 +56,15 @@ django==2.2.24
     #   djangorestframework
 djangorestframework==3.11.2
     # via -r requirements.in
-et-xmlfile==1.0.1
+et_xmlfile==1.1.0
     # via
     #   datagetter
     #   openpyxl
-flattentool==0.16.0
+flattentool==0.17.1
     # via
     #   datagetter
     #   libcove
-idna==2.10
+idna==3.3
     # via
     #   datagetter
     #   requests
@@ -72,6 +72,7 @@ ijson==3.1.4
     # via
     #   datagetter
     #   flattentool
+    #   lib360dataquality
 importlib-metadata==1.7.0
     # via datagetter
 jdcal==1.4.1
@@ -87,13 +88,9 @@ jsonschema==3.2.0
     # via
     #   datagetter
     #   libcove
-lepl==5.1.3
-    # via
-    #   datagetter
-    #   rfc6266
-libcove==0.24.0
+libcove==0.27.0
     # via lib360dataquality
-lxml==4.6.3
+lxml==4.6.4
     # via
     #   datagetter
     #   flattentool
@@ -105,7 +102,7 @@ openpyxl==2.6.4
     # via
     #   datagetter
     #   flattentool
-persistent==4.6.4
+persistent==4.7.0
     # via
     #   btrees
     #   datagetter
@@ -114,11 +111,11 @@ prometheus_client==0.7
     # via -r requirements.in
 psycopg2==2.8
     # via -r requirements.in
-pycparser==2.20
+pycparser==2.21
     # via
     #   cffi
     #   datagetter
-pyrsistent==0.17.3
+pyrsistent==0.18.0
     # via
     #   datagetter
     #   jsonschema
@@ -126,49 +123,47 @@ pysocks==1.7.1
     # via
     #   datagetter
     #   requests
-python-dateutil==2.8.1
+python-dateutil==2.8.2
     # via lib360dataquality
-pytz==2021.1
+pytz==2021.3
     # via
     #   datagetter
     #   django
     #   flattentool
 rangedict==0.1.6
     # via lib360dataquality
-requests[socks]==2.25.1
+requests[socks]==2.26.0
     # via
     #   datagetter
     #   libcove
+rfc3339-validator==0.1.4
+    # via libcove
 rfc3987==1.3.8
     # via
     #   datagetter
     #   libcove
-rfc6266==0.0.4
-    # via datagetter
 schema==0.7.4
     # via
     #   datagetter
     #   flattentool
-six==1.15.0
+six==1.16.0
     # via
     #   datagetter
     #   django-prettyjson
     #   jsonschema
     #   python-dateutil
     #   zodb
-sqlparse==0.4.1
+sqlparse==0.4.2
     # via django
 standardjson==0.3.1
     # via django-prettyjson
 strict-rfc3339==0.7
-    # via
-    #   datagetter
-    #   libcove
+    # via datagetter
 transaction==3.0.1
     # via
     #   datagetter
     #   zodb
-urllib3==1.26.4
+urllib3==1.26.7
     # via
     #   datagetter
     #   requests
@@ -184,11 +179,11 @@ zc.zlibstorage==1.2.0
     # via
     #   datagetter
     #   flattentool
-zconfig==3.5.0
+zconfig==3.6.0
     # via
     #   datagetter
     #   zodb
-zipp==1.2.0
+zipp==3.6.0
     # via
     #   datagetter
     #   importlib-metadata
@@ -197,11 +192,11 @@ zodb==5.6.0
     #   datagetter
     #   flattentool
     #   zc.zlibstorage
-zodbpickle==2.0.0
+zodbpickle==2.2.0
     # via
     #   datagetter
     #   zodb
-zope.interface==5.3.0
+zope.interface==5.4.0
     # via
     #   btrees
     #   datagetter
