@@ -99,10 +99,10 @@ WSGI_APPLICATION = "wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "360givingdatastore",
-        "USER": "test",
-        "PASSWORD": "test",
-        "HOST": "localhost",
+        "NAME": os.getenv("DATABASE_NAME", "360givingdatastore"),
+        "USER": os.getenv("DATABASE_USER", "test"),
+        "PASSWORD": os.getenv("DATABASE_PASSWORD", "test"),
+        "HOST": os.getenv("DATABASE_HOST", "localhost"),
         "PORT": "5432",
     }
 }
