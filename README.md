@@ -10,7 +10,7 @@ Example:
 In this example we create a user test and password test for dev usage.
 
 ```
-$ sudo apt-get install postgresql-10 postgresql-server-dev-10
+$ sudo apt-get install postgresql-12 postgresql-server-dev-12
 $ sudo -u postgres createuser -P -e test  --interactive
 $ createdb -U test -W 360givingdatastore
 
