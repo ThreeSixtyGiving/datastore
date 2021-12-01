@@ -93,7 +93,7 @@ _see `manage.py test --help` for more info_
 
 # Updating requirements
 
-We target python3.6 for our requirements.
+We target python3.8 for our requirements.
 
 Use `pip-compile` provided by `pip-tools` package to process requirements .in files.
 
