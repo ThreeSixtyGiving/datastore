@@ -1,0 +1,28 @@
+version: "3.5"
+
+services:
+
+  datastore-web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: 'True'
+      DATABASE_HOST: 'postgres'
+      DATABASE_NAME: 'postgres'
+      DATABASE_USER: 'postgres'
+      DATABASE_PASSWORD: 'postgres'
+    volumes:
+      - "./:/code"
+    command: "sh -c 'python datastore/manage.py migrate && python datastore/manage.py runserver 0.0.0.0:8000'"
+
+  postgres:
+    image: postgres:12
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - "./postgres_dev_data:/var/lib/postgresql/data"
+

@@ -10,11 +10,13 @@ Example:
 In this example we create a user test and password test for dev usage.
 
 ```
-$ sudo apt-get install postgresql-10 postgresql-server-dev-10
+$ sudo apt-get install postgresql-12 postgresql-server-dev-12
 $ sudo -u postgres createuser -P -e test  --interactive
 $ createdb -U test -W 360givingdatastore
 
 ```
+
+(In development you can also set the `DATABASE_HOST`, `DATABASE_NAME`,`DATABASE_USER` and `DATABASE_PASSWORD` environmental variables.)
 
 ## Python setup
 
@@ -60,6 +62,44 @@ There are many useful management commands see:
 $ manage.py --help # !
 ```
 
+
+# Dev with Docker Compose
+
+Developers can also use Docker Compose to get a local development environment.
+
+## Running
+
+    docker-compose -f docker-compose.dev.yml up
+
+The website should be available at http://localhost:8000
+
+Use Ctrl-C to exit.
+
+
+## Loading grant data & additional data
+
+Whilst leaving the up command running, you should use `docker-compose run` with the commands from the above sections.
+
+eg; instead of running:
+
+```
+$ manage.py load_code_names
+```
+
+Run:
+
+```
+$ docker-compose -f docker-compose.dev.yml run datastore-web python datastore/manage.py load_code_names
+```
+
+## Getting database CLI
+
+Run:
+
+```
+$ docker-compose -f docker-compose.dev.yml run -e PGPASSWORD=postgres postgres psql -h postgres -U postgres 
+```
+
 # Testing
 
 ## Requirements
@@ -93,7 +133,7 @@ _see `manage.py test --help` for more info_
 
 # Updating requirements
 
-We target python3.6 for our requirements.
+We target python3.8 for our requirements.
 
 Use `pip-compile` provided by `pip-tools` package to process requirements .in files.
 
