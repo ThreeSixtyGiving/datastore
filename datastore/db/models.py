@@ -2,6 +2,7 @@ from django.contrib.postgres.fields import JSONField
 from django.db import connection, models
 from django.db.utils import DataError
 from django.utils import timezone
+from django.db.models.expressions import RawSQL
 
 
 class Latest(models.Model):
@@ -129,7 +130,7 @@ class GetterRun(models.Model):
         self.save()
 
     def __str__(self):
-        return str(self.datetime)
+        return "%s - %s" % (self.pk, self.datetime)
 
 
 class SourceFile(models.Model):
@@ -193,13 +194,14 @@ class Publisher(models.Model):
             getter_run=self.getter_run, data__publisher__prefix=self.prefix
         )
 
-    def get_quality_stats(self):
-        from data_quality import quality_data
-
-        return quality_data.aggregated_stats(
-            self.get_sourcefiles(),
-            "publishers_list",
-            "publishers_list_%s" % self.prefix,
+    def get_last_last_modified(self):
+        """returns the last last modified date from any source files this publisher has"""
+        return (
+            self.get_sourcefiles()
+            .annotate(dt=RawSQL("(data->>'modified')::timestamp", []))
+            .order_by("-dt")
+            .first()
+            .data["modified"]
         )
 
     #  Update the convenience fields

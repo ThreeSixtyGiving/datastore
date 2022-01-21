@@ -45,22 +45,15 @@ class Command(BaseCommand):
         with Pool(4) as process_pool:
             process_pool.starmap(process_source_file, zip(source_files))
 
-        # for source_file in source_files:
-        #     process_source_file(source_file)
-
         def process_publishers(source_file):
             publisher = source_file.get_publisher()
 
-            ### FIXME this is fairly inefficient round trip
             (
                 publisher.quality,
                 publisher.aggregate,
-            ) = quality_data.create_publisher_aggregate(publisher.get_sourcefiles())
+            ) = quality_data.create_publisher_stats(publisher)
             publisher.save()
             connection.close()
-
-        #        for source_file in source_files.distinct("data__publisher__prefix"):
-        #           process_publishers(source_file)
 
         with Pool(4) as process_pool:
             process_pool.starmap(
