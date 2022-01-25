@@ -1,6 +1,7 @@
 from django.http.response import JsonResponse
 from django.views import View
 from django.core.cache import cache
+from django.conf import settings
 
 import django_filters.rest_framework
 from rest_framework import filters, generics
@@ -68,17 +69,20 @@ class Overview(View):
         full_request_uri = self.request.build_absolute_uri()
 
         # Don't cache if we have ?nocache in the query
-        if not self.request.GET.get("nocache"):
+        if not self.request.GET.get("nocache") and not settings.DEBUG:
             ret = cache.get(full_request_uri)
             if ret:
+                print("retuning cache")
                 return JsonResponse(ret, safe=False)
 
-        mode = "overview_%s" % self.request.GET.get("mode")
+        mode = "overview_%s" % self.request.GET.get("mode", "grants")
 
-        latest = db.Latest.objects.get(series=db.Latest.CURRENT)
-        source_file_set = latest.sourcefile_set.all()
+        source_file_set = db.Latest.objects.get(
+            series=db.Latest.CURRENT
+        ).sourcefile_set.all()
 
-        ret = quality_data.aggregated_stats(source_file_set, mode)
+        ret = quality_data.generate_stats(mode, source_file_set)
+
         cache.set(full_request_uri, ret)
 
         return JsonResponse(ret, safe=False)
