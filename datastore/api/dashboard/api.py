@@ -17,12 +17,17 @@ class PublisherFilters(django_filters.rest_framework.FilterSet):
         method="hasGrantProgrammeTitle_filter", label="hasGrantProgrammeTitle"
     )
 
+    prefix = django_filters.CharFilter(method="hasPrefix", label="hasPrefix")
+
     def hasGrantProgrammeTitle_filter(self, queryset, name, value):
         return queryset.filter(quality__hasGrantProgrammeTitle__iexact=value)
 
+    def hasPrefix(self, queryset, name, value):
+        return queryset.filter(prefix__exact=value)
+
     class Meta:
         model = db.Publisher
-        fields = ["quality__hasGrantProgrammeTitle"]
+        fields = ["quality__hasGrantProgrammeTitle", "prefix"]
 
 
 class Publishers(generics.ListAPIView):
