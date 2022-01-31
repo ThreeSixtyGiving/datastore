@@ -5,6 +5,8 @@ import db.models as db
 
 class SourcesSerializer(serializers.ModelSerializer):
     id = serializers.JSONField(source="data.identifier")
+    title = serializers.JSONField(source="data.title")
+    license = serializers.JSONField(source="data.license_name")
     datagetter_data = serializers.JSONField()
     modified = serializers.JSONField(source="data.modified")
     distribution = serializers.JSONField(source="get_distribution")
@@ -15,6 +17,8 @@ class SourcesSerializer(serializers.ModelSerializer):
         model = db.SourceFile
         fields = (
             "id",
+            "title",
+            "license",
             "datagetter_data",
             "distribution",
             "modified",
