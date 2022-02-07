@@ -32,9 +32,9 @@ class PublishersSerializer(serializers.ModelSerializer):
     logo = serializers.JSONField(source="data.logo")
     prefix = serializers.JSONField(source="data.prefix")
     website = serializers.JSONField(source="data.website")
+    last_published = serializers.JSONField(source="data.last_published")
     aggregate = serializers.JSONField()
     quality = serializers.JSONField()
-    lastLastModified = serializers.CharField(source="get_last_last_modified")
 
     class Meta:
         model = db.Publisher
@@ -42,8 +42,8 @@ class PublishersSerializer(serializers.ModelSerializer):
             "name",
             "logo",
             "prefix",
-            "lastLastModified",
             "website",
+            "last_published",
             "aggregate",
             "quality",
         )
@@ -53,7 +53,7 @@ class PublisherSerializer(PublishersSerializer):
 
     # Same as Publishers but with added `files`
     files = SourcesSerializer(source="get_sourcefiles", many=True)
-    lastLastModified = serializers.CharField(source="get_last_last_modified")
+    last_published = serializers.JSONField(source="data.last_published")
 
     class Meta:
         model = db.Publisher
@@ -65,5 +65,5 @@ class PublisherSerializer(PublishersSerializer):
             "aggregate",
             "quality",
             "files",
-            "lastLastModified",
+            "last_published",
         )
