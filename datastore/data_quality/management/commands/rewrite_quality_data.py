@@ -33,13 +33,21 @@ class Command(BaseCommand):
             )
 
         def process_source_file(source_file):
-            grants_list = {
-                "grants": list(source_file.grant_set.values_list("data", flat=True))
-            }
-            source_file.quality, source_file.aggregate = quality_data.create(
-                grants_list
-            )
-            source_file.save()
+            try:
+                grants_list = {
+                    "grants": list(source_file.grant_set.values_list("data", flat=True))
+                }
+                source_file.quality, source_file.aggregate = quality_data.create(
+                    grants_list
+                )
+                source_file.save()
+            except Exception as e:
+                print(
+                    "Could not create source file quality data for %s"
+                    % str(source_file)
+                )
+                print(e)
+
             connection.close()
 
         with Pool(4) as process_pool:
@@ -48,11 +56,15 @@ class Command(BaseCommand):
         def process_publishers(source_file):
             publisher = source_file.get_publisher()
 
-            (
-                publisher.quality,
-                publisher.aggregate,
-            ) = quality_data.create_publisher_stats(publisher)
-            publisher.save()
+            try:
+                (
+                    publisher.quality,
+                    publisher.aggregate,
+                ) = quality_data.create_publisher_stats(publisher)
+                publisher.save()
+            except Exception as e:
+                print("Could not create publisher quality data for %s" % str(publisher))
+                print(e)
             connection.close()
 
         with Pool(4) as process_pool:
