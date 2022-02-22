@@ -35,7 +35,7 @@ class TestAdditionalDataGeoLookup(TestCase):
 
             geo.import_geo_lookups()
 
-            self.assertEqual(len(GeoLookup.objects.all()), 281)
+            self.assertEqual(len(GeoLookup.objects.all()), 500)
 
             # check one example
             geo_object = GeoLookup.objects.filter(areacode=self.EXISTING_AREA)
@@ -85,7 +85,7 @@ class TestAdditionalDataGeoLookup(TestCase):
 
             geo.import_geo_lookups()
 
-            self.assertEqual(len(GeoLookup.objects.all()), 281)
+            self.assertEqual(len(GeoLookup.objects.all()), 500)
 
             # check one example
             self.assertTrue(
@@ -93,7 +93,7 @@ class TestAdditionalDataGeoLookup(TestCase):
             )
 
             geo.import_geo_lookups()
-            self.assertEqual(len(GeoLookup.objects.all()), 281)
+            self.assertEqual(len(GeoLookup.objects.all()), 500)
 
     def save_mock_data(self):
         geo = GeoLookupSource()
@@ -145,6 +145,7 @@ class TestAdditionalDataGeoLookup(TestCase):
     def test_nspl_update_additional_data_recipientOrganization(self):
         self.save_mock_data()
         grant = Grant.objects.first()
+        del grant.data["beneficiaryLocation"]
         grant.data["recipientOrganization"][0]["location"] = [
             {"geoCode": self.EXISTING_AREA}
         ]
@@ -168,6 +169,7 @@ class TestAdditionalDataGeoLookup(TestCase):
     def test_nspl_update_additional_data_recipientOrganizationLocation(self):
         self.save_mock_data()
         grant = Grant.objects.first()
+        del grant.data["beneficiaryLocation"]
 
         additional_data = {
             "recipientOrganizationLocation": {"lsoa11": self.EXISTING_AREA}
