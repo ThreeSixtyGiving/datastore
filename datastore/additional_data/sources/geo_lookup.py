@@ -38,34 +38,11 @@ class GeoLookupSource(object):
             "field_areacode": "wdcd",
             "field_areaname": "wdnm",
         },
-        "la": {
-            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/la_all_codes.csv",
-            "field_areacode": "ladcd",
-            "field_areaname": "ladnm",
-            "field_transforms": {
-                "lad20cd": "ladcd",
-                "lad20nm": "ladnm",
-            },
-        },
-        "rgn": {
-            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/rgn_all_codes.csv",
-            "field_areacode": "rgncd",
-            "field_areaname": "rgnnm",
-        },
-        "ctry": {
-            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/ctry_all_codes.csv",
-            "field_areacode": "ctrycd",
-            "field_areaname": "ctrynm",
-        },
-        "utla": {
-            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/utla_all_codes.csv",
-            "field_areacode": "utlacd",
-            "field_areaname": "utlanm",
-        },
-        "cuath": {
-            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/cauth_all_codes.csv",
-            "field_areacode": "cauthcd",
-            "field_areaname": "cauthnm",
+        "areas": {
+            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/area_all_codes.csv",
+            "field_areacode": "areacode",
+            "field_areaname": "areaname",
+            "field_areatype": "areatype",
         },
     }
 
@@ -82,7 +59,8 @@ class GeoLookupSource(object):
                     field = "areaname"
                 if areadata.get("field_transforms", {}).get(field):
                     field = areadata.get("field_transforms", {}).get(field)
-                yield field, value
+                if value:
+                    yield field, value
 
         r = requests.get(areadata.get("url_lookup"), stream=True)
         r.encoding = "utf-8-sig"
@@ -90,7 +68,10 @@ class GeoLookupSource(object):
         reader = csv.DictReader(area_csv)
         for r in reader:
             data = dict(clean_fields(r))
-            data["areatype"] = areatype
+            if areadata.get("field_areatype"):
+                data["areatype"] = r[areadata.get("field_areatype")]
+            else:
+                data["areatype"] = areatype
             if data["areacode"] not in areas:
                 areas[data["areacode"]] = data
 
