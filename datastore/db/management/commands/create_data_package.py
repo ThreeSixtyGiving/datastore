@@ -115,49 +115,49 @@ class Command(BaseCommand):
 
 
 CREATE_RELATED_ORGIDS = """
-DROP TABLE IF EXISTS related_orgids;
+DROP TABLE IF EXISTS tmp_related_orgids;
 
-CREATE TABLE related_orgids AS (    
-    with org_name AS (SELECT                                                   
-        data -> 'linked_orgs' ->> 0 AS canonical_orgid, 
+CREATE TABLE tmp_related_orgids AS (
+    with org_name AS (SELECT
+        data -> 'linked_orgs' ->> 0 AS canonical_orgid,
         string_agg(data ->> 'name', '||') AS name,
         string_agg(org_id, '||') AS name_org_id
     FROM additional_data_orginfocache GROUP BY 1
     )
-    SELECT                                                   
+    SELECT
         linked_org ->> 0 org_id,
-        data -> 'linked_orgs' related_orgids,
+        data -> 'linked_orgs' tmp_related_orgids,
         data -> 'linked_orgs' ->> 0 AS canonical_orgid,
         max(name) AS name,
         max(name_org_id) AS name_org_id
-    FROM 
-        additional_data_orginfocache orgi 
+    FROM
+        additional_data_orginfocache orgi
     JOIN LATERAL
         jsonb_array_elements(data -> 'linked_orgs') linked_org ON true
     JOIN
         org_name orgn ON orgi.data -> 'linked_orgs' ->> 0 = canonical_orgid
-    WHERE data -> 'linked_orgs' ->> 0 is not null 
+    WHERE data -> 'linked_orgs' ->> 0 is not null
     GROUP by 1,2,3
 );
 """
 
 ORG_SELECT = """
 WITH latest_grant AS (
-    SELECT 
+    SELECT
         *
-    FROM 
-        db_grant 
-    JOIN 
+    FROM
+        db_grant
+    JOIN
         db_grant_latest ON db_grant.id = db_grant_latest.grant_id
     JOIN
         db_latest on db_grant_latest.latest_id = db_latest.id
     WHERE
         db_latest.series = 'CURRENT'
 ),
-{org}_by_currency AS (SELECT 
+{org}_by_currency AS (SELECT
     coalesce(o.canonical_orgid, g.data -> '{org}Organization' -> 0 ->> 'id') org_id, 
     g.data ->> 'currency' AS currency,
-    coalesce(related_orgids, to_jsonb(ARRAY[g.data -> '{org}Organization' -> 0 ->> 'id'])) AS orgids,
+    coalesce(tmp_related_orgids, to_jsonb(ARRAY[g.data -> '{org}Organization' -> 0 ->> 'id'])) AS orgids,
     max(coalesce(
         o.name || '||' || (g.data -> '{org}Organization' -> 0 ->> 'name'),
         g.data -> '{org}Organization' -> 0 ->> 'name')
@@ -171,15 +171,15 @@ WITH latest_grant AS (
     avg((g.data ->> 'amountAwarded')::numeric) avg_amount,
     max(g.data ->> 'awardDate') max_award_date,
     min(g.data ->> 'awardDate') min_award_date
-FROM 
-    latest_grant g 
-LEFT JOIN 
-    related_orgids o ON o.org_id = g.data -> '{org}Organization' -> 0 ->> 'id' 
+FROM
+    latest_grant g
+LEFT JOIN
+    tmp_related_orgids o ON o.org_id = g.data -> '{org}Organization' -> 0 ->> 'id'
 GROUP BY 1, 2, 3)
-SELECT 
-    org_id as id, 
-    string_to_array(string_agg(name, '||'), '||') AS "organizationName", 
-    orgids AS "orgIDs", 
+SELECT
+    org_id as id,
+    string_to_array(string_agg(name, '||'), '||') AS "organizationName",
+    orgids AS "orgIDs",
     coalesce(string_to_array(string_agg(org_ids_charity_finder, '||'), '||'), Array[]::text[]) AS "orgIDsCharityFinder", 
     coalesce(string_to_array(string_agg(name_charity_finder, '||'), '||'), Array[]::text[]) AS "nameCharityFinder", 
     sum(grants)::int AS grants,
