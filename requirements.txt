@@ -42,18 +42,18 @@ defusedxml==0.7.1
     # via
     #   datagetter
     #   odfpy
+django==2.2.28
+    # via
+    #   -r requirements.in
+    #   django-filter
+    #   django-prettyjson
+    #   djangorestframework
 django-environ==0.8.1
     # via -r requirements.in
 django-filter==2.2.0
     # via -r requirements.in
 django-prettyjson==0.4.1
     # via -r requirements.in
-django==2.2.27
-    # via
-    #   -r requirements.in
-    #   django-filter
-    #   django-prettyjson
-    #   djangorestframework
 djangorestframework==3.11.2
     # via -r requirements.in
 et-xmlfile==1.1.0
@@ -107,7 +107,7 @@ persistent==4.7.0
     #   btrees
     #   datagetter
     #   zodb
-prometheus_client==0.7
+prometheus-client==0.7
     # via -r requirements.in
 psycopg2==2.8
     # via -r requirements.in
@@ -171,11 +171,11 @@ xmltodict==0.12.0
     # via
     #   datagetter
     #   flattentool
-zc.lockfile==2.0
+zc-lockfile==2.0
     # via
     #   datagetter
     #   zodb
-zc.zlibstorage==1.2.0
+zc-zlibstorage==1.2.0
     # via
     #   datagetter
     #   flattentool
@@ -191,18 +191,18 @@ zodb==5.6.0
     # via
     #   datagetter
     #   flattentool
-    #   zc.zlibstorage
+    #   zc-zlibstorage
 zodbpickle==2.2.0
     # via
     #   datagetter
     #   zodb
-zope.interface==5.4.0
+zope-interface==5.4.0
     # via
     #   btrees
     #   datagetter
     #   persistent
     #   transaction
-    #   zc.zlibstorage
+    #   zc-zlibstorage
     #   zodb
 
 # The following packages are considered to be unsafe in a requirements file:
