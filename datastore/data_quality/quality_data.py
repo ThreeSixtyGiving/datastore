@@ -94,10 +94,10 @@ def create(grants):
 
     aggregates = {
         "count": cove_results["grants_aggregates"]["count"],
-        "recipients": len(
+        "recipients": list(
             cove_results["grants_aggregates"]["distinct_recipient_org_identifier"]
         ),
-        "funders": len(
+        "funders": list(
             cove_results["grants_aggregates"]["distinct_funding_org_identifier"]
         ),
         "max_award_date": cove_results["grants_aggregates"]["max_award_date"],
@@ -225,9 +225,36 @@ class SourceFilesStats(object):
         return self.source_file_set.distinct("data__publisher__prefix").count()
 
     def get_total_recipients(self):
-        return self.source_file_set.annotate(
-            total=RawSQL("((aggregate->>%s)::int)", ("recipients",))
-        ).aggregate(Sum("total"))["total__sum"]
+        latest_id = db.Latest.objects.get(series=db.Latest.CURRENT).pk
+
+        query = f"""
+         SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'recipients'))
+         FROM db_sourcefile
+           INNER JOIN db_sourcefile_latest on db_sourcefile.id=db_sourcefile_latest.sourcefile_id
+         WHERE db_sourcefile_latest.latest_id={latest_id}
+        """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            total = len(cursor.fetchall())
+
+        return total
+
+    def get_total_funders(self):
+        latest_id = db.Latest.objects.get(series=db.Latest.CURRENT).pk
+
+        query = f"""
+         SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'funders'))
+         FROM db_sourcefile
+           INNER JOIN db_sourcefile_latest on db_sourcefile.id=db_sourcefile_latest.sourcefile_id
+         WHERE db_sourcefile_latest.latest_id={latest_id}
+        """
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)
+            total = len(cursor.fetchall())
+
+        return total
 
     def get_pc_quality_grants(self):
         ret = {}
@@ -419,6 +446,7 @@ def generate_stats(mode, source_file_set):
                 "GBP": source_files_stats.get_total_gbp(),
                 "publishers": source_files_stats.get_total_publishers(),
                 "recipients": source_files_stats.get_total_recipients(),
+                "funders": source_files_stats.get_total_funders(),
             }
         },
         "quality": {},
