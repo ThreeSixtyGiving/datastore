@@ -96,3 +96,10 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             initial_publisher_count,
             "Publisher count reduced unexpectedly",
         )
+
+    def test_rewrite_quality_data(self):
+        err_out = StringIO()
+
+        call_command("rewrite_quality_data", "latest", stderr=err_out)
+
+        self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
