@@ -21,6 +21,18 @@ class Command(BaseCommand):
             help="The datagetter run id or latest",
         )
 
+        parser.add_argument(
+            "--publisher-only",
+            action="store_true",
+            help="Only rewrite publisher data",
+        )
+
+        parser.add_argument(
+            "--sourcefile-only",
+            action="store_true",
+            help="Only rewrite sourcefile data",
+        )
+
     def handle(self, *args, **options):
 
         if "latest" in options["getter_run"]:
@@ -50,8 +62,10 @@ class Command(BaseCommand):
 
             connection.close()
 
-        with Pool(4) as process_pool:
-            process_pool.starmap(process_source_file, zip(source_files))
+        if not options["publisher_only"]:
+            print("Processing sourcefile data")
+            with Pool(4) as process_pool:
+                process_pool.starmap(process_source_file, zip(source_files))
 
         def process_publishers(source_file):
             publisher = source_file.get_publisher()
@@ -67,11 +81,13 @@ class Command(BaseCommand):
                 print(e)
             connection.close()
 
-        with Pool(4) as process_pool:
-            process_pool.starmap(
-                process_publishers,
-                zip(source_files.distinct("data__publisher__prefix")),
-            )
+        if not options["sourcefile_only"]:
+            print("Processing publisher data")
+            with Pool(4) as process_pool:
+                process_pool.starmap(
+                    process_publishers,
+                    zip(source_files.distinct("data__publisher__prefix")),
+                )
 
         # Clear all caches - data has changed
         cache.clear()
