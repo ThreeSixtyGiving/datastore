@@ -16,3 +16,134 @@ class TestDataQualityData(TestCase):
         # Our test data in the test_data.json currently generates 2
         # data quality usefulness results
         self.assertEqual(len(quality), 2)
+
+    def test_create_sourcefile_publisher_quality_data(self):
+        source_file = db.SourceFile.objects.first()
+
+        # Create source file aggregate and quality data
+        grants_list = {
+            "grants": list(source_file.grant_set.values_list("data", flat=True))
+        }
+
+        source_file.quality, source_file.aggregate = quality_data.create(grants_list)
+
+        source_file.save()
+
+        expected_sourcefile_aggregate = {
+            "count": 5,
+            "recipients": ["360G-example-a"],
+            "funders": ["GB-example-b"],
+            "max_award_date": "2019-10-03",
+            "min_award_date": "2019-10-03",
+            "currencies": {
+                "GBP": {
+                    "count": 5,
+                    "total_amount": 1341,
+                    "max_amount": 583,
+                    "min_amount": 92,
+                    "currency_symbol": "&pound;",
+                }
+            },
+            "award_years": {"2019": 5},
+            "recipient_org_types": {},
+        }
+        expected_sourcefile_quality = {
+            "RecipientOrg360GPrefix": {
+                "heading": "100% of grants have a <span class=\"highlight-background-text\">Recipient Org:Identifier</span> that starts '360G-'",
+                "count": 5,
+                "fail": True,
+            },
+            "FundingOrg360GPrefix": {"count": 0, "fail": False},
+            "NoRecipientOrgCompanyCharityNumber": {
+                "heading": '100% of grants do not have either a <span class="highlight-background-text">Recipient Org:Company Number</span> or a <span class="highlight-background-text">Recipient Org:Charity Number</span>',
+                "count": 5,
+                "fail": True,
+            },
+            "IncompleteRecipientOrg": {"count": 0, "fail": False},
+            "NoGrantProgramme": {"count": 0, "fail": False},
+            "NoBeneficiaryLocation": {"count": 0, "fail": False},
+            "TitleDescriptionSame": {"count": 0, "fail": False},
+            "TitleLength": {"count": 0, "fail": False},
+            "NoLastModified": {"count": 0, "fail": False},
+            "NoDataSource": {
+                "heading": '100% of grants do not have <span class="highlight-background-text">Data Source</span> information',
+                "count": 5,
+                "fail": True,
+            },
+            "ClassificationNotPresent": {
+                "heading": "100% of grants do not contain classifications field",
+                "count": 5,
+                "fail": True,
+            },
+            "BeneficiaryLocationNameNotPresent": {"count": 0, "fail": False},
+            "BeneficiaryLocationCountryCodeNotPresent": {
+                "heading": "100% of grants do not contain beneficiaryLocation/0/countryCode field",
+                "count": 5,
+                "fail": True,
+            },
+            "BeneficiaryLocationGeoCodeNotPresent": {"count": 0, "fail": False},
+            "PlannedDurationNotPresent": {"count": 0, "fail": False},
+            "GrantProgrammeTitleNotPresent": {"count": 0, "fail": False},
+            "RecipientOrgPrefixExternal": {
+                "count": 0,
+                "fail": True,
+                "heading": "Recipient Orgs with external org identifier",
+            },
+            "RecipientOrgPrefix50pcExternal": {"count": 0, "fail": True},
+        }
+
+        self.assertEqual(source_file.quality, expected_sourcefile_quality)
+        self.assertEqual(source_file.aggregate, expected_sourcefile_aggregate)
+
+        # Create publisher aggregate and quality data
+
+        publisher = source_file.get_publisher()
+
+        (
+            publisher.quality,
+            publisher.aggregate,
+        ) = quality_data.create_publisher_stats(publisher)
+
+        publisher.save()
+
+        expected_publisher_aggregate = {
+            "total": {
+                "grants": 5,
+                "GBP": 1341.0,
+                "publishers": 1,
+                "recipients": 1,
+                "funders": 1,
+            },
+            "jsonFiles": 0,
+            "csvFiles": 0,
+            "xlsxFiles": 100,
+            "odsFiles": 0,
+            "awardYears": {
+                "2022": 0,
+                "2021": 0,
+                "2020": 0,
+                "2019": 5,
+                "2018": 0,
+                "2017": 0,
+                "2016": 0,
+                "2015": 0,
+                "2014": 0,
+                "2013": 0,
+            },
+            "orgIdTypes": {},
+            "awardedThisYear": 0,
+            "awardedLastThreeMonths": 0,
+        }
+        expected_publisher_quality = {
+            "hasBeneficiaryLocationName": 100,
+            "hasRecipientOrgLocations": 100,
+            "hasGrantDuration": 100,
+            "hasGrantProgrammeTitle": 100,
+            "hasGrantClassification": 0,
+            "hasBeneficiaryLocationGeoCode": 100,
+            "hasRecipientOrgCompanyOrCharityNumber": 0,
+            "has50pcExternalOrgId": 0,
+        }
+
+        self.assertEqual(publisher.aggregate, expected_publisher_aggregate)
+        self.assertEqual(publisher.quality, expected_publisher_quality)
