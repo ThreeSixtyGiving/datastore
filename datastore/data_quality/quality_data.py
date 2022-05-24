@@ -225,14 +225,25 @@ class SourceFilesStats(object):
         return self.source_file_set.distinct("data__publisher__prefix").count()
 
     def get_total_recipients(self):
-        latest_id = db.Latest.objects.get(series=db.Latest.CURRENT).pk
-
-        query = f"""
-         SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'recipients'))
-         FROM db_sourcefile
-           INNER JOIN db_sourcefile_latest on db_sourcefile.id=db_sourcefile_latest.sourcefile_id
-         WHERE db_sourcefile_latest.latest_id={latest_id}
-        """
+        # Determine if we're dealing with just one publisher and whether we need to limit
+        # the source files to that publisher rather than all in 'latest'
+        if self.source_file_set.distinct("data__publisher__prefix").count() == 1:
+            source_file_ids = ",".join(
+                map(str, self.source_file_set.values_list("id", flat=True))
+            )
+            query = f"""
+            SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'recipients'))
+            FROM db_sourcefile
+            WHERE db_sourcefile.id IN ({source_file_ids})
+            """
+        else:
+            latest_id = db.Latest.objects.get(series=db.Latest.CURRENT).pk
+            query = f"""
+            SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'recipients'))
+            FROM db_sourcefile
+            INNER JOIN db_sourcefile_latest on db_sourcefile.id=db_sourcefile_latest.sourcefile_id
+            WHERE db_sourcefile_latest.latest_id={latest_id}
+            """
 
         with connection.cursor() as cursor:
             cursor.execute(query)
@@ -241,14 +252,25 @@ class SourceFilesStats(object):
         return total
 
     def get_total_funders(self):
-        latest_id = db.Latest.objects.get(series=db.Latest.CURRENT).pk
-
-        query = f"""
-         SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'funders'))
-         FROM db_sourcefile
-           INNER JOIN db_sourcefile_latest on db_sourcefile.id=db_sourcefile_latest.sourcefile_id
-         WHERE db_sourcefile_latest.latest_id={latest_id}
-        """
+        # Determine if we're dealing with just one publisher and whether we need to limit
+        # the source files to that publisher rather than all in 'latest'
+        if self.source_file_set.distinct("data__publisher__prefix").count() == 1:
+            source_file_ids = ",".join(
+                map(str, self.source_file_set.values_list("id", flat=True))
+            )
+            query = f"""
+            SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'funders'))
+            FROM db_sourcefile
+            WHERE db_sourcefile.id IN ({source_file_ids})
+            """
+        else:
+            latest_id = db.Latest.objects.get(series=db.Latest.CURRENT).pk
+            query = f"""
+            SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'funders'))
+            FROM db_sourcefile
+            INNER JOIN db_sourcefile_latest on db_sourcefile.id=db_sourcefile_latest.sourcefile_id
+            WHERE db_sourcefile_latest.latest_id={latest_id}
+            """
 
         with connection.cursor() as cursor:
             cursor.execute(query)
