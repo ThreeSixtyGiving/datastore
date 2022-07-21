@@ -1,8 +1,8 @@
 -e git+https://github.com/ThreeSixtyGiving/datagetter.git#egg=datagetter
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@main#egg=lib360dataquality
-Django<3.0
+Django<4.0
 djangorestframework==3.11.2
-django-filter==2.2.0
+django-filter
 django-prettyjson==0.4.1
 psycopg2==2.8
 prometheus_client==0.7
