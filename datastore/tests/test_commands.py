@@ -24,10 +24,11 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             with open(os.path.join(tmpdir, "data_all.json")) as da_fp:
                 json.load(da_fp)
 
-            # TODO update test data fixture to have some data for org entities
+            # Check the output json lines file by parsing the first line
             with open(os.path.join(tmpdir, "funders.jl")) as funders_fp:
                 json.loads(funders_fp.readline().strip())
 
+            # Check the output json lines file by parsing the first line
             with open(os.path.join(tmpdir, "recipients.jl")) as recipients_fp:
                 json.loads(recipients_fp.readline().strip())
 
