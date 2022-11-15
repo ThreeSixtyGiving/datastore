@@ -118,3 +118,19 @@ class FindThatCharitySource(object):
 
     class OrgTypeNotKnownError(Exception):
         pass
+
+
+def non_primary_org_ids_map():
+    """Returns a dict of all non-primary org-ids and their corresponding primary org-id"""
+    org_ids = {}
+    orgs = OrgInfoCache.objects.filter(org_ids__len__gt=1).values_list(
+        "org_ids", flat=True
+    )
+    # [[orgid, orgid], [orgid, orgid] ...]
+    for org in orgs:
+        # [ primary-org-id, secondary-org-id, ...org-id ]
+        for non_primary_org_id in org[1:]:
+            org_ids[non_primary_org_id] = org[0]
+            # { non_primary_org_id : primary_org_id }
+
+    return org_ids

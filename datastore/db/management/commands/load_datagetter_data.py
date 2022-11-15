@@ -1,9 +1,9 @@
 import json
 import os
-
+from django.conf import settings
+from django.db import transaction
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
 from django.core.cache import cache
 
 import db.models as db
@@ -21,6 +21,13 @@ class Command(BaseCommand):
             action="store",
             dest="data_dir",
             help="The location of the data dir created by datagetter",
+        )
+
+        parser.add_argument(
+            "--skip-missing",
+            action="store_true",
+            help="Skip any missing dataset files instead of raising an error",
+            default=False,
         )
 
     def check_dir_looks_right(self):
@@ -50,8 +57,14 @@ class Command(BaseCommand):
 
         new_path = os.path.join(self.options["data_dir"][0], "json_all", filename)
 
-        with open(new_path, encoding="utf-8") as f:
-            return json.loads(f.read())
+        try:
+            with open(new_path, encoding="utf-8") as f:
+                return json.loads(f.read())
+        except FileNotFoundError as e:
+            if self.options["skip_missing"]:
+                return {"grants": []}
+            else:
+                raise e
 
     def load_data(self):
         grant_additional_data_generator = AdditionalDataGenerator()
@@ -63,7 +76,12 @@ class Command(BaseCommand):
         for ob in dataset:
             prefix = ob["publisher"]["prefix"]
             publisher, c = db.Publisher.objects.get_or_create(
-                getter_run=getter_run, prefix=prefix, data=ob["publisher"]
+                getter_run=getter_run,
+                prefix=prefix,
+                data=ob["publisher"],
+                org_id=ob["publisher"].get("org_id", "unknown"),
+                name=ob["publisher"]["name"],
+                source=db.Entity.PUBLISHER,
             )
 
             source_file = db.SourceFile.objects.create(data=ob, getter_run=getter_run)
@@ -103,6 +121,8 @@ class Command(BaseCommand):
                     "Skipping loading due to: '%s'" % e,
                     file=self.stdout,
                 )
+                if settings.DEBUG == True:
+                    raise e
                 continue
 
         return grants_added
@@ -126,11 +146,9 @@ class Command(BaseCommand):
         db.Latest.update()
 
         print("Updating quality data", file=self.stdout)
-        try:
-            call_command("rewrite_quality_data", "latest")
-        except Exception as e:
-            print("Error running rewrite_quality_data %s" % e, file=self.stderr)
-            pass
+        call_command("rewrite_quality_data", "latest")
+        # Update entities data for funders and recipients
+        call_command("manage_entities_data", "--update")
 
         # Clear all cached objects - The latest data as well as new data has been added
         cache.clear()
