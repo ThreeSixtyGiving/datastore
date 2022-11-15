@@ -1,5 +1,7 @@
 from io import StringIO
 from tempfile import TemporaryDirectory
+import os
+import json
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -18,6 +20,17 @@ class CustomMgmtCommandsTest(TransactionTestCase):
         with TemporaryDirectory() as tmpdir:
             call_command("create_data_package", dir=tmpdir, stderr=err_out)
             self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+
+            with open(os.path.join(tmpdir, "data_all.json")) as da_fp:
+                json.load(da_fp)
+
+            # Check the output json lines file by parsing the first line
+            with open(os.path.join(tmpdir, "funders.jl")) as funders_fp:
+                json.loads(funders_fp.readline().strip())
+
+            # Check the output json lines file by parsing the first line
+            with open(os.path.join(tmpdir, "recipients.jl")) as recipients_fp:
+                json.loads(recipients_fp.readline().strip())
 
     def test_delete_datagetter_data(self):
         err_out = StringIO()
@@ -102,4 +115,13 @@ class CustomMgmtCommandsTest(TransactionTestCase):
 
         call_command("rewrite_quality_data", "latest", stderr=err_out)
 
+        self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+
+    def test_list_entities(self):
+        err_out = StringIO()
+
+        call_command("manage_entities_data", ("--list", "recipient"), stderr=err_out)
+        self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+
+        call_command("manage_entities_data", ("--list", "funder"), stderr=err_out)
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")

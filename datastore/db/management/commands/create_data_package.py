@@ -2,10 +2,11 @@ import json
 import os
 
 from django.core.management.base import BaseCommand
-from django.db import connection
 
 from db.management.spinner import Spinner
 from db.models import Latest
+
+from db.management.commands.manage_entities_data import create_orgs_list
 
 
 class Command(BaseCommand):
@@ -35,9 +36,11 @@ class Command(BaseCommand):
 
         - data_all.json (all sources)
         - json_all/
-              |- grants.json (lists of grants)
+              |- grants.json (contains lists of grants)
               |- grants.json
-              ...
+              |...
+        - funders.jl
+        - recipients.jl
         """
         spinner = Spinner()
         spinner.start()
@@ -48,32 +51,16 @@ class Command(BaseCommand):
         os.makedirs("%s/json_all/" % options["dir"], mode=0o700)
 
         data_all = []
-        data_all_file = "%s/data_all.json" % options["dir"]
 
+        data_all_file = "%s/data_all.json" % options["dir"]
         recipients_file = "%s/recipients.jl" % options["dir"]
         funders_file = "%s/funders.jl" % options["dir"]
 
-        with connection.cursor() as cursor, open(
-            recipients_file, "w"
-        ) as recipientfp, open(funders_file, "w") as funderfp:
-            cursor.execute(CREATE_RELATED_ORGIDS)
+        with open(funders_file, "w") as funders_fp:
+            create_orgs_list("funder", funders_fp)
 
-            cursor.execute(ORG_SELECT.format(org="recipient"))
-            columns = [col[0] for col in cursor.description]
-            rows = 0
-            for row in cursor.fetchall():
-                recipient = json.dumps(dict(zip(columns, row)))
-                recipientfp.write(recipient)
-                recipientfp.write("\r\n")
-                rows += 1
-
-            cursor.execute(ORG_SELECT.format(org="funding"))
-            rows = 0
-            for row in cursor.fetchall():
-                funder = json.dumps(dict(zip(columns, row)))
-                funderfp.write(funder)
-                funderfp.write("\r\n")
-                rows += 1
+        with open(recipients_file, "w") as recipients_fp:
+            create_orgs_list("recipient", recipients_fp)
 
         def flatten_grant(in_grant):
             """Add the additional_data inside grant object"""
@@ -112,86 +99,3 @@ class Command(BaseCommand):
             data_all_fp.write(json.dumps(data_all, indent=options["indent"]))
 
         spinner.stop()
-
-
-CREATE_RELATED_ORGIDS = """
-DROP TABLE IF EXISTS tmp_related_orgids;
-
-CREATE TABLE tmp_related_orgids AS (
-    with org_name AS (SELECT
-        data -> 'linked_orgs' ->> 0 AS canonical_orgid,
-        string_agg(data ->> 'name', '||') AS name,
-        string_agg(org_id, '||') AS name_org_id
-    FROM additional_data_orginfocache GROUP BY 1
-    )
-    SELECT
-        linked_org ->> 0 org_id,
-        data -> 'linked_orgs' tmp_related_orgids,
-        data -> 'linked_orgs' ->> 0 AS canonical_orgid,
-        max(name) AS name,
-        max(name_org_id) AS name_org_id
-    FROM
-        additional_data_orginfocache orgi
-    JOIN LATERAL
-        jsonb_array_elements(data -> 'linked_orgs') linked_org ON true
-    JOIN
-        org_name orgn ON orgi.data -> 'linked_orgs' ->> 0 = canonical_orgid
-    WHERE data -> 'linked_orgs' ->> 0 is not null
-    GROUP by 1,2,3
-);
-"""
-
-ORG_SELECT = """
-WITH latest_grant AS (
-    SELECT
-        *
-    FROM
-        db_grant
-    JOIN
-        db_grant_latest ON db_grant.id = db_grant_latest.grant_id
-    JOIN
-        db_latest on db_grant_latest.latest_id = db_latest.id
-    WHERE
-        db_latest.series = 'CURRENT'
-),
-{org}_by_currency AS (SELECT
-    coalesce(o.canonical_orgid, g.data -> '{org}Organization' -> 0 ->> 'id') org_id, 
-    g.data ->> 'currency' AS currency,
-    coalesce(tmp_related_orgids, to_jsonb(ARRAY[g.data -> '{org}Organization' -> 0 ->> 'id'])) AS orgids,
-    max(coalesce(
-        o.name || '||' || (g.data -> '{org}Organization' -> 0 ->> 'name'),
-        g.data -> '{org}Organization' -> 0 ->> 'name')
-    ) AS name,
-    max(name_org_id) AS org_ids_charity_finder,
-    max(o.name) AS name_charity_finder,
-    count(*) AS grants,
-    sum((g.data ->> 'amountAwarded')::numeric) total_amount,
-    max((g.data ->> 'amountAwarded')::numeric) max_amount,
-    min((g.data ->> 'amountAwarded')::numeric) min_amount,
-    avg((g.data ->> 'amountAwarded')::numeric) avg_amount,
-    max(g.data ->> 'awardDate') max_award_date,
-    min(g.data ->> 'awardDate') min_award_date
-FROM
-    latest_grant g
-LEFT JOIN
-    tmp_related_orgids o ON o.org_id = g.data -> '{org}Organization' -> 0 ->> 'id'
-GROUP BY 1, 2, 3)
-SELECT
-    org_id as id,
-    string_to_array(string_agg(name, '||'), '||') AS "organizationName",
-    orgids AS "orgIDs",
-    coalesce(string_to_array(string_agg(org_ids_charity_finder, '||'), '||'), Array[]::text[]) AS "orgIDsCharityFinder", 
-    coalesce(string_to_array(string_agg(name_charity_finder, '||'), '||'), Array[]::text[]) AS "nameCharityFinder", 
-    sum(grants)::int AS grants,
-    array_agg(currency) as currency,
-    jsonb_object_agg(currency, grants) AS "currencyGrants",
-    jsonb_object_agg(currency, total_amount) AS "currencyTotal",
-    jsonb_object_agg(currency, max_amount) AS "currencyMaxAmount",
-    jsonb_object_agg(currency, min_amount) AS "currencyMinAmount",
-    jsonb_object_agg(currency, avg_amount) AS "currencyAvgAmount",
-    max(max_award_date) "maxAwardDate",
-    min(min_award_date) "minAwardDate"
-FROM
-    {org}_by_currency
-GROUP BY org_id, orgids;
-"""

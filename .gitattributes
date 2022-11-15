@@ -1,1 +1,3 @@
-*test_data.json binary
+*.json binary
+*.min.js
+*.min.css

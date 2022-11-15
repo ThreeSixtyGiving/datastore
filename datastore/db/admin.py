@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 from prettyjson import PrettyJSONWidget
 
 import db.models as db
@@ -29,3 +29,5 @@ admin.site.register(db.Publisher, PublisherAdmin)
 admin.site.register(db.SourceFile, JSONFieldAdmin)
 admin.site.register(db.Status, JSONFieldAdmin)
 admin.site.register(db.Latest)
+admin.site.register(db.Funder)
+admin.site.register(db.Recipient)

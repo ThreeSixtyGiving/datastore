@@ -1,7 +1,9 @@
-from django.contrib.postgres.fields import JSONField
+from django.db.models import JSONField
 from django.db import connection, models
 from django.db.utils import DataError
 from django.utils import timezone
+
+import datetime
 
 
 class Latest(models.Model):
@@ -176,17 +178,127 @@ class SourceFile(models.Model):
         ordering = ["data__publisher__prefix"]
 
 
-class Publisher(models.Model):
+def new_default_entity_aggregate_data():
+    return {
+        "grants": 0,
+        "minAwardDate": None,
+        "maxAwardDate": None,
+        "currencies": {},
+    }
+
+
+def new_default_entity_additional_data():
+    return {
+        "alternative_names": [],
+    }
+
+
+class Entity(models.Model):
+    """All the entities that are identified in 360Giving Data"""
+
+    class Meta:
+        abstract = True
+
+    org_id = models.CharField(max_length=200)  # Unique
+    # Allowed to be null or blank for progressive building of the record
+    name = models.TextField(null=True, blank=True)
+
+    # Max award amount, avg award amount, currencies, ... i.e. everything from jsonl
+    aggregate = JSONField(default=new_default_entity_aggregate_data)
+    additional_data = JSONField(default=new_default_entity_additional_data)
+
+    # Where the org data came from
+    GRANT = "GRANT"
+    PUBLISHER = "PUBLISHER"
+    SOURCES_CHOICES = [(GRANT, "Grant"), (PUBLISHER, "Publisher")]
+    source = models.TextField(choices=SOURCES_CHOICES)
+
+    def __str__(self):
+        return "%s %s)" % (self.org_id, self.name)
+
+    def add_name(self, name):
+        """Adds the primary name and if one already exists adds to the additional_data block"""
+        name = name.strip()
+
+        if self.name is None:
+            self.name = name
+            return
+
+        # Alternative names are ones which are used for this org-id but appear in the grant data
+        if self.name != name and name not in self.additional_data["alternative_names"]:
+            self.additional_data["alternative_names"].append(name)
+
+    def update_aggregate(self, grant):
+        ## Aggregate data
+        # {
+        #  "grants": 0,
+        #  "minAwardDate": yyyy-mm-dd,
+        #  "maxAwardDate": yyyy-mm-dd,
+        #  "currencies": {
+        #       "GBP": { "grants": 0, "total": 0, "avg": 0, min: 0, max: 0 } },
+        #        ...
+        # },
+
+        amount = grant["amountAwarded"]
+        currency = grant["currency"]
+
+        try:
+            award_date = datetime.date.fromisoformat(grant["awardDate"][:10])
+        except ValueError:
+            pass
+
+        self.aggregate["grants"] += 1
+
+        if self.aggregate["minAwardDate"]:
+            current_min = datetime.date.fromisoformat(self.aggregate["minAwardDate"])
+            if award_date < current_min:
+                self.aggregate["minAwardDate"] = award_date.isoformat()
+        else:
+            self.aggregate["minAwardDate"] = award_date.isoformat()
+
+        if self.aggregate["maxAwardDate"]:
+            current_max = datetime.date.fromisoformat(self.aggregate["maxAwardDate"])
+            if award_date > current_max:
+                self.aggregate["maxAwardDate"] = award_date.isoformat()
+
+        else:
+            self.aggregate["maxAwardDate"] = award_date.isoformat()
+
+        c = "currencies"
+
+        try:
+            self.aggregate[c][currency]["total"] += amount
+        except KeyError:
+            # Initialise the currency
+            self.aggregate[c][currency] = {
+                "total": amount,
+                "avg": amount,
+                "min": amount,
+                "max": amount,
+                "grants": 0,
+            }
+
+        self.aggregate[c][currency]["avg"] = (
+            self.aggregate["currencies"][currency]["total"] / self.aggregate["grants"]
+        )
+
+        self.aggregate[c][currency]["grants"] += 1
+
+        if self.aggregate[c][currency]["max"] < amount:
+            self.aggregate[c][currency]["max"] = amount
+
+        if self.aggregate[c][currency]["min"] > amount:
+            self.aggregate[c][currency]["min"] = amount
+
+
+class Publisher(Entity):
 
     data = JSONField()
     quality = JSONField(null=True)
-    aggregate = JSONField(null=True)
-
-    getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
 
     # Convenience fields
-    name = models.TextField(null=True, blank=True)
     prefix = models.CharField(max_length=300)
+    getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
 
     def get_sourcefiles(self):
         return SourceFile.objects.filter(
@@ -208,6 +320,14 @@ class Publisher(models.Model):
     class Meta:
         unique_together = ("getter_run", "prefix")
         ordering = ["prefix"]
+
+
+class Recipient(Entity):
+    pass
+
+
+class Funder(Entity):
+    pass
 
 
 class Grant(models.Model):
