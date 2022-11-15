@@ -1,8 +1,9 @@
 import re
 
-from django.contrib.postgres.fields import ArrayField, JSONField
+from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex
 from django.core.exceptions import ValidationError
+from django.db.models import JSONField
 from django.db import models
 
 
