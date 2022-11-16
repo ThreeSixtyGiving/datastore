@@ -1,6 +1,5 @@
 import json
 import os
-from django.conf import settings
 from django.db import transaction
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
@@ -121,8 +120,7 @@ class Command(BaseCommand):
                     "Skipping loading due to: '%s'" % e,
                     file=self.stdout,
                 )
-                if settings.DEBUG == True:
-                    raise e
+                # For debug    raise e
                 continue
 
         return grants_added
