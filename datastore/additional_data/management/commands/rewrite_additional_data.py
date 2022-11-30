@@ -29,4 +29,5 @@ class Command(BaseCommand):
         for grant in grants:
             additional_data = generator.create(grant.data)
             grant.additional_data = additional_data
-            grant.save()
+
+        Grant.objects.bulk_update(grants, ["additional_data"], batch_size=10000)
