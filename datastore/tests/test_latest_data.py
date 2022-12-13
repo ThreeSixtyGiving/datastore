@@ -33,7 +33,11 @@ class LatestDataTest(TransactionTestCase):
             generate_data(tmpdir)
             # Load the good data
             call_command("load_datagetter_data", tmpdir, stderr=err_out)
-            self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+            self.assertEqual(
+                len(err_out.getvalue()),
+                0,
+                f"Errors output by command {err_out.getvalue()}",
+            )
             # 50 in the Fixture and 50 from generate_data
             self.assertEqual(db.Grant.objects.count(), 50)
             self.assertEqual(
