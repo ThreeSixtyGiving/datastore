@@ -175,12 +175,9 @@ class NSPLSource(object):
     def update_additional_data(self, grant, additional_data):
         """
         Updates with 'recipientOrganizationLocation' based on it's postcode.
-        It checks first the `recipientOrganization` `postalCode` in the grant. If there isnt't one or if it doesn't find
-        it's location, checks the `recipientOrgInfos` `postalCode` in `additional_data`.
+        It checks first the `recipientOrganization` `postalCode` in the grant.
         """
-        recipient_orgs = grant.get("recipientOrganization", []) + additional_data.get(
-            "recipientOrgInfos", []
-        )
+        recipient_orgs = grant.get("recipientOrganization", [])
 
         for recipient_org in recipient_orgs:
             postcode = recipient_org.get("postalCode")

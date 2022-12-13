@@ -226,20 +226,3 @@ class TestAdditionalDataNSPL(TestCase):
             additional_data["recipientOrganizationLocation"],
             NSPL.objects.get(postcode=self.EXITING_POSTCODE).data,
         )
-
-    def test_nspl_update_additional_data_recipient_org_infos(self):
-        # If `recipientOrganization` doesn't have a `postalCode` or if it doesn't find
-        # it's location, checks the `recipientOrgInfos` `postalCode` in `additional_data`.
-        self.save_nspl_mock_data()
-
-        grant = Grant.objects.first()
-        grant.data["recipientOrganization"][0]["postalCode"] = None
-
-        additional_data = {"recipientOrgInfos": [{"postalCode": "EX364DE"}]}
-        nspl = NSPLSource()
-        nspl.update_additional_data(grant.data, additional_data)
-
-        self.assertEqual(
-            additional_data["recipientOrganizationLocation"],
-            NSPL.objects.get(postcode="EX364DE").data,
-        )
