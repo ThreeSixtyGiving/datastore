@@ -17,6 +17,8 @@ class BrowserTests(StaticLiveServerTestCase):
 
         chrome_options = Options()
         chrome_options.add_argument("--headless")
+        # uncomment this if "DevToolsActivePort" error
+        # chrome_options.add_argument("--remote-debugging-port=9222")
 
         self.driver = webdriver.Chrome(
             service_args=["--verbose", "--log-path=selenium.log"],
