@@ -69,8 +69,10 @@ class AdditionalDataRecipientLocation(object):
             [
                 additional_data.get("recipientDistrictName", ""),
                 additional_data.get("recipientDistrictGeoCode", ""),
-                additional_data.get("recipientDistrictWardName", ""),
-                additional_data.get("recipientDistrictWardNameGeoCode", ""),
+                # These fields are incorrectly named
+                # Leaving here as we're not clear on what to do yet
+                #               additional_data.get("recipientDistrictWardName", ""),
+                #               additional_data.get("recipientDistrictWardNameGeoCode", ""),
                 additional_data.get("recipientRegionName", ""),
                 additional_data.get("recipientCountryName", ""),
             ]
