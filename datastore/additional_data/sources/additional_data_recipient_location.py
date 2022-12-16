@@ -55,13 +55,16 @@ class AdditionalDataRecipientLocation(object):
 
         try:
             # We can only get ward for recipientOrganization not beneficiary due to the granularity of needing a postcode
-            additional_data["recipientWardName"] = additional_data[
-                "recipientOrganizationLocation"
-            ]["ward_name"]
-            additional_data["recipientWardNameGeoCode"] = additional_data[
-                "recipientOrganizationLocation"
-            ]["ward"]
-        except (KeyError):
+            if "beneficiaryLocation" not in additional_data["locationLookup"][0].get(
+                "source"
+            ):
+                additional_data["recipientWardName"] = additional_data[
+                    "recipientOrganizationLocation"
+                ]["ward_name"]
+                additional_data["recipientWardNameGeoCode"] = additional_data[
+                    "recipientOrganizationLocation"
+                ]["ward"]
+        except (IndexError, KeyError):
             pass
 
         # This is used for text searching in GrantNav
@@ -69,10 +72,8 @@ class AdditionalDataRecipientLocation(object):
             [
                 additional_data.get("recipientDistrictName", ""),
                 additional_data.get("recipientDistrictGeoCode", ""),
-                # These fields are incorrectly named
-                # Leaving here as we're not clear on what to do yet
-                #               additional_data.get("recipientDistrictWardName", ""),
-                #               additional_data.get("recipientDistrictWardNameGeoCode", ""),
+                additional_data.get("recipientWardName", ""),
+                additional_data.get("recipientWardNameGeoCode", ""),
                 additional_data.get("recipientRegionName", ""),
                 additional_data.get("recipientCountryName", ""),
             ]
