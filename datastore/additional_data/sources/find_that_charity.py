@@ -20,6 +20,10 @@ class FindThatCharitySource(object):
         self._cache = {}
 
     def update_additional_data(self, grant, additional_data):
+        # We can't do anything if this grant doesn't have a recipientOrganization
+        if not grant.get("recipientOrganization"):
+            return
+
         if "id" not in grant["recipientOrganization"][0]:
             return
 
