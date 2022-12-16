@@ -124,6 +124,10 @@ def create(grants):
             return None
 
     for grant in grants["grants"]:
+        # skip if grant isn't for an organization
+        if not grant.get("recipientOrganization"):
+            continue
+
         org_id_type = extract_org_id_type(grant["recipientOrganization"][0]["id"])
         if org_id_type:
             try:

@@ -28,7 +28,7 @@ def update_entities():
     print("Analysing latest best grant data for entities")
 
     for grant in grants:
-        for recipient in grant["recipientOrganization"]:
+        for recipient in grant.get("recipientOrganization", []):
             # If the org-id provided is a non-primary org-id return the primary
             # otherwise return the specified org-id
             org_id = non_primary_org_ids_map_cache.get(recipient["id"], recipient["id"])
