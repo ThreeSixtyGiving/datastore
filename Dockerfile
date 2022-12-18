@@ -1,4 +1,4 @@
-FROM python:3.8.12-buster
+FROM python:3.8.16-buster
 
 RUN mkdir /code
 COPY . /code/
