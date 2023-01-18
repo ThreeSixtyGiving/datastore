@@ -21,6 +21,8 @@ class TestDataQualityData(TestCase):
 
     def test_create_sourcefile_publisher_quality_data(self):
         source_file = db.SourceFile.objects.first()
+        print(source_file.pk)
+        self.assertEqual(source_file.pk, 0)
 
         # Create source file aggregate and quality data
         grants_list = {
