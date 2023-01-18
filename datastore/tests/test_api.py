@@ -1,6 +1,11 @@
+import datetime
+
 from django.urls import reverse_lazy
 from django.test import TestCase
 from django.core.management import call_command
+
+
+current_year = datetime.date.today().year
 
 
 class DashBoardAPITests(TestCase):
@@ -23,16 +28,8 @@ class DashBoardAPITests(TestCase):
                 "xlsxFiles": 100,
                 "odsFiles": 0,
                 "awardYears": {
-                    "2022": 0,
-                    "2021": 0,
-                    "2020": 0,
-                    "2019": 50,
-                    "2018": 0,
-                    "2017": 0,
-                    "2016": 0,
-                    "2015": 0,
-                    "2014": 0,
-                    "2013": 0,
+                    str(year): (50 if year == 2019 else 0)
+                    for year in range(current_year, current_year - 10, -1)
                 },
                 "orgIdTypes": {},
                 "awardedThisYear": 0,
@@ -71,16 +68,8 @@ class DashBoardAPITests(TestCase):
                 "publishedThisYear": 0,
                 "publishedLastThreeMonths": 0,
                 "awardYears": {
-                    "2022": 0,
-                    "2021": 0,
-                    "2020": 0,
-                    "2019": 100,
-                    "2018": 0,
-                    "2017": 0,
-                    "2016": 0,
-                    "2015": 0,
-                    "2014": 0,
-                    "2013": 0,
+                    str(year): (100 if year == 2019 else 0)
+                    for year in range(current_year, current_year - 10, -1)
                 },
                 "recipientsExternalOrgId": {
                     "0% - 10%": 100.0,
