@@ -1,3 +1,5 @@
+import datetime
+
 from django.test import TestCase
 
 from data_quality import quality_data
@@ -106,6 +108,7 @@ class TestDataQualityData(TestCase):
 
         publisher.save()
 
+        current_year = datetime.date.today().year
         expected_publisher_aggregate = {
             "total": {
                 "grants": 5,
@@ -119,16 +122,8 @@ class TestDataQualityData(TestCase):
             "xlsxFiles": 100,
             "odsFiles": 0,
             "awardYears": {
-                "2022": 0,
-                "2021": 0,
-                "2020": 0,
-                "2019": 5,
-                "2018": 0,
-                "2017": 0,
-                "2016": 0,
-                "2015": 0,
-                "2014": 0,
-                "2013": 0,
+                str(year): (5 if year == 2019 else 0)
+                for year in range(current_year, current_year - 10, -1)
             },
             "orgIdTypes": {},
             "awardedThisYear": 0,
