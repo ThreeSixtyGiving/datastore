@@ -2,15 +2,15 @@ import requests_mock
 from pathlib import PurePath
 from django.test import TestCase
 
-from additional_data.models import CodeName
-from additional_data.sources.code_names import CodeNamesSource
+from additional_data.models import GeoCodeName
+from additional_data.sources.geocode_names import GeoCodeNamesSource
 
 test_files_dir = PurePath(__file__).parent.joinpath("files")
 
 
 class TestAdditionalDataCodeNames(TestCase):
     def test_import_code_names_with_data(self):
-        code_names = CodeNamesSource()
+        code_names = GeoCodeNamesSource()
 
         with requests_mock.Mocker() as m:
             with open(
@@ -20,9 +20,9 @@ class TestAdditionalDataCodeNames(TestCase):
                 m.get("{}".format(code_names.CHD_URL), body=infile)
                 code_names.import_code_names()
 
-                self.assertEqual(len(CodeName.objects.all()), 3)
+                self.assertEqual(len(GeoCodeName.objects.all()), 3)
                 # check one example
-                code_names_object = CodeName.objects.filter(code="S12000015")
+                code_names_object = GeoCodeName.objects.filter(code="S12000015")
                 self.assertTrue(len(code_names_object), 1)
                 self.assertEqual(
                     code_names_object[0].data,
@@ -50,7 +50,7 @@ class TestAdditionalDataCodeNames(TestCase):
                 )
 
     def test_import_code_names_without_data(self):
-        code_names = CodeNamesSource()
+        code_names = GeoCodeNamesSource()
 
         with requests_mock.Mocker() as m:
             with open(
@@ -60,11 +60,11 @@ class TestAdditionalDataCodeNames(TestCase):
                 m.get("{}".format(code_names.CHD_URL), body=infile)
                 code_names.import_code_names()
 
-                self.assertEqual(len(CodeName.objects.all()), 0)
+                self.assertEqual(len(GeoCodeName.objects.all()), 0)
 
     def test_import_code_names_deletes_previous_records(self):
         # When import_code_names is run, should delete CodeName model data.
-        code_names = CodeNamesSource()
+        code_names = GeoCodeNamesSource()
 
         with requests_mock.Mocker() as m:
             with open(
@@ -74,7 +74,7 @@ class TestAdditionalDataCodeNames(TestCase):
                 m.get("{}".format(code_names.CHD_URL), body=infile)
                 code_names.import_code_names()
 
-                self.assertTrue(CodeName.objects.filter(code="S12000015").first())
+                self.assertTrue(GeoCodeName.objects.filter(code="S12000015").first())
 
                 with open(
                     test_files_dir.joinpath("code_names_with_data_bis.zip"), "rb"
@@ -83,6 +83,10 @@ class TestAdditionalDataCodeNames(TestCase):
                     m.get("{}".format(code_names.CHD_URL), body=infile)
                     code_names.import_code_names()
 
-                    self.assertEqual(len(CodeName.objects.all()), 6)
-                    self.assertFalse(CodeName.objects.filter(code="S12000015").first())
-                    self.assertTrue(CodeName.objects.filter(code="E32000003").first())
+                    self.assertEqual(len(GeoCodeName.objects.all()), 6)
+                    self.assertFalse(
+                        GeoCodeName.objects.filter(code="S12000015").first()
+                    )
+                    self.assertTrue(
+                        GeoCodeName.objects.filter(code="E32000003").first()
+                    )

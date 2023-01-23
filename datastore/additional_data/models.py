@@ -100,7 +100,7 @@ class NSPL(models.Model):
     data = JSONField()
 
 
-class CodeName(models.Model):
+class GeoCodeName(models.Model):
     code = models.CharField(max_length=9, db_index=True)
     data = JSONField()
 

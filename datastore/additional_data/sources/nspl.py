@@ -6,7 +6,7 @@ from datetime import datetime
 
 import requests
 
-from additional_data.models import NSPL, CodeName
+from additional_data.models import NSPL, GeoCodeName
 
 # based on https://github.com/drkane/find-that-postcode/blob/master/findthatpostcode/commands/postcodes.py
 
@@ -161,9 +161,9 @@ class NSPLSource(object):
                     continue
             except KeyError:
                 try:
-                    code_name_obj = CodeName.objects.get(code=field_value)
+                    code_name_obj = GeoCodeName.objects.get(code=field_value)
                     self._code_name_cache[field_value] = code_name_obj
-                except CodeName.DoesNotExist:
+                except GeoCodeName.DoesNotExist:
                     self._code_name_cache[field_value] = None
                     continue
 

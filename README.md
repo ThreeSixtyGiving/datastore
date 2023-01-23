@@ -47,7 +47,7 @@ $ manage.py load_datagetter_data ../path/to/data/dir/from/datagetter/
 A number of the sources for additional_data have their own local caches these can be loaded via:
 
 ```
-$ manage.py load_code_names
+$ manage.py load_geocode_names
 $ manage.py load_geolookups
 $ manage.py load_nspl
 $ manage.py load_org_data
@@ -83,13 +83,13 @@ Whilst leaving the up command running, you should use `docker-compose run` with 
 eg; instead of running:
 
 ```
-$ manage.py load_code_names
+$ manage.py load_geocode_names
 ```
 
 Run:
 
 ```
-$ docker-compose -f docker-compose.dev.yml run datastore-web python datastore/manage.py load_code_names
+$ docker-compose -f docker-compose.dev.yml run datastore-web python datastore/manage.py load_geocode_names
 ```
 
 ## Getting database CLI
