@@ -4,7 +4,7 @@ import requests_mock
 from django.test import TestCase
 
 from additional_data.models import NSPL
-from additional_data.sources.code_names import CodeNamesSource
+from additional_data.sources.geocode_names import GeoCodeNamesSource
 from additional_data.sources.nspl import NSPLSource
 from db.models import Grant
 
@@ -148,7 +148,7 @@ class TestAdditionalDataNSPL(TestCase):
 
     def test_nspl_update_additional_data_with_existing_postcode_with_code_names(self):
         # Import Code Names data.
-        code_names = CodeNamesSource()
+        code_names = GeoCodeNamesSource()
         with requests_mock.Mocker() as m:
             with open(
                 "./datastore/tests/files/code_names_with_data.zip", "rb"

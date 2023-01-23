@@ -5,14 +5,14 @@ from datetime import datetime
 
 import requests
 
-from additional_data.models import CodeName
+from additional_data.models import GeoCodeName
 
 # based on 'import_chd' function in
 # https://github.com/drkane/find-that-postcode/blob/master/findthatpostcode/commands/codes.py
 
 
-class CodeNamesSource(object):
-    """Uses CHD (Change history data) at https://geoportal.statistics.gov.uk/ to obtain information about code names."""
+class GeoCodeNamesSource(object):
+    """Uses CHD (Change history data) at https://geoportal.statistics.gov.uk/ to obtain information about geo code names."""
 
     CHD_URL = "https://www.arcgis.com/sharing/rest/content/items/56b8f6d2d26646cb9d21fadca2f09452/data"
 
@@ -128,9 +128,9 @@ class CodeNamesSource(object):
         bulk_save = []
 
         for code, data in areas.items():
-            bulk_save.append(CodeName(code=code, data=data))
+            bulk_save.append(GeoCodeName(code=code, data=data))
 
-        CodeName.objects.bulk_create(bulk_save)
+        GeoCodeName.objects.bulk_create(bulk_save)
 
     def import_code_names(self, url=CHD_URL):
         """
@@ -147,7 +147,7 @@ class CodeNamesSource(object):
         zip_file = self.get_zipfile(url)
         areas = self.get_areas(zip_file)
 
-        if CodeName.objects.exists():
-            CodeName.objects.all().delete()
+        if GeoCodeName.objects.exists():
+            GeoCodeName.objects.all().delete()
 
         self.save_data(areas)
