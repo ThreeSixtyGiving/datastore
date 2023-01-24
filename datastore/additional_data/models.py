@@ -156,3 +156,17 @@ class TSGOrgType(models.Model):
 
     def __str__(self):
         return self.tsg_org_type
+
+
+class CodelistCode(models.Model):
+    """360Giving standard code lists codes and titles"""
+
+    list_name = models.CharField(
+        max_length=200, help_text="The name of the codelist the code belongs to"
+    )
+    code = models.CharField(max_length=200, help_text="The code")
+    title = models.CharField(max_length=200, help_text="The title of the code")
+    description = models.TextField(help_text="The long description of the code")
+
+    class Meta:
+        unique_together = ("list_name", "code")
