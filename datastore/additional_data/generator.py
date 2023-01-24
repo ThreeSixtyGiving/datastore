@@ -6,6 +6,7 @@ from additional_data.sources.tsg_org_types import TSGOrgTypesSource
 from additional_data.sources.additional_data_recipient_location import (
     AdditionalDataRecipientLocation,
 )
+from additional_data.sources.codelist_code import CodeListSource
 
 
 class AdditionalDataGenerator(object):
@@ -18,6 +19,7 @@ class AdditionalDataGenerator(object):
         self.geo_lookup = GeoLookupSource()
         self.tsg_org_types = TSGOrgTypesSource()
         self.additional_data_recipient_location = AdditionalDataRecipientLocation()
+        self.code_lists = CodeListSource()
         # Initialise Other Sources here
 
     def create(self, grant):
@@ -35,5 +37,6 @@ class AdditionalDataGenerator(object):
         self.additional_data_recipient_location.update_additional_data(
             grant, additional_data
         )
+        self.code_lists.update_additional_data(grant, additional_data)
 
         return additional_data
