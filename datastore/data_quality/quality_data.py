@@ -94,9 +94,12 @@ def create(grants):
 
     aggregates = {
         "count": cove_results["grants_aggregates"]["count"],
-        "recipients": list(
+        "recipient_organisations": list(
             cove_results["grants_aggregates"]["distinct_recipient_org_identifier"]
         ),
+        "recipient_individuals": cove_results["grants_aggregates"][
+            "recipient_individuals_count"
+        ],
         "funders": list(
             cove_results["grants_aggregates"]["distinct_funding_org_identifier"]
         ),
@@ -228,7 +231,7 @@ class SourceFilesStats(object):
     def get_total_publishers(self):
         return self.source_file_set.distinct("data__publisher__prefix").count()
 
-    def get_total_recipients(self):
+    def get_total_recipient_organisations(self):
         # Determine if we're dealing with just one publisher and whether we need to limit
         # the source files to that publisher rather than all in 'latest'
         if self.source_file_set.distinct("data__publisher__prefix").count() == 1:
@@ -236,14 +239,14 @@ class SourceFilesStats(object):
                 map(str, self.source_file_set.values_list("id", flat=True))
             )
             query = f"""
-            SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'recipients'))
+            SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'recipient_organisations'))
             FROM db_sourcefile
             WHERE db_sourcefile.id IN ({source_file_ids})
             """
         else:
             latest_id = db.Latest.objects.get(series=db.Latest.CURRENT).pk
             query = f"""
-            SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'recipients'))
+            SELECT DISTINCT(jsonb_array_elements(db_sourcefile.aggregate->'recipient_organisations'))
             FROM db_sourcefile
             INNER JOIN db_sourcefile_latest on db_sourcefile.id=db_sourcefile_latest.sourcefile_id
             WHERE db_sourcefile_latest.latest_id={latest_id}
@@ -254,6 +257,11 @@ class SourceFilesStats(object):
             total = len(cursor.fetchall())
 
         return total
+
+    def get_total_recipient_individuals(self):
+        return self.source_file_set.annotate(
+            total=RawSQL("((aggregate->>%s)::int)", ("recipient_individuals",))
+        ).aggregate(Sum("total"))["total__sum"]
 
     def get_total_funders(self):
         # Determine if we're dealing with just one publisher and whether we need to limit
@@ -471,7 +479,8 @@ def generate_stats(mode, source_file_set):
                 "grants": source_files_stats.get_total_grants(),
                 "GBP": source_files_stats.get_total_gbp(),
                 "publishers": source_files_stats.get_total_publishers(),
-                "recipients": source_files_stats.get_total_recipients(),
+                "recipientOrganisations": source_files_stats.get_total_recipient_organisations(),
+                "recipientIndividuals": source_files_stats.get_total_recipient_individuals(),
                 "funders": source_files_stats.get_total_funders(),
             }
         },
