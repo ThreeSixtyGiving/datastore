@@ -9,6 +9,8 @@ current_year = datetime.date.today().year
 
 
 class DashBoardAPITests(TestCase):
+    maxDiff = None
+
     @classmethod
     def setUpTestData(cls):
         call_command("loaddata", "test_data.json")
@@ -20,7 +22,8 @@ class DashBoardAPITests(TestCase):
                     "grants": 50,
                     "GBP": 26350.0,
                     "publishers": 10,
-                    "recipients": 1,
+                    "recipientOrganisations": 1,
+                    "recipientIndividuals": 0,
                     "funders": 1,
                 },
                 "jsonFiles": 0,
@@ -58,7 +61,8 @@ class DashBoardAPITests(TestCase):
                     "grants": 50,
                     "GBP": 26350.0,
                     "publishers": 10,
-                    "recipients": 1,
+                    "recipientOrganisations": 1,
+                    "recipientIndividuals": 0,
                     "funders": 1,
                 },
                 "jsonFiles": 0,

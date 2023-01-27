@@ -33,7 +33,8 @@ class TestDataQualityData(TestCase):
 
         expected_sourcefile_aggregate = {
             "count": 5,
-            "recipients": ["360G-example-a"],
+            "recipient_organisations": ["360G-example-a"],
+            "recipient_individuals": 0,
             "funders": ["GB-example-b"],
             "max_award_date": "2019-10-03",
             "min_award_date": "2019-10-03",
@@ -114,7 +115,8 @@ class TestDataQualityData(TestCase):
                 "grants": 5,
                 "GBP": 1341.0,
                 "publishers": 1,
-                "recipients": 1,
+                "recipientOrganisations": 1,
+                "recipientIndividuals": 0,
                 "funders": 1,
             },
             "jsonFiles": 0,
