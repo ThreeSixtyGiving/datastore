@@ -5,3 +5,4 @@ black
 requests_mock
 coveralls
 chromedriver-autoinstaller
+django-cors-headers
