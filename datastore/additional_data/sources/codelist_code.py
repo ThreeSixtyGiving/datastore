@@ -49,7 +49,7 @@ class CodeListSource(object):
         regrantType = ""
 
         try:
-            code = grant["toIndividualDetails"]["primaryGrantReason"]
+            code = grant["toIndividualsDetails"]["primaryGrantReason"]
             primaryGrantReason = CodelistCode.objects.get(
                 code=code, list_name="grantToIndividualsReason"
             ).title
@@ -57,7 +57,7 @@ class CodeListSource(object):
             pass
 
         try:
-            code = grant["toIndividualDetails"]["secondaryGrantReason"]
+            code = grant["toIndividualsDetails"]["secondaryGrantReason"]
             secondaryGrantReason = CodelistCode.objects.get(
                 code=code, list_name="grantToIndividualsReason"
             ).title
@@ -65,7 +65,7 @@ class CodeListSource(object):
             pass
 
         try:
-            code = grant["toIndividualDetails"]["grantPurpose"]
+            code = grant["toIndividualsDetails"]["grantPurpose"]
             grantPurpose = CodelistCode.objects.get(
                 code=code, list_name="grantToIndividualsPurpose"
             ).title

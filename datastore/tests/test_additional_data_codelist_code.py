@@ -8,7 +8,7 @@ class TestCodeLists(TestCase):
         source.import_codelists()
 
         grant = {
-            "toIndividualDetails": {
+            "toIndividualsDetails": {
                 "primaryGrantReason": "GTIR040",
                 "grantPurpose": "GTIP170",
             },
