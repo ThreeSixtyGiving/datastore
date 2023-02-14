@@ -7,6 +7,7 @@ from additional_data.sources.additional_data_recipient_location import (
     AdditionalDataRecipientLocation,
 )
 from additional_data.sources.codelist_code import CodeListSource
+from additional_data.sources.tsg_recipient_types import TSGRecipientTypesSource
 
 
 class AdditionalDataGenerator(object):
@@ -20,6 +21,7 @@ class AdditionalDataGenerator(object):
         self.tsg_org_types = TSGOrgTypesSource()
         self.additional_data_recipient_location = AdditionalDataRecipientLocation()
         self.code_lists = CodeListSource()
+        self.tsg_recipient_type = TSGRecipientTypesSource()
         # Initialise Other Sources here
 
     def create(self, grant):
@@ -38,5 +40,6 @@ class AdditionalDataGenerator(object):
             grant, additional_data
         )
         self.code_lists.update_additional_data(grant, additional_data)
+        self.tsg_recipient_type.update_additional_data(grant, additional_data)
 
         return additional_data
