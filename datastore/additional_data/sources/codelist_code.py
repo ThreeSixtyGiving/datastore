@@ -45,7 +45,7 @@ class CodeListSource(object):
 
         primaryGrantReason = ""
         secondaryGrantReason = ""
-        grantPurpose = ""
+        grantPurpose = []
         regrantType = ""
 
         try:
@@ -65,10 +65,13 @@ class CodeListSource(object):
             pass
 
         try:
-            code = grant["toIndividualsDetails"]["grantPurpose"]
-            grantPurpose = CodelistCode.objects.get(
-                code=code, list_name="grantToIndividualsPurpose"
-            ).title
+            codes = grant["toIndividualsDetails"]["grantPurpose"]
+            for code in codes:
+                grantPurpose.append(
+                    CodelistCode.objects.get(
+                        code=code, list_name="grantToIndividualsPurpose"
+                    ).title
+                )
         except (KeyError, CodelistCode.DoesNotExist):
             pass
 

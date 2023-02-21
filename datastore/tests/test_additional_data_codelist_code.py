@@ -10,7 +10,7 @@ class TestCodeLists(TestCase):
         grant = {
             "toIndividualsDetails": {
                 "primaryGrantReason": "GTIR040",
-                "grantPurpose": "GTIP170",
+                "grantPurpose": ["GTIP170"],
             },
             "regrantType": "FRG010",
         }
@@ -22,7 +22,7 @@ class TestCodeLists(TestCase):
                 "toIndividualDetails": {
                     "primaryGrantReason": "Mental Health",
                     "secondaryGrantReason": "",
-                    "grantPurpose": "Exceptional costs",
+                    "grantPurpose": ["Exceptional costs"],
                 },
                 "regrantType": "Common Regrant",
             }
