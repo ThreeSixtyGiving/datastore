@@ -84,7 +84,7 @@ class CodeListSource(object):
             pass
 
         additional_data["codeListLookup"] = {
-            "toIndividualDetails": {
+            "toIndividualsDetails": {
                 "primaryGrantReason": primaryGrantReason,
                 "secondaryGrantReason": secondaryGrantReason,
                 "grantPurpose": grantPurpose,

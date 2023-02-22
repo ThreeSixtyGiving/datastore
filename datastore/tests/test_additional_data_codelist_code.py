@@ -19,7 +19,7 @@ class TestCodeLists(TestCase):
 
         additional_data_out = {
             "codeListLookup": {
-                "toIndividualDetails": {
+                "toIndividualsDetails": {
                     "primaryGrantReason": "Mental Health",
                     "secondaryGrantReason": "",
                     "grantPurpose": ["Exceptional costs"],
