@@ -8,7 +8,7 @@
     # via -r requirements.in
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@main#egg=lib360dataquality
     # via -r requirements.in
-asgiref==3.5.2
+asgiref==3.6.0
     # via django
 attrs==21.2.0
     # via
@@ -44,7 +44,7 @@ defusedxml==0.7.1
     # via
     #   datagetter
     #   odfpy
-django==3.2.16
+django==3.2.18
     # via
     #   -r requirements.in
     #   django-filter
