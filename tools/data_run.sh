@@ -3,6 +3,11 @@
 
 CONFIG_FILE=~/data_run_config.sh
 
+function echo_stamp(){
+  echo $(date +%F-%T) $@
+}
+
+
 if [ -e $CONFIG_FILE ]; then
   source $CONFIG_FILE
 else
@@ -27,11 +32,12 @@ mkdir -p $DOWNLOAD_DIR
 mkdir -p $GRANTNAV_DATA_DIR
 mkdir -p $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR
 
-# Clear out old download dir contents
+
+# Cler out old download dir contents
 rm -rf $DOWNLOAD_DIR/*
 
 if [[ $SOCKS5_PORT && $SSH_SERVER ]]; then
-  echo "Start the proxy"
+  echo_stamp "Start the proxy"
   ssh -D $SOCKS5_PORT -q -C -N $SSH_SERVER &
   PROXY_PID=$!
 fi
@@ -39,7 +45,7 @@ fi
 cd $DATASTORE
 ./datastore/manage.py set_status --what datagetter --status IN_PROGRESS
 
-echo "Running the datagetter"
+echo_stamp "Running the datagetter"
 if [ $PROXY_PID ]; then
   datagetter.py --threads $DATAGETTER_THREADS --socks5 socks5://localhost:$SOCKS5_PORT --data-dir $DOWNLOAD_DIR/data
 else
@@ -52,19 +58,19 @@ fi
 ./datastore/manage.py set_status --what datagetter --status IDLE
 
 if [ $PROXY_PID ]; then
-  echo "Shutting down proxy"
+  echo_stamp "Shutting down proxy"
   kill -HUP $PROXY_PID
 fi
 
 
-echo "Load the downloaded datagetter data into datastore"
+echo_stamp "Load the downloaded datagetter data into datastore"
 ./datastore/manage.py set_status --what datastore --status LOADING_DATA
 
 ./datastore/manage.py load_datagetter_data $DOWNLOAD_DIR/data
 
 ./datastore/manage.py set_status --what datastore --status IDLE
 
-echo "Create GrantNav package"
+echo_stamp "Create GrantNav package"
 ./datastore/manage.py set_status --what grantnav_data_package --status LOADING_DATA
 
 
@@ -74,20 +80,22 @@ echo "Create GrantNav package"
 TOTAL_RUNS=`./datastore/manage.py list_datagetter_runs --total`
 
 if [ $TOTAL_RUNS -gt $MAX_TOTAL_RUNS_IN_DB ]; then
-    echo "Delete oldest datagetter data"
+    echo_stamp "Delete oldest datagetter data"
     ./datastore/manage.py delete_datagetter_data --oldest --no-prompt
 fi
 
-echo "Deleting old GrantNav packages"
+echo_stamp "Deleting old GrantNav packages"
 find $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR -name "data_*.tar.gz" -mtime +$MAX_PACKAGE_AGE_DAYS | xargs rm -f
 
 # Remove old data dump
 rm -rf $GRANTNAV_DATA_DIR/data || true
 
+echo_stamp "Creating data package"
 ./datastore/manage.py create_data_package --dir $GRANTNAV_DATA_DIR/data
 
 NEW_PACKAGE_NAME=data_$(date +%F).tar.gz
 
+echo_stamp "Compressing package into tar gz"
 cd $GRANTNAV_DATA_DIR
 tar -czf $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/$NEW_PACKAGE_NAME data
 # go back to original dir
@@ -96,6 +104,8 @@ cd $DATASTORE
 # Create latest_grantnav_data.tar.gz symlink
 rm $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/latest_grantnav_data.tar.gz
 ln -s  $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/$NEW_PACKAGE_NAME  $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/latest_grantnav_data.tar.gz
+
+echo_stamp "Data package ready"
 
 ./datastore/manage.py set_status --what grantnav_data_package --status READY
 
