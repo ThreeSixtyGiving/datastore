@@ -379,3 +379,16 @@ class Status(models.Model):
     what = models.CharField(max_length=200)
     status = models.CharField(max_length=200, default=Statuses.IDLE)
     when = models.DateTimeField(auto_now=True)
+
+    @staticmethod
+    def all_idle_and_ready():
+        try:
+            return (
+                Status.objects.get(what=Statuses.DATAGETTER).status == Statuses.IDLE
+                and Status.objects.get(what=Statuses.GRANTNAV_DATA_PACKAGE).status
+                == Statuses.READY
+                and Status.objects.get(what=Statuses.DATASTORE).status == Statuses.IDLE
+            )
+        except Status.DoesNotExist:
+            # We have no status set so we consider this as idle and ready
+            return True
