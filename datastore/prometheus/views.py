@@ -56,9 +56,11 @@ class ServiceMetrics(View):
         NUM_ERRORS_LOGGED.set(errors)
 
     def _total_latest_grants(self):
+
         total_current = db.Latest.objects.get(
             series=db.Latest.CURRENT
         ).grant_set.count()
+
         TOTAL_CURRENT_LATEST_GRANTS.set(total_current)
 
         total_prev = db.Latest.objects.get(series=db.Latest.PREVIOUS).grant_set.count()
@@ -84,10 +86,12 @@ class ServiceMetrics(View):
             NUM_OK_SOURCES_IN_LAST_RUN.set(0)
 
     def get(self, *args, **kwargs):
-        # Update gauges
-        self._num_errors_log()
-        self._total_latest_grants()
-        self._total_datagetter_grants()
-        self._total_num_sources_in_last_run()
+        # Update gauges unless we're in the middle of processing/loading
+        if db.Status.all_idle_and_ready():
+            self._num_errors_log()
+            self._total_latest_grants()
+            self._total_datagetter_grants()
+            self._total_num_sources_in_last_run()
+
         # Generate latest uses default of the global registry
         return HttpResponse(generate_latest(), content_type="text/plain")
