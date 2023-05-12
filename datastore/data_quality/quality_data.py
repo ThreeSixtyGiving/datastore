@@ -31,6 +31,7 @@ def create(grants):
         check_field_present.BeneficiaryLocationGeoCodeNotPresent,
         check_field_present.PlannedDurationNotPresent,
         check_field_present.GrantProgrammeTitleNotPresent,
+        check_field_present.IndividualsCodeListsNotPresent,
     ]
 
     with TemporaryDirectory() as tempdir:
@@ -186,6 +187,15 @@ class SourceFilesStats(object):
                     },
                     "has50pcExternalOrgId": {
                         "quality__RecipientOrgPrefix50pcExternal__fail": False
+                    },
+                }
+            )
+
+        if self.get_total_recipient_individuals() > 0:
+            self.quality_query_parameters.update(
+                {
+                    "hasRecipientIndidualsCodelists": {
+                        "quality__IndividualsCodeListsNotPresent__fail": False
                     },
                 }
             )
