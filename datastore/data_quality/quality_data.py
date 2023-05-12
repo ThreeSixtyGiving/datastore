@@ -59,36 +59,48 @@ def create(grants):
 
     # Initialise two new tests
     # These will be derived from RecipientOrg360GPrefix
-    quality_results["RecipientOrgPrefixExternal"] = {
-        "count": cove_results["grants_aggregates"]["count"],
-        "fail": False,
-    }
+    quality_results["RecipientOrgPrefixExternal"] = {"count": 0, "fail": False}
     quality_results["RecipientOrgPrefix50pcExternal"] = {"count": 0, "fail": False}
 
     # Update with a heading and count template.
     for test in cove_results["usefulness_checks"]:
         quality_results[test[0]["type"]] = {
             "heading": test[0]["heading"],
+            # The number of grants that failed the check
             "count": test[0]["count"],
+            # The % of the relevant grants that failed the check
+            "percentage": test[0]["percentage"],
             # If all the grants fail a test then we mark as fail true
-            "fail": test[0]["count"] == cove_results["grants_aggregates"]["count"],
+            "fail": test[0]["percentage"] == 1.0,
         }
+
+        # if "Individuals" in test[0]["type"]:
+        #   print(test)
+
         if "RecipientOrg360GPrefix" in test[0]["type"]:
-            # Create a version of this test for 50% ext org ids
-            # Our fail/pass conditions for this test are based at least 50% of recipients
-            # having an external (non 360G) org id.
-            quality_results["RecipientOrgPrefix50pcExternal"]["fail"] = (
-                test[0]["count"] >= cove_results["grants_aggregates"]["count"] / 2
+            # This test tells us the number and % of grants which use a 360G-something prefix
+            # in the org-ids in the recipient organisation for a grant.
+            #
+            # We can use this test's data to fill in the data for the two new tests RecipientOrgPrefixExternal and RecipientOrgPrefix50pcExternal
+            quality_results["RecipientOrgPrefix50pcExternal"] = {
+                "fail": test[0]["percentage"] >= 0.5,
+                "count": test[0]["count"] / 2,
+                "percentage": 1,
+            }
+
+            grants_recipient_ext_org = (
+                cove_results["grants_aggregates"]["count"]
+                - cove_results["grants_aggregates"]["recipient_individuals_count"]
+                - test[0]["count"]
             )
-
-            # Create an inverted version of this test for simplicity
-            # total grants - the number of grants with 360 prefix to give the number *with*
-            # an ext org id
-            count = cove_results["grants_aggregates"]["count"] - test[0]["count"]
-
             quality_results["RecipientOrgPrefixExternal"] = {
-                "count": count,
-                "fail": count == 0,
+                "count": grants_recipient_ext_org,
+                "percentage": grants_recipient_ext_org
+                / (
+                    cove_results["grants_aggregates"]["count"]
+                    - cove_results["grants_aggregates"]["recipient_individuals_count"]
+                ),
+                "fail": grants_recipient_ext_org == 0,
                 "heading": "Recipient Orgs with external org identifier",
             }
 
@@ -149,9 +161,6 @@ class SourceFilesStats(object):
             "hasBeneficiaryLocationName": {
                 "quality__BeneficiaryLocationNameNotPresent__fail": False
             },
-            "hasRecipientOrgLocations": {
-                "quality__IncompleteRecipientOrg__fail": False
-            },
             "hasGrantDuration": {"quality__PlannedDurationNotPresent__fail": False},
             "hasGrantProgrammeTitle": {
                 "quality__GrantProgrammeTitleNotPresent__fail": False
@@ -162,13 +171,24 @@ class SourceFilesStats(object):
             "hasBeneficiaryLocationGeoCode": {
                 "quality__BeneficiaryLocationGeoCodeNotPresent__fail": False
             },
-            "hasRecipientOrgCompanyOrCharityNumber": {
-                "quality__NoRecipientOrgCompanyCharityNumber__fail": False
-            },
-            "has50pcExternalOrgId": {
-                "quality__RecipientOrgPrefix50pcExternal__fail": False
-            },
         }
+
+        # If a set of source files has 0 recipient organisations (i.e. 100% grants to individuals) these tests
+        # are meaningless and will fail so don't output them.
+        if self.get_total_recipient_organisations() > 0:
+            self.quality_query_parameters.update(
+                {
+                    "hasRecipientOrgLocations": {
+                        "quality__IncompleteRecipientOrg__fail": False
+                    },
+                    "hasRecipientOrgCompanyOrCharityNumber": {
+                        "quality__NoRecipientOrgCompanyCharityNumber__fail": False
+                    },
+                    "has50pcExternalOrgId": {
+                        "quality__RecipientOrgPrefix50pcExternal__fail": False
+                    },
+                }
+            )
 
         self.file_types = ["json", "csv", "xlsx", "ods"]
 
@@ -293,8 +313,12 @@ class SourceFilesStats(object):
     def get_pc_quality_grants(self):
         ret = {}
         total_grants = self.get_total_grants()
+        total_recipient_org_grants = (
+            total_grants - self.get_total_recipient_individuals()
+        )
 
         for metric, query in self.quality_query_parameters.items():
+            # Aggregate total number of errors for the metric
             ret[metric] = (
                 self.source_file_set.filter(**query)
                 .annotate(total=RawSQL("((aggregate->>%s)::int)", ("count",)))
@@ -304,7 +328,11 @@ class SourceFilesStats(object):
             if ret[metric] == None:
                 ret[metric] = 0
 
-            ret[metric] = round(ret[metric] / total_grants * 100)
+            # Workout percentage of total errors / all grants in the relevant recipient set
+            if "Org" in metric:
+                ret[metric] = round(ret[metric] / total_recipient_org_grants * 100)
+            else:
+                ret[metric] = round(ret[metric] / total_grants * 100)
 
         return ret
 
@@ -520,6 +548,6 @@ def generate_stats(mode, source_file_set):
         ] = source_files_stats.get_pc_publishers_with_recipient_ext_org()
 
     else:
-        raise Exception("Unknown mode")
+        raise Exception("Unknown mode. Valid modes: publishers, grants")
 
     return ret
