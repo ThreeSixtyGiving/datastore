@@ -52,14 +52,16 @@ class TestDataQualityData(TestCase):
         }
         expected_sourcefile_quality = {
             "RecipientOrg360GPrefix": {
-                "heading": "100% of grants have a <span class=\"highlight-background-text\">Recipient Org:Identifier</span> that starts '360G-'",
+                "heading": "5 recipient organisation grants have a <span class=\"highlight-background-text\">Recipient Org:Identifier</span> that starts '360G-'",
                 "count": 5,
+                "percentage": 1.0,
                 "fail": True,
             },
             "FundingOrg360GPrefix": {"count": 0, "fail": False},
             "NoRecipientOrgCompanyCharityNumber": {
-                "heading": '100% of grants do not have either a <span class="highlight-background-text">Recipient Org:Company Number</span> or a <span class="highlight-background-text">Recipient Org:Charity Number</span>',
+                "heading": '5 recipient organisation grants do not have either a <span class="highlight-background-text">Recipient Org:Company Number</span> or a <span class="highlight-background-text">Recipient Org:Charity Number</span>',
                 "count": 5,
+                "percentage": 1.0,
                 "fail": True,
             },
             "IncompleteRecipientOrg": {"count": 0, "fail": False},
@@ -69,18 +71,22 @@ class TestDataQualityData(TestCase):
             "TitleLength": {"count": 0, "fail": False},
             "NoLastModified": {"count": 0, "fail": False},
             "NoDataSource": {
-                "heading": '100% of grants do not have <span class="highlight-background-text">Data Source</span> information',
+                "heading": '5 grants do not have <span class="highlight-background-text">Data Source</span> information',
                 "count": 5,
+                "percentage": 1.0,
                 "fail": True,
             },
             "ClassificationNotPresent": {
-                "heading": "100% of grants do not contain classifications field",
+                "heading": "5 grants do not contain classifications field",
                 "count": 5,
+                "percentage": 1.0,
                 "fail": True,
             },
             "BeneficiaryLocationNameNotPresent": {"count": 0, "fail": False},
             "BeneficiaryLocationCountryCodeNotPresent": {
-                "heading": "100% of grants do not contain beneficiaryLocation/0/countryCode field",
+                "heading": "5 grants do not contain beneficiaryLocation/0/countryCode field",
+                "count": 5,
+                "percentage": 1.0,
                 "count": 5,
                 "fail": True,
             },
@@ -95,8 +101,16 @@ class TestDataQualityData(TestCase):
             "RecipientOrgPrefix50pcExternal": {"count": 0, "fail": True},
         }
 
-        self.assertEqual(source_file.quality, expected_sourcefile_quality)
-        self.assertEqual(source_file.aggregate, expected_sourcefile_aggregate)
+        self.assertEqual(
+            expected_sourcefile_quality,
+            source_file.quality,
+            "Grant quality data not as expected",
+        )
+        self.assertEqual(
+            expected_sourcefile_aggregate,
+            source_file.aggregate,
+            "Grant aggregate data not as expected",
+        )
 
         # Create publisher aggregate and quality data
 
