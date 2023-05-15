@@ -10,6 +10,7 @@ class TestDataQualityData(TestCase):
     """Test creating data quality data"""
 
     fixtures = ["test_data.json"]
+    maxDiff = None
 
     def test_create_data_quality_data(self):
         grant = db.Grant.objects.first()
@@ -64,6 +65,7 @@ class TestDataQualityData(TestCase):
                 "percentage": 1.0,
                 "fail": True,
             },
+            "IndividualsCodeListsNotPresent": {"count": 0, "fail": False},
             "IncompleteRecipientOrg": {"count": 0, "fail": False},
             "NoGrantProgramme": {"count": 0, "fail": False},
             "NoBeneficiaryLocation": {"count": 0, "fail": False},
@@ -93,12 +95,18 @@ class TestDataQualityData(TestCase):
             "BeneficiaryLocationGeoCodeNotPresent": {"count": 0, "fail": False},
             "PlannedDurationNotPresent": {"count": 0, "fail": False},
             "GrantProgrammeTitleNotPresent": {"count": 0, "fail": False},
+            # These two are odd because they're datastore-home-brew
             "RecipientOrgPrefixExternal": {
                 "count": 0,
                 "fail": True,
                 "heading": "Recipient Orgs with external org identifier",
+                "percentage": 0.0,
             },
-            "RecipientOrgPrefix50pcExternal": {"count": 0, "fail": True},
+            "RecipientOrgPrefix50pcExternal": {
+                "count": 2.5,
+                "fail": True,
+                "percentage": 1,
+            },
         }
 
         self.assertEqual(
