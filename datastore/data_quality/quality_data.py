@@ -194,7 +194,7 @@ class SourceFilesStats(object):
         if self.get_total_recipient_individuals() > 0:
             self.quality_query_parameters.update(
                 {
-                    "hasRecipientIndidualsCodelists": {
+                    "hasRecipientIndividualsCodelists": {
                         "quality__IndividualsCodeListsNotPresent__fail": False
                     },
                 }
