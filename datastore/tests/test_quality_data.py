@@ -103,9 +103,9 @@ class TestDataQualityData(TestCase):
                 "percentage": 0.0,
             },
             "RecipientOrgPrefix50pcExternal": {
-                "count": 2.5,
+                "count": 0,
                 "fail": True,
-                "percentage": 1,
+                "percentage": 0,
             },
         }
 
