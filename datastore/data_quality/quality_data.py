@@ -83,12 +83,7 @@ def create(grants):
             # in the org-ids in the recipient organisation for a grant.
             #
             # We can use this test's data to fill in the data for the two new tests RecipientOrgPrefixExternal and RecipientOrgPrefix50pcExternal
-            quality_results["RecipientOrgPrefix50pcExternal"] = {
-                "fail": test[0]["percentage"] >= 0.5,
-                "count": test[0]["count"] / 2,
-                "percentage": 1,
-            }
-
+            # RecipientOrgPrefixExternal is  (number of grants) - (count of recipient orgs with a 360 prefix) - (recipient individual grants)
             grants_recipient_ext_org = (
                 cove_results["grants_aggregates"]["count"]
                 - cove_results["grants_aggregates"]["recipient_individuals_count"]
@@ -103,6 +98,16 @@ def create(grants):
                 ),
                 "fail": grants_recipient_ext_org == 0,
                 "heading": "Recipient Orgs with external org identifier",
+            }
+
+            # Add test to see if more than 50% of the recipient org ids are external
+            quality_results["RecipientOrgPrefix50pcExternal"] = {
+                "fail": quality_results["RecipientOrgPrefixExternal"]["percentage"]
+                < 0.5,
+                "count": grants_recipient_ext_org,
+                "percentage": quality_results["RecipientOrgPrefixExternal"][
+                    "percentage"
+                ],
             }
 
     aggregates = {
