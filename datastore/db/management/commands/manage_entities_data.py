@@ -68,6 +68,10 @@ def update_entities():
 
 
 def create_orgs_list(entity_type, output=sys.stdout):
+    """Outputs all the known entities for a particular type as json lines
+    entity_type: publisher, recipient, funder
+    output: io
+    """
     introspect = DatabaseIntrospection(connection)
 
     query = f"""
