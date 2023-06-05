@@ -55,7 +55,13 @@ class Command(BaseCommand):
                     print("Deleted %s" % run)
 
             except GetterRun.DoesNotExist:
-                raise CommandError("Run id '%s' doesn't exist " % run)
+                runs = [
+                    str(r) for r in GetterRun.objects.all().values_list("id", flat=True)
+                ]
+                raise CommandError(
+                    "Run id '%s' doesn't exist. Available runs %s"
+                    % (run, ",".join(runs))
+                )
 
         if options.get("update_latest_best"):
             print("Updating latest")
