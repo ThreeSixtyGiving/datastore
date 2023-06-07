@@ -47,6 +47,7 @@ class DashBoardAPITests(TestCase):
                 "hasBeneficiaryLocationGeoCode": 100,
                 "hasRecipientOrgCompanyOrCharityNumber": 0,
                 "has50pcExternalOrgId": 0,
+                "hasRecipientIndividualsCodelists": 0,
             },
         }
 
@@ -96,6 +97,7 @@ class DashBoardAPITests(TestCase):
                 "hasBeneficiaryLocationGeoCode": 100,
                 "hasRecipientOrgCompanyOrCharityNumber": 0,
                 "has50pcExternalOrgId": 0,
+                "hasRecipientIndividualsCodelists": 0,
             },
         }
 

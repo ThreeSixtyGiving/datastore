@@ -14,7 +14,7 @@ class TestDataQualityData(TestCase):
 
     def test_create_data_quality_data(self):
         grant = db.Grant.objects.first()
-        quality = quality_data.create({"grants": [grant.data]})
+        quality = quality_data.create([grant.data])
 
         # Our test data in the test_data.json currently generates 2
         # data quality usefulness results
@@ -24,9 +24,7 @@ class TestDataQualityData(TestCase):
         source_file = db.SourceFile.objects.get(pk=3)
 
         # Create source file aggregate and quality data
-        grants_list = {
-            "grants": list(source_file.grant_set.values_list("data", flat=True))
-        }
+        grants_list = list(source_file.grant_set.values_list("data", flat=True))
 
         source_file.quality, source_file.aggregate = quality_data.create(grants_list)
 
@@ -164,5 +162,5 @@ class TestDataQualityData(TestCase):
             "has50pcExternalOrgId": 0,
         }
 
-        self.assertEqual(publisher.aggregate, expected_publisher_aggregate)
-        self.assertEqual(publisher.quality, expected_publisher_quality)
+        self.assertEqual(expected_publisher_aggregate, publisher.aggregate)
+        self.assertEqual(expected_publisher_quality, publisher.quality)
