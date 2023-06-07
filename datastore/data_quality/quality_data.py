@@ -38,7 +38,7 @@ def create(grants):
         common_checks_360(
             cove_results,
             tempdir,
-            grants,
+            {"grants": grants},
             Schema360(),
             test_classes=[USEFULNESS_TEST_CLASS],
         )
@@ -75,9 +75,6 @@ def create(grants):
             "fail": test[0]["percentage"] == 1.0,
         }
 
-        # if "Individuals" in test[0]["type"]:
-        #   print(test)
-
         if "RecipientOrg360GPrefix" in test[0]["type"]:
             # This test tells us the number and % of grants which use a 360G-something prefix
             # in the org-ids in the recipient organisation for a grant.
@@ -99,12 +96,11 @@ def create(grants):
                 "fail": grants_recipient_ext_org == 0,
                 "heading": "Recipient Orgs with external org identifier",
             }
-
             # Add test to see if more than 50% of the recipient org ids are external
             quality_results["RecipientOrgPrefix50pcExternal"] = {
                 "fail": quality_results["RecipientOrgPrefixExternal"]["percentage"]
                 < 0.5,
-                "count": grants_recipient_ext_org,
+                "count": grants_recipient_ext_org / 2,
                 "percentage": quality_results["RecipientOrgPrefixExternal"][
                     "percentage"
                 ],
@@ -144,7 +140,7 @@ def create(grants):
         except IndexError:
             return None
 
-    for grant in grants["grants"]:
+    for grant in grants:
         # skip if grant isn't for an organization
         if not grant.get("recipientOrganization"):
             continue
@@ -177,33 +173,19 @@ class SourceFilesStats(object):
             "hasBeneficiaryLocationGeoCode": {
                 "quality__BeneficiaryLocationGeoCodeNotPresent__fail": False
             },
+            "hasRecipientOrgLocations": {
+                "quality__IncompleteRecipientOrg__fail": False
+            },
+            "hasRecipientOrgCompanyOrCharityNumber": {
+                "quality__NoRecipientOrgCompanyCharityNumber__fail": False
+            },
+            "has50pcExternalOrgId": {
+                "quality__RecipientOrgPrefix50pcExternal__fail": False
+            },
+            "hasRecipientIndividualsCodelists": {
+                "quality__IndividualsCodeListsNotPresent__fail": False
+            },
         }
-
-        # If a set of source files has 0 recipient organisations (i.e. 100% grants to individuals) these tests
-        # are meaningless and will fail so don't output them.
-        if self.get_total_recipient_organisations() > 0:
-            self.quality_query_parameters.update(
-                {
-                    "hasRecipientOrgLocations": {
-                        "quality__IncompleteRecipientOrg__fail": False
-                    },
-                    "hasRecipientOrgCompanyOrCharityNumber": {
-                        "quality__NoRecipientOrgCompanyCharityNumber__fail": False
-                    },
-                    "has50pcExternalOrgId": {
-                        "quality__RecipientOrgPrefix50pcExternal__fail": False
-                    },
-                }
-            )
-
-        if self.get_total_recipient_individuals() > 0:
-            self.quality_query_parameters.update(
-                {
-                    "hasRecipientIndividualsCodelists": {
-                        "quality__IndividualsCodeListsNotPresent__fail": False
-                    },
-                }
-            )
 
         self.file_types = ["json", "csv", "xlsx", "ods"]
 
@@ -351,16 +333,48 @@ class SourceFilesStats(object):
 
         return ret
 
+    def get_publisher_quality_grants(self):
+        ret = {}
+        has_grants_to_individuals = self.get_total_recipient_individuals() > 0
+        has_grants_to_orgs = self.get_total_recipient_organisations() > 0
+
+        for metric, query in self.quality_query_parameters.items():
+            # If the metric we're looking at is for individuals but we have
+            # no grants to individuals skip
+            if (
+                metric == "hasRecipientIndividualsCodelists"
+                and not has_grants_to_individuals
+            ):
+                continue
+
+            # if the metric we're looking at is for organisations but we have
+            # no grants to organisations skip
+            if (
+                metric == "hasRecipientOrgLocations"
+                or metric == "hasRecipientOrgCompanyOrCharityNumber"
+                or metric == "has50pcExternalOrgId"
+            ) and not has_grants_to_orgs:
+                continue
+
+            # For compatibility badge value 100 = True , 0 = False
+            ret[metric] = (
+                100
+                if self.source_file_set.count()
+                == self.source_file_set.filter(**query).count()
+                else 0
+            )
+        return ret
+
     def get_pc_quality_publishers(self):
         ret = {}
 
+        publishers = db.Publisher.objects.filter(getter_run=db.GetterRun.objects.last())
+        total_publishers = publishers.count()
+
         for metric, query in self.quality_query_parameters.items():
+            publisher_query = {f"quality__{metric}": 100}
             ret[metric] = round(
-                self.source_file_set.filter(**query)
-                .distinct("data__publisher__prefix")
-                .count()
-                / self.get_total_publishers()
-                * 100
+                publishers.filter(**publisher_query).count() / total_publishers * 100
             )
 
         return ret
@@ -408,6 +422,7 @@ class SourceFilesStats(object):
             [90, 100],
         ]
 
+        # This is incorrect as it is counting all in the file where we don't always have all orgs some are indi
         query = self.source_file_set.annotate(
             pc=RawSQL(
                 "(quality->'RecipientOrgPrefixExternal'->>'count')::float / (aggregate->>'count')::float * 100",
@@ -503,8 +518,7 @@ class SourceFilesStats(object):
 
 def create_publisher_stats(publisher):
     """Create stats and aggregate data about a publisher's grants"""
-
-    ret = generate_stats("overview_grants", publisher.get_sourcefiles())
+    ret = generate_stats("single_publisher", publisher.get_sourcefiles())
 
     return ret["quality"], ret["aggregate"]
 
@@ -554,13 +568,28 @@ def generate_stats(mode, source_file_set):
         ret["aggregate"][
             "publishedLastThreeMonths"
         ] = source_files_stats.get_pc_publishers_publishing_in_last(92)
-        ret["quality"] = source_files_stats.get_pc_quality_publishers()
         ret["aggregate"][
             "awardYears"
         ] = source_files_stats.get_pc_publishers_with_grants_awarded_in_last_ten_years()
         ret["aggregate"][
             "recipientsExternalOrgId"
         ] = source_files_stats.get_pc_publishers_with_recipient_ext_org()
+        ret["quality"] = source_files_stats.get_pc_quality_publishers()
+    elif mode == "single_publisher":
+        ret["aggregate"].update(source_files_stats.get_pc_total_file_types())
+        ret["quality"] = source_files_stats.get_publisher_quality_grants()
+        ret["aggregate"][
+            "awardYears"
+        ] = source_files_stats.get_total_grants_awarded_in_last_ten_years()
+        ret["aggregate"][
+            "orgIdTypes"
+        ] = source_files_stats.get_grant_org_id_types_used()
+        ret["aggregate"][
+            "awardedThisYear"
+        ] = source_files_stats.get_pc_publishers_awarding_in_last(366)
+        ret["aggregate"][
+            "awardedLastThreeMonths"
+        ] = source_files_stats.get_pc_publishers_awarding_in_last(92)
 
     else:
         raise Exception("Unknown mode. Valid modes: publishers, grants")
