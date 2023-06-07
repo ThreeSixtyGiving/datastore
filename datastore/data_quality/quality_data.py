@@ -75,6 +75,8 @@ def create(grants):
             "fail": test[0]["percentage"] == 1.0,
         }
 
+        print(quality_results[test[0]["type"]])
+
         # if "Individuals" in test[0]["type"]:
         #   print(test)
 
@@ -99,12 +101,11 @@ def create(grants):
                 "fail": grants_recipient_ext_org == 0,
                 "heading": "Recipient Orgs with external org identifier",
             }
-
             # Add test to see if more than 50% of the recipient org ids are external
             quality_results["RecipientOrgPrefix50pcExternal"] = {
                 "fail": quality_results["RecipientOrgPrefixExternal"]["percentage"]
                 < 0.5,
-                "count": grants_recipient_ext_org,
+                "count": grants_recipient_ext_org / 2,
                 "percentage": quality_results["RecipientOrgPrefixExternal"][
                     "percentage"
                 ],
@@ -328,26 +329,42 @@ class SourceFilesStats(object):
     def get_pc_quality_grants(self):
         ret = {}
         total_grants = self.get_total_grants()
-        total_recipient_org_grants = (
-            total_grants - self.get_total_recipient_individuals()
-        )
+        total_recipient_ind_grants = self.get_total_recipient_individuals()
+        total_recipient_org_grants = total_grants - total_recipient_ind_grants
 
         for metric, query in self.quality_query_parameters.items():
             # Aggregate total number of errors for the metric
+            # extract just the field name: quality__example__fail = "example"
+            quality_key = list(query.keys())[0].split("__")[1]
+
             ret[metric] = (
                 self.source_file_set.filter(**query)
-                .annotate(total=RawSQL("((aggregate->>%s)::int)", ("count",)))
+                .annotate(
+                    total=RawSQL("((quality->%s->>%s)::float)", (quality_key, "count"))
+                )
                 .aggregate(Sum("total"))["total__sum"]
             )
 
+            # None is returned when the queryset filter has no results i.e. all fail are True
             if ret[metric] == None:
                 ret[metric] = 0
+                continue
 
             # Workout percentage of total errors / all grants in the relevant recipient set
             if "Org" in metric:
-                ret[metric] = round(ret[metric] / total_recipient_org_grants * 100)
+                ret[metric] = round(
+                    (total_recipient_org_grants - ret[metric])
+                    / total_recipient_org_grants
+                    * 100
+                )
+            elif "Individiual" in metric and total_recipient_ind_grants > 0:
+                ret[metric] = round(
+                    (total_recipient_ind_grants - ret[metric])
+                    / total_recipient_ind_grants
+                    * 100
+                )
             else:
-                ret[metric] = round(ret[metric] / total_grants * 100)
+                ret[metric] = round((total_grants - ret[metric]) / total_grants * 100)
 
         return ret
 
@@ -408,6 +425,7 @@ class SourceFilesStats(object):
             [90, 100],
         ]
 
+        # This is incorrect as it is counting all in the file where we don't always have all orgs some are indi
         query = self.source_file_set.annotate(
             pc=RawSQL(
                 "(quality->'RecipientOrgPrefixExternal'->>'count')::float / (aggregate->>'count')::float * 100",
@@ -503,7 +521,6 @@ class SourceFilesStats(object):
 
 def create_publisher_stats(publisher):
     """Create stats and aggregate data about a publisher's grants"""
-
     ret = generate_stats("overview_grants", publisher.get_sourcefiles())
 
     return ret["quality"], ret["aggregate"]

@@ -164,5 +164,5 @@ class TestDataQualityData(TestCase):
             "has50pcExternalOrgId": 0,
         }
 
-        self.assertEqual(publisher.aggregate, expected_publisher_aggregate)
-        self.assertEqual(publisher.quality, expected_publisher_quality)
+        self.assertEqual(expected_publisher_aggregate, publisher.aggregate)
+        self.assertEqual(expected_publisher_quality, publisher.quality)
