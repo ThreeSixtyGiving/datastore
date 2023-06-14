@@ -19,7 +19,7 @@ class Command(BaseCommand):
             nargs=1,
             action="store",
             dest="data_dir",
-            help="The location of the data dir created by datagetter",
+            help="The location of the data dir",
         )
 
         parser.add_argument(

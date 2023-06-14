@@ -15,11 +15,13 @@ class CustomMgmtCommandsTest(TransactionTestCase):
 
     fixtures = ["test_data.json"]
 
-    def test_create_data_package(self):
+    def test_create_and_load_data_package(self):
         err_out = StringIO()
         with TemporaryDirectory() as tmpdir:
             call_command("create_data_package", dir=tmpdir, stderr=err_out)
-            self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+            self.assertEqual(
+                len(err_out.getvalue()), 0, "Errors output by create command"
+            )
 
             with open(os.path.join(tmpdir, "data_all.json")) as da_fp:
                 json.load(da_fp)
@@ -31,6 +33,11 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             # Check the output json lines file by parsing the first line
             with open(os.path.join(tmpdir, "recipients.jl")) as recipients_fp:
                 json.loads(recipients_fp.readline().strip())
+
+            call_command("load_data_package", tmpdir, stderr=err_out)
+            self.assertEqual(
+                len(err_out.getvalue()), 0, "Errors output by load command"
+            )
 
     def test_delete_datagetter_data(self):
         err_out = StringIO()
