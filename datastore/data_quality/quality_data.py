@@ -369,10 +369,34 @@ class SourceFilesStats(object):
         ret = {}
 
         publishers = db.Publisher.objects.filter(getter_run=db.GetterRun.objects.last())
-        total_publishers = publishers.count()
+
+        total_publishers_all = publishers.count()
+
+        total_org_recp_publishers = publishers.filter(
+            aggregate__total__recipientOrganisations__gt=0
+        ).count()
+        total_indv_recp_publishers = publishers.filter(
+            aggregate__total__recipientIndividuals__gt=0
+        ).count()
 
         for metric, query in self.quality_query_parameters.items():
             publisher_query = {f"quality__{metric}": 100}
+
+            total_publishers = total_publishers_all
+
+            # If this is an org metric exclude publishers
+            if (
+                metric == "hasRecipientOrgLocations"
+                or metric == "hasRecipientOrgCompanyOrCharityNumber"
+                or metric == "has50pcExternalOrgId"
+            ):
+                total_publishers = total_org_recp_publishers
+            elif metric == "hasRecipientIndividualsCodelists":
+                total_publishers = total_indv_recp_publishers
+
+            if total_publishers == 0:
+                total_publishers = 1
+
             ret[metric] = round(
                 publishers.filter(**publisher_query).count() / total_publishers * 100
             )
