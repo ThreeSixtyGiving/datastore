@@ -44,7 +44,7 @@ defusedxml==0.7.1
     # via
     #   datagetter
     #   odfpy
-django==3.2.16
+django==3.2.20
     # via
     #   -r requirements.in
     #   django-filter
@@ -89,6 +89,7 @@ jsonref==0.2
 jsonschema==3.2.0
     # via
     #   datagetter
+    #   lib360dataquality
     #   libcove
 libcove==0.29.0
     # via lib360dataquality
