@@ -8,7 +8,7 @@
     # via -r requirements.in
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@main#egg=lib360dataquality
     # via -r requirements.in
-asgiref==3.5.2
+asgiref==3.7.2
     # via django
 attrs==21.2.0
     # via
@@ -22,8 +22,6 @@ btrees==4.9.2
     # via
     #   datagetter
     #   zodb
-cached-property==1.5.2
-    # via libcove
 certifi==2021.10.8
     # via
     #   datagetter
@@ -44,15 +42,15 @@ defusedxml==0.7.1
     # via
     #   datagetter
     #   odfpy
-django==3.2.16
+django==3.2.20
     # via
     #   -r requirements.in
     #   django-filter
     #   django-prettyjson
     #   djangorestframework
-django-environ==0.9.0
+django-environ==0.10.0
     # via -r requirements.in
-django-filter==22.1
+django-filter==23.2
     # via -r requirements.in
 django-prettyjson==0.4.1
     # via -r requirements.in
@@ -89,8 +87,9 @@ jsonref==0.2
 jsonschema==3.2.0
     # via
     #   datagetter
+    #   lib360dataquality
     #   libcove
-libcove==0.29.0
+libcove==0.31.0
     # via lib360dataquality
 lxml==4.6.4
     # via
@@ -155,7 +154,7 @@ six==1.16.0
     #   jsonschema
     #   python-dateutil
     #   zodb
-sqlparse==0.4.3
+sqlparse==0.4.4
     # via django
 standardjson==0.3.1
     # via django-prettyjson
@@ -165,6 +164,8 @@ transaction==3.0.1
     # via
     #   datagetter
     #   zodb
+typing-extensions==4.7.1
+    # via asgiref
 urllib3==1.26.7
     # via
     #   datagetter

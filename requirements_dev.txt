@@ -118,6 +118,7 @@ jsonref==0.2
 jsonschema==3.2.0
     # via
     #   datagetter
+    #   lib360dataquality
     #   libcove
 libcove==0.29.0
     # via lib360dataquality
