@@ -16,3 +16,6 @@ eggs/
 *.egg-info/
 
 .ve
+
+# Dev Database Data
+postgres_dev_data/
