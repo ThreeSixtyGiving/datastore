@@ -14,7 +14,7 @@ from additional_data.models import GeoCodeName
 class GeoCodeNamesSource(object):
     """Uses CHD (Change history data) at https://geoportal.statistics.gov.uk/ to obtain information about geo code names."""
 
-    CHD_URL = "https://www.arcgis.com/sharing/rest/content/items/56b8f6d2d26646cb9d21fadca2f09452/data"
+    CHD_URL = "https://www.arcgis.com/sharing/rest/content/items/393a031178684c69973d0e416a862890/data"
 
     def __init__(self):
         pass
@@ -52,8 +52,8 @@ class GeoCodeNamesSource(object):
                 "statutory_instrument_title": area["SI_TITLE"]
                 if area["SI_TITLE"]
                 else None,
-                "date_start": self.process_date(area["OPER_DATE"], "%d/%m/%Y %H:%M:%S"),
-                "date_end": self.process_date(area["TERM_DATE"], "%d/%m/%Y %H:%M:%S"),
+                "date_start": self.process_date(area["OPER_DATE"][:10], "%d/%m/%Y"),
+                "date_end": self.process_date(area["TERM_DATE"][:10], "%d/%m/%Y"),
                 "parent": area["PARENTCD"] if area["PARENTCD"] else None,
                 "entity": area["ENTITYCD"],
                 "owner": area["OWNER"],
