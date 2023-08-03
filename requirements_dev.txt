@@ -30,8 +30,6 @@ btrees==4.9.2
     # via
     #   datagetter
     #   zodb
-cached-property==1.5.2
-    # via libcove
 certifi==2021.10.8
     # via
     #   datagetter
@@ -118,8 +116,9 @@ jsonref==0.2
 jsonschema==3.2.0
     # via
     #   datagetter
+    #   lib360dataquality
     #   libcove
-libcove==0.29.0
+libcove==0.31.0
     # via lib360dataquality
 lxml==4.6.4
     # via
@@ -148,7 +147,7 @@ persistent==4.7.0
     #   zodb
 platformdirs==2.6.0
     # via black
-prometheus-client==0.7
+prometheus-client==0.7.0
     # via -r requirements.in
 psycopg2==2.8
     # via -r requirements.in

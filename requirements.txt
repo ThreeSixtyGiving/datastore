@@ -22,8 +22,6 @@ btrees==4.9.2
     # via
     #   datagetter
     #   zodb
-cached-property==1.5.2
-    # via libcove
 certifi==2021.10.8
     # via
     #   datagetter
@@ -89,8 +87,9 @@ jsonref==0.2
 jsonschema==3.2.0
     # via
     #   datagetter
+    #   lib360dataquality
     #   libcove
-libcove==0.29.0
+libcove==0.31.0
     # via lib360dataquality
 lxml==4.6.4
     # via
@@ -109,7 +108,7 @@ persistent==4.7.0
     #   btrees
     #   datagetter
     #   zodb
-prometheus-client==0.7
+prometheus-client==0.7.0
     # via -r requirements.in
 psycopg2==2.8
     # via -r requirements.in
@@ -154,6 +153,7 @@ six==1.16.0
     #   django-prettyjson
     #   jsonschema
     #   python-dateutil
+    #   rfc3339-validator
     #   zodb
 sqlparse==0.4.3
     # via django
