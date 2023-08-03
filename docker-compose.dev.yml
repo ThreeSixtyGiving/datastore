@@ -9,19 +9,21 @@ services:
     environment:
       DEBUG: 'True'
       DATABASE_HOST: 'postgres'
-      DATABASE_NAME: 'postgres'
-      DATABASE_USER: 'postgres'
-      DATABASE_PASSWORD: 'postgres'
+      DATABASE_NAME: '360givingdatastore'
+      DATABASE_USER: 'test'
+      DATABASE_PASSWORD: 'test'
     volumes:
       - "./:/code"
     command: "sh -c 'python datastore/manage.py migrate && python datastore/manage.py runserver 0.0.0.0:8000'"
 
   postgres:
     image: postgres:12
+    ports:
+      - "5432:5432"
     environment:
-      POSTGRES_DB: postgres
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: '360givingdatastore'
+      POSTGRES_USER: 'test'
+      POSTGRES_PASSWORD: 'test'
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - "./postgres_dev_data:/var/lib/postgresql/data"
