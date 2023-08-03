@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from additional_data.sources.code_names import GeoCodeNamesSource
+from additional_data.sources.geocode_names import GeoCodeNamesSource
 
 
 class Command(BaseCommand):
