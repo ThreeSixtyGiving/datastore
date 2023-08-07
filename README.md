@@ -42,6 +42,14 @@ _Note: before loading grant data you may wish to load additional_data sources_
 $ manage.py load_datagetter_data ../path/to/data/dir/from/datagetter/
 ```
 
+## Updating entities data
+
+Create/update the Recipient/Funder model entries from grant data.
+
+```
+$ python manage.py manage_entities_data --update
+```
+
 ## Loading data for additional data
 
 A number of the sources for additional_data have their own local caches these can be loaded via:
