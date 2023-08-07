@@ -46,4 +46,9 @@ urlpatterns = [
         api.experimental.api.CurrentLatestGrants.as_view(),
         name="current-latest-grants",
     ),
+    path(
+        "experimental/org/<str:org_id>",
+        api.experimental.api.OrganisationRetrieveView.as_view(),
+        name="organisation"
+    )
 ]
