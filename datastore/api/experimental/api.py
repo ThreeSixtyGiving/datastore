@@ -27,7 +27,21 @@ class CurrentLatestGrants(generics.ListAPIView):
         return db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.all()
 
 
+class OrganisationListPagination(LimitOffsetPagination):
+    default_limit = 1000
 
+
+class OrganisationListView(generics.ListAPIView):
+    serializer_class = serializers.OrganisationListSerializer
+    pagination_class = OrganisationListPagination
+
+    def get_queryset(self):
+        fields = ["org_id"]
+        return (
+            db.Publisher.objects.only(*fields)
+            .union(db.Funder.objects.only(*fields))
+            .union(db.Recipient.objects.only(*fields))
+        )
 
 
 class OrganisationRetrieveView(generics.RetrieveAPIView):
