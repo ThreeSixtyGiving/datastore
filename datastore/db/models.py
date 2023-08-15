@@ -327,11 +327,17 @@ class Publisher(Entity):
 
 
 class Recipient(Entity):
-    pass
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["org_id"], name="recipient_unique_org_id")
+        ]
 
 
 class Funder(Entity):
-    pass
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=["org_id"], name="funder_unique_org_id")
+        ]
 
 
 class Grant(models.Model):
