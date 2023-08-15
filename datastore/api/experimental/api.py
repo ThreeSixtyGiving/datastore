@@ -1,8 +1,10 @@
+from django.http import Http404
 import django_filters.rest_framework
 from rest_framework import filters, generics
 from rest_framework.pagination import LimitOffsetPagination
 
 import db.models as db
+import api.experimental.models as api_experimental
 from api.experimental import serializers
 
 
@@ -25,18 +27,12 @@ class CurrentLatestGrants(generics.ListAPIView):
         return db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.all()
 
 
+
+
+
 class OrganisationRetrieveView(generics.RetrieveAPIView):
     lookup_field = "org_id"
-
-    def get_serializer(self, instance):
-        if isinstance(instance, db.Funder):
-            return serializers.FunderSerializer(instance)
-
-        elif isinstance(instance, db.Recipient):
-            return serializers.RecipientSerializer(instance)
-
-        else:
-            raise ValueError("OrganisationRetrieveView expected Funder or Recipient")
+    serializer_class = serializers.OrganisationSerializer
 
     def get_object(self):
         """
@@ -59,20 +55,40 @@ class OrganisationRetrieveView(generics.RetrieveAPIView):
             (self.__class__.__name__, lookup_url_kwarg)
         )
 
-        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+        org_id = self.kwargs[lookup_url_kwarg]
+
+        filter_kwargs = {self.lookup_field: org_id}
 
         funder_queryset = self.filter_queryset(db.Funder.objects.all())
         recipient_queryset = self.filter_queryset(db.Recipient.objects.all())
+        publisher_queryset = self.filter_queryset(db.Publisher.objects.all())
 
-        # First try Funder
+        # is org a Funder?
         try:
-            obj = funder_queryset.get(**filter_kwargs)
+            funder = funder_queryset.get(**filter_kwargs)
 
         except db.Funder.DoesNotExist:
-            # otherwise Recipient, or 404
-            obj = generics.get_object_or_404(recipient_queryset, **filter_kwargs)
+            funder = None
 
-        # May raise a permission denied
-        self.check_object_permissions(self.request, obj)
+        # is org a Recipient?
+        try:
+            recipient = recipient_queryset.get(**filter_kwargs)
 
-        return obj
+        except db.Recipient.DoesNotExist:
+            recipient = None
+
+        # is org a Publisher?
+        try:
+            publisher = publisher_queryset.filter(**filter_kwargs).order_by(
+                "getter_run__datetime"
+            )[0]
+
+        except KeyError:
+            publisher = None
+
+        if funder is None and recipient is None and publisher is None:
+            raise Http404
+
+        return api_experimental.Organisation(
+            org_id=org_id, funder=funder, recipient=recipient, publisher=publisher
+        )
