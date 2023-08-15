@@ -34,3 +34,8 @@ class PublisherSerializer(serializers.ModelSerializer):
     getter_run = GetterRunSerializer()
 
 
+class OrganisationSerializer(serializers.Serializer):
+    org_id = serializers.CharField(max_length=200)  # TODO: validate org id?
+    funder = FunderSerializer(required=False)
+    recipient = RecipientSerializer(required=False)
+    publisher = PublisherSerializer(required=False)
