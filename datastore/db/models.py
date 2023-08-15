@@ -44,7 +44,6 @@ class Latest(models.Model):
         for failed_source in latest_getter.sourcefile_set.filter(
             models.Q(downloads=False) | models.Q(data_valid=False)
         ):
-
             failed_id = failed_source.data["identifier"]
             print(
                 "Processing the failed source %s\n%s" % (failed_id, failed_source.data)
@@ -58,7 +57,6 @@ class Latest(models.Model):
                 acceptable_license=True,
                 downloads=True,
             ).order_by("-getter_run"):
-
                 # Extra check make sure the source actually has grants.
                 # It isn't much good if not.
                 source_grant_count = candidate_replacement_source.grant_set.count()
@@ -292,7 +290,6 @@ class Entity(models.Model):
 
 
 class Publisher(Entity):
-
     data = JSONField()
     quality = JSONField(null=True)
 
@@ -318,8 +315,12 @@ class Publisher(Entity):
         return "%s (datagetter %s)" % (self.name, str(self.getter_run.datetime))
 
     class Meta:
-        unique_together = ("getter_run", "prefix")
         ordering = ["prefix"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["prefix", "getter_run"], name="publisher_unique_prefix"
+            )
+        ]
 
 
 class Recipient(Entity):
