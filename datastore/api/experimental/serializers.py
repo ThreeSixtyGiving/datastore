@@ -18,13 +18,14 @@ class GrantSerializer(serializers.ModelSerializer):
 class FunderSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Funder
-        fields = "__all__"
+        exclude = ["id"]
 
 
 class RecipientSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Recipient
-        fields = "__all__"
+        exclude = ["id"]
+
 
 class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
