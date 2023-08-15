@@ -49,6 +49,11 @@ urlpatterns = [
     path(
         "experimental/org/<str:org_id>",
         api.experimental.api.OrganisationRetrieveView.as_view(),
-        name="organisation"
-    )
+        name="organisation",
+    ),
+    path(
+        "experimental/org",
+        api.experimental.api.OrganisationListView.as_view(),
+        name="organisation-list",
+    ),
 ]
