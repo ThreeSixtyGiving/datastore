@@ -1,4 +1,4 @@
--e git+https://github.com/ThreeSixtyGiving/datagetter.git#egg=datagetter
+-e git+https://github.com/ThreeSixtyGiving/datagetter.git@58fae3d2f93ea9477c1184dfa9f9cb83ab9f870d#egg=datagetter
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@main#egg=lib360dataquality
 Django<4.0
 djangorestframework==3.11.2
