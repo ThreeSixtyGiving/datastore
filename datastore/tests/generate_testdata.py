@@ -66,6 +66,7 @@ publisher_template = {
         "website": "http://www.example.com/",
         "prefix": "360g-exmpl",
         "name": "The example publisher",
+        "org_id": "GB-SC-SC099999",
     },
     "datagetter_metadata": {
         "acceptable_license": True,
@@ -99,6 +100,7 @@ def generate_data(output_dir="test-data"):
         data_item = copy.deepcopy(publisher_template)
         data_item["publisher"]["name"] = "The %s publisher" % words.pop()
         data_item["publisher"]["prefix"] = "360g-%s" % words.pop()
+        data_item["publisher"]["org_id"] = "GB-CHC-9{:06d}".format(i)
         identifier = words.pop()
         data_item["identifier"] = identifier
         data_item["datagetter_metadata"]["json"] = "data/json_all/%s.json" % identifier
