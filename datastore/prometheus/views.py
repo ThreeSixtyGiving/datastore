@@ -67,7 +67,7 @@ class ServiceMetrics(View):
         TOTAL_PREVIOUS_LATEST_GRANTS.set(total_prev)
 
     def _total_datagetter_grants(self):
-        total = db.GetterRun.objects.last().grant_set.count()
+        total = db.GetterRun.latest().grant_set.count()
         TOTAL_DATAGETTER_GRANTS.set(total)
 
     def _total_num_sources_in_last_run(self):

@@ -47,7 +47,7 @@ class Publishers(generics.ListAPIView):
     ]
 
     def get_queryset(self):
-        return db.Publisher.objects.filter(getter_run=db.GetterRun.objects.last())
+        return db.Publisher.objects.filter(getter_run=db.GetterRun.latest())
 
 
 class Publisher(generics.RetrieveAPIView):
@@ -56,7 +56,7 @@ class Publisher(generics.RetrieveAPIView):
     serializer_class = serializers.PublisherSerializer
 
     def get_queryset(self):
-        return db.Publisher.objects.filter(getter_run=db.GetterRun.objects.last())
+        return db.Publisher.objects.filter(getter_run=db.GetterRun.latest())
 
 
 class Sources(generics.ListAPIView):
@@ -64,7 +64,7 @@ class Sources(generics.ListAPIView):
     #  pagination_class = CurrentLatestGrantsPaginator
 
     def get_queryset(self):
-        return db.SourceFile.objects.filter(getter_run=db.GetterRun.objects.last())
+        return db.SourceFile.objects.filter(getter_run=db.GetterRun.latest())
 
 
 class Overview(View):
