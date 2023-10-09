@@ -92,7 +92,7 @@ class OrganisationRetrieveView(generics.RetrieveAPIView):
         # is org a Publisher?
         try:
             publisher = publisher_queryset.filter(
-                org_id=org_id, getter_run=db.GetterRun.objects.last()
+                org_id=org_id, getter_run=db.GetterRun.latest()
             )[0]
         except IndexError:
             publisher = None

@@ -368,7 +368,7 @@ class SourceFilesStats(object):
     def get_pc_quality_publishers(self):
         ret = {}
 
-        publishers = db.Publisher.objects.filter(getter_run=db.GetterRun.objects.last())
+        publishers = db.Publisher.objects.filter(getter_run=db.GetterRun.latest())
 
         total_publishers_all = publishers.count()
 

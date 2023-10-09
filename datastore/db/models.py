@@ -130,6 +130,11 @@ class GetterRun(models.Model):
         self.archived = True
         self.save()
 
+    @classmethod
+    def latest(cls):
+        """Get the most recent GetterRun instance"""
+        return cls.objects.latest("datetime")
+
     def __str__(self):
         return "%s - %s" % (self.pk, self.datetime)
 
