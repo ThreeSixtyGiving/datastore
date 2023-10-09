@@ -40,6 +40,7 @@ jobs:
     - run: psql -c 'CREATE DATABASE "360givingdatastore";' -W -h localhost postgres postgres
     - run: psql -c "CREATE USER test WITH ENCRYPTED PASSWORD 'test'; GRANT ALL PRIVILEGES ON DATABASE \"360givingdatastore\" TO test; ALTER USER test CREATEDB;" -W -h localhost postgres postgres
 
+    - run: ./datastore/manage.py makemigrations --dry-run --check
     - run: ./datastore/manage.py migrate
     - run: coverage run --source='./datastore' ./datastore/manage.py test -v 3 tests
       env:
