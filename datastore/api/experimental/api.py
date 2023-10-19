@@ -104,3 +104,27 @@ class OrganisationRetrieveView(generics.RetrieveAPIView):
         return api_experimental.Organisation(
             org_id=org_id, funder=funder, recipient=recipient, publisher=publisher
         )
+
+
+class OrganisationGrantsMadeView(generics.ListAPIView):
+    serializer_class = serializers.GrantSerializer
+    pagination_class = CurrentLatestGrantsPaginator
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+
+    def get_queryset(self):
+        org_id = self.kwargs["org_id"]
+        return db.Latest.grants().filter(
+            data__fundingOrganization__contains=[{"id": org_id}]
+        )
+
+
+class OrganisationGrantsReceivedView(generics.ListAPIView):
+    serializer_class = serializers.GrantSerializer
+    pagination_class = CurrentLatestGrantsPaginator
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+
+    def get_queryset(self):
+        org_id = self.kwargs["org_id"]
+        return db.Latest.grants().filter(
+            data__recipientOrganization__contains=[{"id": org_id}]
+        )
