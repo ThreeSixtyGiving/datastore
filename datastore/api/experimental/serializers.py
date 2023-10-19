@@ -50,12 +50,20 @@ class OrganisationListSerializer(serializers.Serializer):
 
 
 class OrganisationSerializer(serializers.Serializer):
-    org_id = serializers.CharField(max_length=200)  # TODO: validate org id?
+    self = serializers.SerializerMethodField()
+    org_id = serializers.CharField(max_length=200)
     grants_made = serializers.SerializerMethodField()
     grants_received = serializers.SerializerMethodField()
     funder = FunderSerializer(required=False)
     recipient = RecipientSerializer(required=False)
     publisher = PublisherSerializer(required=False)
+
+    def get_self(self, org):
+        """Get the URL to this object's detail."""
+        request = self.context.get("request")
+        return reverse(
+            "api:organisation-detail", kwargs={"org_id": org.org_id}, request=request
+        )
 
     def get_grants_made(self, org):
         return reverse(
