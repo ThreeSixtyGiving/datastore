@@ -45,7 +45,7 @@ class OrganisationListView(generics.ListAPIView):
         )
 
 
-class OrganisationRetrieveView(generics.RetrieveAPIView):
+class OrganisationDetailView(generics.RetrieveAPIView):
     lookup_field = "org_id"
     serializer_class = serializers.OrganisationSerializer
 
