@@ -51,6 +51,22 @@ class OrganisationListSerializer(serializers.Serializer):
 
 class OrganisationSerializer(serializers.Serializer):
     org_id = serializers.CharField(max_length=200)  # TODO: validate org id?
+    grants_made = serializers.SerializerMethodField()
+    grants_received = serializers.SerializerMethodField()
     funder = FunderSerializer(required=False)
     recipient = RecipientSerializer(required=False)
     publisher = PublisherSerializer(required=False)
+
+    def get_grants_made(self, org):
+        return reverse(
+            "api:organisation-grants-made",
+            kwargs={"org_id": org.org_id},
+            request=self.context.get("request"),
+        )
+
+    def get_grants_received(self, org):
+        return reverse(
+            "api:organisation-grants-received",
+            kwargs={"org_id": org.org_id},
+            request=self.context.get("request"),
+        )
