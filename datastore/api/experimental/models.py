@@ -5,6 +5,15 @@ import db.models as db
 
 
 @dataclass
+class OrganisationRef:
+    """
+    Represents a link/reference to an Organisation.
+    """
+
+    org_id: str
+
+
+@dataclass
 class Organisation:
     """
     Represents an Organisation, including org id and the roles it takes.
