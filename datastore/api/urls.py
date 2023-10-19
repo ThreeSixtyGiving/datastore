@@ -66,4 +66,9 @@ urlpatterns = [
         api.experimental.api.OrganisationListView.as_view(),
         name="organisation-list",
     ),
+    path(
+        "experimental/grant/<str:grant_id>",
+        api.experimental.api.GrantDetailView.as_view(),
+        name="grant-detail",
+    ),
 ]
