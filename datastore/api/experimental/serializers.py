@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 
 import db.models as db
+from . import models
 
 
 class GetterRunSerializer(serializers.ModelSerializer):
@@ -10,10 +11,57 @@ class GetterRunSerializer(serializers.ModelSerializer):
         fields = ["datetime", "archived"]
 
 
+class OrganisationRefSerializer(serializers.Serializer):
+    org_id = serializers.CharField()
+    self = serializers.SerializerMethodField()
+
+    def get_self(self, org):
+        """Get the URL to this object's detail."""
+        return reverse(
+            "api:organisation-detail",
+            kwargs={"org_id": org.org_id},
+            request=self.context.get("request"),
+        )
+
+
 class GrantSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Grant
-        fields = "__all__"
+        exclude = ["id", "getter_run", "latest", "source_file"]
+
+    self = serializers.SerializerMethodField()
+    publisher = serializers.SerializerMethodField()
+    recipients = serializers.SerializerMethodField()
+    funders = serializers.SerializerMethodField()
+
+    def get_self(self, grant):
+        """Get the URL to this object's detail."""
+        return reverse(
+            "api:grant-detail",
+            kwargs={"grant_id": grant.grant_id},
+            request=self.context.get("request"),
+        )
+
+    def get_publisher(self, grant):
+        return OrganisationRefSerializer(
+            models.OrganisationRef(grant.publisher.org_id), context=self.context
+        ).data
+
+    def get_recipients(self, grant):
+        return [
+            OrganisationRefSerializer(
+                models.OrganisationRef(recipient["id"]), context=self.context
+            ).data
+            for recipient in grant.data.get("recipientOrganization", [])
+        ]
+
+    def get_funders(self, grant):
+        return [
+            OrganisationRefSerializer(
+                models.OrganisationRef(funder["id"]), context=self.context
+            ).data
+            for funder in grant.data.get("fundingOrganization", [])
+        ]
 
 
 class FunderSerializer(serializers.ModelSerializer):
