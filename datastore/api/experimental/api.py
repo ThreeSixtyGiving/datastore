@@ -36,11 +36,12 @@ class OrganisationListView(generics.ListAPIView):
     pagination_class = OrganisationListPagination
 
     def get_queryset(self):
-        fields = ["org_id"]
+        fields = ["org_id", "name"]
         return (
-            db.Publisher.objects.only(*fields)
-            .union(db.Funder.objects.only(*fields))
-            .union(db.Recipient.objects.only(*fields))
+            db.Publisher.objects.all()
+            .values(*fields)
+            .union(db.Funder.objects.all().values(*fields))
+            .union(db.Recipient.objects.all().values(*fields))
         )
 
 
