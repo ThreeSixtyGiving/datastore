@@ -18,6 +18,11 @@ class Latest(models.Model):
     series = models.TextField(choices=SERIES_CHOICES)
     updated = models.DateTimeField(default=timezone.now)
 
+    @classmethod
+    def grants(cls):
+        """Return the QuerySet of latest best Grants."""
+        return cls.objects.get(series=cls.CURRENT).grant_set.all()
+
     @staticmethod
     def update():
         latest_getter = GetterRun.objects.order_by("-datetime")[:1].get()
