@@ -58,8 +58,8 @@ urlpatterns = [
     ),
     path(
         "experimental/org/<str:org_id>",
-        api.experimental.api.OrganisationRetrieveView.as_view(),
-        name="organisation",
+        api.experimental.api.OrganisationDetailView.as_view(),
+        name="organisation-detail",
     ),
     path(
         "experimental/org",
