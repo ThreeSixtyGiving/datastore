@@ -42,10 +42,25 @@ class CustomMgmtCommandsTest(TransactionTestCase):
     def test_delete_datagetter_data(self):
         err_out = StringIO()
         call_command(
-            "delete_datagetter_data", "--oldest", "--no-prompt", stderr=err_out
+            "delete_datagetter_data",
+            "--oldest",
+            "--no-prompt",
+            "--force-delete-in-use-data",
+            stderr=err_out,
         )
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
         self.assertEqual(db.GetterRun.objects.count(), 0)
+
+    def test_doesnt_delete_in_use_datagetter_data(self):
+        err_out = StringIO()
+        call_command(
+            "delete_datagetter_data",
+            "--oldest",
+            "--no-prompt",
+            stderr=err_out,
+        )
+        self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+        self.assertGreater(db.GetterRun.objects.count(), 0)
 
     def test_list_datagetter_runs(self):
         out = StringIO()
