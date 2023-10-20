@@ -35,6 +35,12 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--force-delete-in-use-data",
+            action="store_true",
+            help="Delete datagetter data even if it's in use by a latest best.",
+        )
+
+        parser.add_argument(
             "--update-latest-best",
             action="store_true",
             help="Update the latest best data set after deleting data",
@@ -65,6 +71,12 @@ class Command(BaseCommand):
             try:
                 confirm = "n"
                 getter_run = GetterRun.objects.get(pk=run)
+
+                if getter_run.is_in_use():
+                    print("In use  %s" % run)
+                    if not options["force_delete_in_use_data"]:
+                        print("Skipped %s" % run)
+                        continue
 
                 if not options["no_prompt"]:
                     confirm = input("Confirm delete '%s' y/n: " % run)
