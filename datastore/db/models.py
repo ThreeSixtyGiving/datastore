@@ -44,7 +44,6 @@ class Latest(models.Model):
         for failed_source in latest_getter.sourcefile_set.filter(
             models.Q(downloads=False) | models.Q(data_valid=False)
         ):
-
             failed_id = failed_source.data["identifier"]
             print(
                 "Processing the failed source %s\n%s" % (failed_id, failed_source.data)
@@ -58,7 +57,6 @@ class Latest(models.Model):
                 acceptable_license=True,
                 downloads=True,
             ).order_by("-getter_run"):
-
                 # Extra check make sure the source actually has grants.
                 # It isn't much good if not.
                 source_grant_count = candidate_replacement_source.grant_set.count()
@@ -137,6 +135,10 @@ class GetterRun(models.Model):
 
     def __str__(self):
         return "%s - %s" % (self.pk, self.datetime)
+
+    def is_in_use(self):
+        """Check if this GetterRun is included in any of the Latest best grantsets."""
+        return Latest.objects.all().filter(grant__getter_run__pk=self.pk).count() > 0
 
 
 class SourceFile(models.Model):
@@ -297,7 +299,6 @@ class Entity(models.Model):
 
 
 class Publisher(Entity):
-
     data = JSONField()
     quality = JSONField(null=True)
 
