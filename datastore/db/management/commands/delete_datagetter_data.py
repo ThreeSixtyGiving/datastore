@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand, CommandError
 
 from db.models import GetterRun, Latest
@@ -28,15 +29,34 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--older-than-days",
+            type=int,
+            help="Delete datagetter data that's more than N days old.",
+        )
+
+        parser.add_argument(
             "--update-latest-best",
             action="store_true",
             help="Update the latest best data set after deleting data",
         )
 
     def handle(self, *args, **options):
+        if options.get("older_than_days"):
+            now_dt = datetime.now()
+            older_than_dt = now_dt - timedelta(days=options["older_than_days"])
+            older_than_objs = (
+                getter_run.pk
+                for getter_run in GetterRun.objects.filter(datetime__lt=older_than_dt)
+            )
+            options["getter_run_ids"] = set(options["getter_run_ids"]).union(
+                older_than_objs
+            )
+
         if options.get("oldest"):
             to_delete = GetterRun.objects.order_by("datetime").first()
-            options["getter_run_ids"] = [to_delete.pk]
+            options["getter_run_ids"] = set(options["getter_run_ids"]).union(
+                [to_delete.pk]
+            )
 
         if len(options["getter_run_ids"]) == 0:
             raise CommandError("No datagetter data specified")
