@@ -137,8 +137,13 @@ class GetterRun(models.Model):
         return "%s - %s" % (self.pk, self.datetime)
 
     def is_in_use(self):
-        """Check if this GetterRun is included in any of the Latest best grantsets."""
-        return Latest.objects.all().filter(grant__getter_run__pk=self.pk).count() > 0
+        """Check if this GetterRun is included in any Latest best."""
+        return GetterRun.all_in_use().filter(pk=self.pk).exists()
+
+    @classmethod
+    def all_in_use(cls):
+        """Return the QuerySet of all GetterRuns in-use by any Latest best."""
+        return cls.objects.filter(sourcefile__latest__isnull=False).distinct()
 
 
 class SourceFile(models.Model):
