@@ -47,17 +47,17 @@ urlpatterns = [
         name="current-latest-grants",
     ),
     path(
-        "experimental/org/<str:org_id>/grants_made",
+        "experimental/org/<path:org_id>/grants_made",
         api.experimental.api.OrganisationGrantsMadeView.as_view(),
         name="organisation-grants-made",
     ),
     path(
-        "experimental/org/<str:org_id>/grants_received",
+        "experimental/org/<path:org_id>/grants_received",
         api.experimental.api.OrganisationGrantsReceivedView.as_view(),
         name="organisation-grants-received",
     ),
     path(
-        "experimental/org/<str:org_id>",
+        "experimental/org/<path:org_id>",
         api.experimental.api.OrganisationDetailView.as_view(),
         name="organisation-detail",
     ),
