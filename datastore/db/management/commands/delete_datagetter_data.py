@@ -25,13 +25,13 @@ class Command(BaseCommand):
         parser.add_argument(
             "--oldest",
             action="store_true",
-            help="Delete the oldest datagetter data",
+            help="Delete the oldest datagetter data run as long as it's not in use (unless overridden with --force-delete-in-use-data)",
         )
 
         parser.add_argument(
             "--older-than-days",
             type=int,
-            help="Delete datagetter data that's more than N days old.",
+            help="Delete datagetter data that's more than N days old and not in use (unless overridden with --force-delete-in-use-data)",
         )
 
         parser.add_argument(
