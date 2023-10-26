@@ -12,6 +12,10 @@ class OrganisationRef:
 
     org_id: str
 
+    def __post_init__(self):
+        if self.org_id == "":
+            raise ValueError("org_id cannot be empty string")
+
 
 @dataclass
 class Organisation:
@@ -23,3 +27,7 @@ class Organisation:
     funder: Optional[db.Funder]
     recipient: Optional[db.Recipient]
     publisher: Optional[db.Publisher]
+
+    def __post_init__(self):
+        if self.org_id == "":
+            raise ValueError("org_id cannot be empty string")
