@@ -76,7 +76,8 @@ class Command(BaseCommand):
             )
 
         if len(options["getter_run_ids"]) == 0:
-            raise CommandError("No datagetter data specified")
+            print("No datagetter data to be deleted")
+            return
 
         for run in options["getter_run_ids"]:
             try:
