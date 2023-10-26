@@ -113,7 +113,19 @@ class Latest(models.Model):
         return self.series
 
 
+class GetterRunManager(models.Manager):
+    def in_use(self):
+        """Return the QuerySet of all GetterRuns in-use by any Latest best."""
+        return self.filter(sourcefile__latest__isnull=False).distinct()
+
+    def not_in_use(self):
+        """Return the QuerySet of all GetterRuns NOT in-use by any Latest best. Inverse of in_use()."""
+        return self.exclude(sourcefile__latest__isnull=False).distinct()
+
+
 class GetterRun(models.Model):
+    objects = GetterRunManager()
+
     datetime = models.DateTimeField(default=timezone.now)
     archived = models.BooleanField(default=False)
 
@@ -138,17 +150,7 @@ class GetterRun(models.Model):
 
     def is_in_use(self):
         """Check if this GetterRun is included in any Latest best."""
-        return GetterRun.all_in_use().filter(pk=self.pk).exists()
-
-    @classmethod
-    def all_in_use(cls):
-        """Return the QuerySet of all GetterRuns in-use by any Latest best."""
-        return cls.objects.filter(sourcefile__latest__isnull=False).distinct()
-
-    @classmethod
-    def all_not_in_use(cls):
-        """Return the QuerySet of all GetterRuns NOT in-use by any Latest best. Inverse of all_in_use()."""
-        return cls.objects.exclude(sourcefile__latest__isnull=False).distinct()
+        return GetterRun.objects.in_use().filter(pk=self.pk).exists()
 
 
 class SourceFile(models.Model):

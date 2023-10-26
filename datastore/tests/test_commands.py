@@ -52,7 +52,7 @@ class CustomMgmtCommandsTest(TransactionTestCase):
         self.assertEqual(db.GetterRun.objects.count(), 0)
 
     def test_doesnt_delete_in_use_datagetter_data_oldest(self):
-        in_use_pks_before = set(gr.pk for gr in db.GetterRun.all_in_use())
+        in_use_pks_before = set(gr.pk for gr in db.GetterRun.objects.in_use())
         err_out = StringIO()
         call_command(
             "delete_datagetter_data",
@@ -67,7 +67,7 @@ class CustomMgmtCommandsTest(TransactionTestCase):
         )
 
     def test_doesnt_delete_in_use_datagetter_data_all(self):
-        in_use_pks_before = set(gr.pk for gr in db.GetterRun.all_in_use())
+        in_use_pks_before = set(gr.pk for gr in db.GetterRun.objects.in_use())
         err_out = StringIO()
         call_command(
             "delete_datagetter_data",
