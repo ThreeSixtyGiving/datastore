@@ -55,7 +55,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options.get("all-not-in-use"):
             options["getter_run_ids"] = set(options["getter_run_ids"]).union(
-                [gr.pk for gr in GetterRun.all_not_in_use()]
+                [gr.pk for gr in GetterRun.objects.not_in_use()]
             )
 
         if options.get("older_than_days"):

@@ -8,8 +8,8 @@ class GetterRunTest(TransactionTestCase):
 
     def test_in_use(self):
         total_count = db.GetterRun.objects.all().count()
-        in_use_count = db.GetterRun.all_in_use().count()
-        not_in_use_count = db.GetterRun.all_not_in_use().count()
+        in_use_count = db.GetterRun.objects.in_use().count()
+        not_in_use_count = db.GetterRun.objects.not_in_use().count()
 
         self.assertLessEqual(in_use_count, total_count)
         self.assertLess(
