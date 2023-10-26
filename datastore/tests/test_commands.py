@@ -51,7 +51,8 @@ class CustomMgmtCommandsTest(TransactionTestCase):
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
         self.assertEqual(db.GetterRun.objects.count(), 0)
 
-    def test_doesnt_delete_in_use_datagetter_data(self):
+    def test_doesnt_delete_in_use_datagetter_data_oldest(self):
+        in_use_pks_before = set(gr.pk for gr in db.GetterRun.all_in_use())
         err_out = StringIO()
         call_command(
             "delete_datagetter_data",
@@ -60,7 +61,24 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             stderr=err_out,
         )
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
-        self.assertGreater(db.GetterRun.objects.count(), 0)
+        self.assertSetEqual(
+            in_use_pks_before,
+            set(gr.pk for gr in db.GetterRun.objects.all() if gr.is_in_use()),
+        )
+
+    def test_doesnt_delete_in_use_datagetter_data_all(self):
+        in_use_pks_before = set(gr.pk for gr in db.GetterRun.all_in_use())
+        err_out = StringIO()
+        call_command(
+            "delete_datagetter_data",
+            "--all-not-in-use",
+            "--no-prompt",
+            stderr=err_out,
+        )
+        self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+        self.assertEqual(
+            set(gr.pk for gr in db.GetterRun.objects.all()), in_use_pks_before
+        )
 
     def test_list_datagetter_runs(self):
         out = StringIO()
