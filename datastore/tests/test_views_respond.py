@@ -31,9 +31,13 @@ class UrlsTests(LiveServerTestCase):
         elif "int" in path.pattern.describe():
             url = reverse_lazy(path_name, args=(1,))
         elif "<path:org_id>" in path.pattern.describe():
-            url = reverse_lazy(path_name, args=("GB-CHC-9999999",))
+            url = reverse_lazy(
+                path_name, kwargs={"org_id": "GB-CHC-1170317"}
+            )  # org_id picked from test_data.json
         elif "<str:grant_id>" in path.pattern.describe():
-            url = reverse_lazy(path_name, args=("360g-aiXie3nohf-2023-001",))
+            url = reverse_lazy(
+                path_name, kwargs={"grant_id": "360G-Iibo9quaek"}
+            )  # grant_id picked from test_data.json
         elif "slug" in path.pattern.describe() or "str" in path.pattern.describe():
             url = reverse_lazy(path_name, args=("360g-aiXie3nohf",))
         else:
