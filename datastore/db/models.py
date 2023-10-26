@@ -145,6 +145,11 @@ class GetterRun(models.Model):
         """Return the QuerySet of all GetterRuns in-use by any Latest best."""
         return cls.objects.filter(sourcefile__latest__isnull=False).distinct()
 
+    @classmethod
+    def all_not_in_use(cls):
+        """Return the QuerySet of all GetterRuns NOT in-use by any Latest best. Inverse of all_in_use()."""
+        return cls.objects.exclude(sourcefile__latest__isnull=False).distinct()
+
 
 class SourceFile(models.Model):
     data = JSONField()
