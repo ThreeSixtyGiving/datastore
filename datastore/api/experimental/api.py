@@ -38,7 +38,7 @@ class OrganisationListView(generics.ListAPIView):
     def get_queryset(self):
         fields = ["org_id", "name"]
         return (
-            db.Publisher.objects.filter(getter_run__in=db.GetterRun.all_in_use())
+            db.Publisher.objects.filter(getter_run__in=db.GetterRun.objects.in_use())
             .values(*fields)
             .union(db.Funder.objects.all().values(*fields))
             .union(db.Recipient.objects.all().values(*fields))
@@ -93,7 +93,7 @@ class OrganisationDetailView(generics.RetrieveAPIView):
         # is org a Publisher?
         try:
             publisher = publisher_queryset.filter(
-                org_id=org_id, getter_run__in=db.GetterRun.all_in_use()
+                org_id=org_id, getter_run__in=db.GetterRun.objects.in_use()
             ).order_by("-getter_run__datetime")[0]
         except IndexError:
             publisher = None
