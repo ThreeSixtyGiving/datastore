@@ -35,6 +35,12 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--all-not-in-use",
+            action="store_true",
+            help="Delete all datagetter data that's not in use",
+        )
+
+        parser.add_argument(
             "--force-delete-in-use-data",
             action="store_true",
             help="Delete datagetter data even if it's in use by a latest best.",
@@ -47,6 +53,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        if options.get("all-not-in-use"):
+            options["getter_run_ids"] = set(options["getter_run_ids"]).union(
+                [gr.pk for gr in GetterRun.all_not_in_use()]
+            )
+
         if options.get("older_than_days"):
             now_dt = datetime.now()
             older_than_dt = now_dt - timedelta(days=options["older_than_days"])
