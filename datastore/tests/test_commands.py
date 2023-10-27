@@ -40,6 +40,10 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             )
 
     def test_delete_datagetter_data(self):
+        """
+        Test that delete_datagetter_data --oldest deletes a single GetterRun.
+        """
+        getterruns_count_before = db.GetterRun.objects.count()
         err_out = StringIO()
         call_command(
             "delete_datagetter_data",
@@ -49,9 +53,12 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             stderr=err_out,
         )
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
-        self.assertEqual(db.GetterRun.objects.count(), 0)
+        self.assertEqual(db.GetterRun.objects.count(), getterruns_count_before - 1)
 
     def test_doesnt_delete_in_use_datagetter_data_oldest(self):
+        """
+        Test that delete_datagetter_data doesn't delete any in-use GetterRuns when not forced to.
+        """
         in_use_pks_before = set(gr.pk for gr in db.GetterRun.objects.in_use())
         err_out = StringIO()
         call_command(
@@ -66,7 +73,10 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             set(gr.pk for gr in db.GetterRun.objects.all() if gr.is_in_use()),
         )
 
-    def test_doesnt_delete_in_use_datagetter_data_all(self):
+    def test_doesnt_delete_in_use_datagetter_data(self):
+        """
+        Test that there all in-use GetterRuns are retained after deleting --all-not-in-use.
+        """
         in_use_pks_before = set(gr.pk for gr in db.GetterRun.objects.in_use())
         err_out = StringIO()
         call_command(
@@ -79,6 +89,20 @@ class CustomMgmtCommandsTest(TransactionTestCase):
         self.assertEqual(
             set(gr.pk for gr in db.GetterRun.objects.all()), in_use_pks_before
         )
+
+    def test_delete_all_not_in_use_data(self):
+        """
+        Test that there are no not-in-use GetterRuns after deleting --all-not-in-use.
+        """
+        err_out = StringIO()
+        call_command(
+            "delete_datagetter_data",
+            "--all-not-in-use",
+            "--no-prompt",
+            stderr=err_out,
+        )
+        self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+        self.assertEqual(db.GetterRun.objects.not_in_use().count(), 0)
 
     def test_list_datagetter_runs(self):
         out = StringIO()
