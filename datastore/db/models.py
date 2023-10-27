@@ -135,8 +135,13 @@ class GetterRun(models.Model):
     archived = models.BooleanField(default=False)
 
     def delete_all_data_from_run(self):
-        self.grant_set.all().delete()
-        self.sourcefile_set.all().delete()
+        # Delete the Grants one SourceFile at a time to save on memory usage
+        # because Django loads objects into memory before deleting them in
+        # order to trigger signals, cascade deletes etc.
+        for sourcefile in self.sourcefile_set.all():
+            sourcefile.grant_set.all().delete()
+            sourcefile.delete()
+
         self.publisher_set.all().delete()
 
     def archive_run(self):
