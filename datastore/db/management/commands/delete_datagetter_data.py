@@ -53,7 +53,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        if options.get("all-not-in-use"):
+        if options.get("all_not_in_use"):
             options["getter_run_ids"] = set(options["getter_run_ids"]).union(
                 [gr.pk for gr in GetterRun.objects.not_in_use()]
             )
