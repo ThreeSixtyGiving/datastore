@@ -40,9 +40,9 @@ class TestDataQualityData(TestCase):
             "currencies": {
                 "GBP": {
                     "count": 5,
-                    "total_amount": 1341,
-                    "max_amount": 583,
-                    "min_amount": 92,
+                    "total_amount": 3041,
+                    "max_amount": 828,
+                    "min_amount": 227,
                     "currency_symbol": "&pound;",
                 }
             },
@@ -133,7 +133,7 @@ class TestDataQualityData(TestCase):
         expected_publisher_aggregate = {
             "total": {
                 "grants": 5,
-                "GBP": 1341.0,
+                "GBP": 3041.0,
                 "publishers": 1,
                 "recipientOrganisations": 1,
                 "recipientIndividuals": 0,

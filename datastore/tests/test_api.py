@@ -20,7 +20,7 @@ class DashBoardAPITests(TestCase):
             "aggregate": {
                 "total": {
                     "grants": 50,
-                    "GBP": 26350.0,
+                    "GBP": 25047.0,
                     "publishers": 10,
                     "recipientOrganisations": 1,
                     "recipientIndividuals": 0,
@@ -47,7 +47,7 @@ class DashBoardAPITests(TestCase):
                 "hasBeneficiaryLocationGeoCode": 100,
                 "hasRecipientOrgCompanyOrCharityNumber": 0,
                 "has50pcExternalOrgId": 0,
-                "hasRecipientIndividualsCodelists": 0,
+                "hasRecipientIndividualsCodelists": 100,
             },
         }
 
@@ -60,7 +60,7 @@ class DashBoardAPITests(TestCase):
             "aggregate": {
                 "total": {
                     "grants": 50,
-                    "GBP": 26350.0,
+                    "GBP": 25047.0,
                     "publishers": 10,
                     "recipientOrganisations": 1,
                     "recipientIndividuals": 0,

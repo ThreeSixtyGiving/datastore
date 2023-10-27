@@ -101,6 +101,7 @@ def generate_data(output_dir="test-data"):
         data_item["publisher"]["name"] = "The %s publisher" % words.pop()
         data_item["publisher"]["prefix"] = "360g-%s" % words.pop()
         data_item["publisher"]["org_id"] = "GB-CHC-9{:06d}".format(i)
+        data_item["publisher"]["last_published"] = "2022-05-19"
         identifier = words.pop()
         data_item["identifier"] = identifier
         data_item["datagetter_metadata"]["json"] = "data/json_all/%s.json" % identifier

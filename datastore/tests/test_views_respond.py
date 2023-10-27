@@ -26,20 +26,22 @@ class UrlsTests(LiveServerTestCase):
         else:
             path_name = path.name
 
-        if "slug" in path.pattern.describe() and "int" in path.pattern.describe():
+        if "<slug" in path.pattern.describe() and "<int" in path.pattern.describe():
             url = reverse_lazy(path_name, args=("test", 1))
-        elif "int" in path.pattern.describe():
+        elif "<int" in path.pattern.describe():
             url = reverse_lazy(path_name, args=(1,))
-        elif "<path:org_id>" in path.pattern.describe():
+        elif ":org_id>" in path.pattern.describe():
             url = reverse_lazy(
-                path_name, kwargs={"org_id": "GB-CHC-1170317"}
+                path_name, kwargs={"org_id": "GB-CHC-9000006"}
             )  # org_id picked from test_data.json
-        elif "<str:grant_id>" in path.pattern.describe():
+        elif ":grant_id>" in path.pattern.describe():
             url = reverse_lazy(
-                path_name, kwargs={"grant_id": "360G-Iibo9quaek"}
+                path_name, kwargs={"grant_id": "360G-kahM5Ooc2u"}
             )  # grant_id picked from test_data.json
-        elif "slug" in path.pattern.describe() or "str" in path.pattern.describe():
-            url = reverse_lazy(path_name, args=("360g-aiXie3nohf",))
+        elif ":publisher_prefix>" in path.pattern.describe():
+            url = reverse_lazy(path_name, args=("360g-Ahtahs5vaj",))
+        elif ":log_name>" in path.pattern.describe():
+            url = reverse_lazy(path_name, kwargs={"log_name": "data_run"})
         else:
             url = reverse_lazy(path_name)
 
