@@ -118,7 +118,7 @@ class NSPLSource(object):
 
         NSPL.objects.bulk_create(bulk_save)
 
-    def import_nspl(self, url=NSPL_URL):
+    def import_nspl(self, url=None):
         """
         Example of a data db entry:
         {
@@ -134,6 +134,9 @@ class NSPLSource(object):
         }
         Field names information can be found in NSPL User Guide at https://geoportal.statistics.gov.uk/
         """
+
+        if url is None:
+            url = self.NSPL_URL
         if NSPL.objects.exists():
             NSPL.objects.all().delete()
 
