@@ -99,6 +99,9 @@ class NSPL(models.Model):
     postcode = models.CharField(max_length=7, db_index=True)
     data = JSONField()
 
+    def __str__(self):
+        return f"NSPL {self.postcode}"
+
 
 class GeoCodeName(models.Model):
     code = models.CharField(max_length=9, db_index=True)
