@@ -1,10 +1,7 @@
 # flake8: noqa
-<<<<<<< Updated upstream
-=======
 import os
 import socket
 import hashlib
->>>>>>> Stashed changes
 from settings.settings import *
 
 # This adds the CORS header to API calls for the django dev server
@@ -29,3 +26,27 @@ MIDDLEWARE = MIDDLEWARE + [
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "{levelname} [{module}] {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "formatter": "simple",
+            "propagate": True,
+        },
+    },
+}
