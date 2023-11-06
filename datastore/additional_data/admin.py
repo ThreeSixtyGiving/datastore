@@ -13,5 +13,8 @@ class JSONFieldAdmin(admin.ModelAdmin):
 
 
 admin.site.register(db.OrgInfoCache, JSONFieldAdmin)
-
 admin.site.register(db.TSGOrgType)
+admin.site.register(db.NSPL)
+admin.site.register(db.GeoCodeName)
+admin.site.register(db.GeoLookup)
+admin.site.register(db.CodelistCode)
