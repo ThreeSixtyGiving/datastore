@@ -2,6 +2,7 @@ import csv
 import hashlib
 import io
 import zipfile
+import logging
 from datetime import datetime
 
 import requests
@@ -9,6 +10,8 @@ import requests
 from additional_data.models import NSPL, GeoCodeName
 
 # Code based on https://github.com/drkane/find-that-postcode/blob/main/findthatpostcode/commands/postcodes.py
+
+logger = logging.getLogger(__name__)
 
 
 class NSPLSource(object):
@@ -137,10 +140,17 @@ class NSPLSource(object):
 
         if url is None:
             url = self.NSPL_URL
-        if NSPL.objects.exists():
-            NSPL.objects.all().delete()
 
+        if NSPL.objects.exists():
+            logger.info("Deleting existing NSPL entries")
+            NSPL.objects.all().delete()
+        else:
+            logger.info("No existing NSPL entries found")
+
+        logger.info(f"Fetching NSPL zipfile from {url}")
         zip_file = self.get_zipfile(url)
+
+        logger.info(f"Got NSPL zipfile containing {len(zip_file.filelist)} files")
         self.process_nspl_data(zip_file)
 
     def get_location_data_by_postcode(self, postcode):
