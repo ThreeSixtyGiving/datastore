@@ -2,8 +2,11 @@ import csv
 import io
 
 import requests
+import logging
 
 from additional_data.models import GeoLookup
+
+logger = logging.getLogger(__name__)
 
 
 class GeoLookupSource(object):
@@ -15,8 +18,8 @@ class GeoLookupSource(object):
         "lsoa": {
             "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/lsoa_la.csv",
             "url_latlong": "https://raw.githubusercontent.com/drkane/geo-lookups/master/lsoa_latlong.csv",
-            "field_areacode": "lsoa11cd",
-            "field_areaname": "lsoa11nm",
+            "field_areacode": "lsoacd",
+            "field_areaname": "lsoanm",
             "field_transforms": {
                 "lad20cd": "ladcd",
                 "lad20nm": "ladnm",
@@ -25,8 +28,8 @@ class GeoLookupSource(object):
         "msoa": {
             "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/msoa_la.csv",
             "url_latlong": "https://raw.githubusercontent.com/drkane/geo-lookups/master/msoa_latlong.csv",
-            "field_areacode": "msoa11cd",
-            "field_areaname": "msoa11hclnm",
+            "field_areacode": "msoacd",
+            "field_areaname": "msoahclnm",
             "field_transforms": {
                 "lad20cd": "ladcd",
                 "lad20nm": "ladnm",
@@ -61,6 +64,8 @@ class GeoLookupSource(object):
                     field = areadata.get("field_transforms", {}).get(field)
                 if value:
                     yield field, value
+
+        logger.info(f"Fetching {areadata.get('url_lookup')}")
 
         r = requests.get(areadata.get("url_lookup"), stream=True)
         r.encoding = "utf-8-sig"
