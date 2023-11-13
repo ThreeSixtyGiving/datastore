@@ -15,9 +15,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if options.get("total"):
-            print("%s" % GetterRun.objects.count(), file=self.stdout)
+            self.stdout.write("%s" % GetterRun.objects.count())
             return
 
-        print("id | datetime")
+        self.stdout.write("id  | datetime                         | in_use")
         for run in GetterRun.objects.all():
-            print("%s | %s" % (run.pk, str(run)), file=self.stdout)
+            self.stdout.write(
+                "{:<3} | {} | {}".format(run.pk, run.datetime, run.is_in_use())
+            )
