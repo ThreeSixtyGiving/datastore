@@ -108,7 +108,7 @@ class CustomMgmtCommandsTest(TransactionTestCase):
         out = StringIO()
         err_out = StringIO()
         call_command("list_datagetter_runs", stdout=out, stderr=err_out)
-        self.assertIn("1 |", out.getvalue())
+        self.assertIn("1   |", out.getvalue())
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
 
     def test_set_status(self):
