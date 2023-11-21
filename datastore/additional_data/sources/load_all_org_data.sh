@@ -8,7 +8,7 @@
 ./manage.py load_org_data https://findthatcharity.uk/orgid/source/companies.csv
 ./manage.py load_org_data https://findthatcharity.uk/orgid/source/mutuals.csv
 ./manage.py load_org_data https://findthatcharity.uk/orgid/source/gor.csv
-./manage.py load_org_data https://findthatcharity.uk/orgid/source/grid.csv
+./manage.py load_org_data https://findthatcharity.uk/orgid/source/ror.csv
 ./manage.py load_org_data https://findthatcharity.uk/orgid/source/hesa.csv
 ./manage.py load_org_data https://findthatcharity.uk/orgid/source/lae.csv
 ./manage.py load_org_data https://findthatcharity.uk/orgid/source/lani.csv
