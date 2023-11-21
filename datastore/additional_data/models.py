@@ -17,7 +17,7 @@ class OrgInfoCache(models.Model):
     COMPANIES = "companies"
     MUTUALS = "mutuals"
     GOR = "gor"
-    GRID = "grid"
+    ROR = "ror"
     HESA = "hesa"
     LAE = "lae"
     LANI = "lani"
@@ -42,8 +42,8 @@ class OrgInfoCache(models.Model):
         (MUTUALS, "Mutual societies registered with the Financial Conduct Authority"),
         (GOR, "A register of government organisations"),
         (
-            GRID,
-            "Entries from the Global Research Identifier Database - only those that are based in the UK and are not a registered company are included.",
+            ROR,
+            "Research Organisation Registry (formerly GRID) - only those that are based in the UK and are not a registered company are included.",
         ),
         (HESA, "Organisations covered by the Higher Education Statistics Agency."),
         (LAE, "Register of local authorities in England"),
