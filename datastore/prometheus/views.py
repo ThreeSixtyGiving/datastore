@@ -1,13 +1,26 @@
 import re
+import logging
+import django.db
 
 from django.conf import settings
 from django.http.response import HttpResponse
 from django.views import View
-from django.db.models import Q
+from django.db.models import (
+    Q,
+    F,
+    BooleanField,
+    IntegerField,
+    Value as V,
+    JSONField,
+    Func,
+)
+from django.db.models.functions import Cast
 from prometheus_client import Gauge
 from prometheus_client.exposition import generate_latest
 
 import db.models as db
+
+logger = logging.getLogger(__name__)
 
 NUM_ERRORS_LOGGED = Gauge(
     "total_service_errors_logged", "Total number of errors logged by last service run"
@@ -38,6 +51,11 @@ NUM_OK_SOURCES_IN_LAST_RUN = Gauge(
     "datastore_num_ok_sources_in_last_run", "Number of ok sources in last run"
 )
 
+NUM_CURRENT_GRANTS_WITH_BENEFICIARY_LOCATION_GEOCODE_WITHOUT_LOOKUP = Gauge(
+    "datastore_num_current_grants_with_beneficiary_location_geocode_without_lookup",
+    "The number of grants which explicitly specify a beneficiary location geocode, but for which we were unable to lookup the geocode. This suggests our geocode lookup information may be out of date, or that publishers have used an invalid geocode.",
+)
+
 
 class ServiceMetrics(View):
     def _num_errors_log(self):
@@ -56,7 +74,6 @@ class ServiceMetrics(View):
         NUM_ERRORS_LOGGED.set(errors)
 
     def _total_latest_grants(self):
-
         total_current = db.Latest.objects.get(
             series=db.Latest.CURRENT
         ).grant_set.count()
@@ -85,6 +102,73 @@ class ServiceMetrics(View):
             NUM_PROBLEM_SOURCES_IN_LAST_RUN.set(-1)
             NUM_OK_SOURCES_IN_LAST_RUN.set(0)
 
+    def _num_current_grants_with_beneficiary_location_geocode_without_lookup(self):
+        current_grants = db.Latest.grants()
+
+        # Thought: Shouldn't we check that there are the same number of lookup outputs as there are input geocodes?
+        #  e.g. if a grant has two beneficiary locations w/ geocodes, they should both be represented in the output locationLookup
+        # ... but lookup can also come from recipient org HQ location can't it? (but not for the case of grants to individuals)
+        # TODO: investigate
+
+        # Workaround, fixed in Django 5.0
+        # See: https://stackoverflow.com/questions/42332304/django-an-equality-check-in-annotate-clause
+        class GreaterThan(Func):
+            arg_joiner = ">"
+            arity = 2
+            function = ""
+
+        zero = Cast(0, output_field=IntegerField())
+
+        # This query is a bit gnarley using postgres-specific JSON functions
+        # See jsonb_... functions docs: https://www.postgresql.org/docs/12/functions-json.html
+        try:
+            annotated_grants = (
+                current_grants.annotate(
+                    geocodes=Func(
+                        F("data"),
+                        V("$.beneficiaryLocation[*] ? (exists(@.geoCode))"),
+                        function="jsonb_path_query_array",
+                        output_field=JSONField(),
+                    ),
+                    lookup_count=Func(
+                        F("additional_data__locationLookup"),
+                        function="jsonb_array_length",
+                        output_field=IntegerField(),
+                    ),
+                )
+                .annotate(
+                    geocode_count=Func(
+                        F("geocodes"),
+                        function="jsonb__array_length",
+                        output_field=IntegerField(),
+                    ),
+                )
+                .annotate(
+                    has_geocode=GreaterThan(
+                        Cast(F("geocode_count"), output_field=IntegerField()),
+                        zero,
+                        output_field=BooleanField(),
+                    ),
+                    has_lookup=GreaterThan(
+                        Cast(F("lookup_count"), output_field=IntegerField()),
+                        zero,
+                        output_field=BooleanField(),
+                    ),
+                )
+            )
+
+            result_grants = annotated_grants.filter(has_geocode=True, has_lookup=False)
+
+            NUM_CURRENT_GRANTS_WITH_BENEFICIARY_LOCATION_GEOCODE_WITHOUT_LOOKUP.set(
+                result_grants.count()
+            )
+        except django.db.Error as e:
+            NUM_CURRENT_GRANTS_WITH_BENEFICIARY_LOCATION_GEOCODE_WITHOUT_LOOKUP.set(-1)
+            logger.error(
+                "Error calculating grants with beneficiary location without lookup",
+                exc_info=e,
+            )
+
     def get(self, *args, **kwargs):
         # Update gauges unless we're in the middle of processing/loading
         if db.Status.all_idle_and_ready():
@@ -92,6 +176,7 @@ class ServiceMetrics(View):
             self._total_latest_grants()
             self._total_datagetter_grants()
             self._total_num_sources_in_last_run()
+            self._num_current_grants_with_beneficiary_location_geocode_without_lookup()
 
         # Generate latest uses default of the global registry
         return HttpResponse(generate_latest(), content_type="text/plain")
