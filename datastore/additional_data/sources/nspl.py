@@ -8,15 +8,19 @@ import requests
 
 from additional_data.models import NSPL, GeoCodeName
 
-# based on https://github.com/drkane/find-that-postcode/blob/master/findthatpostcode/commands/postcodes.py
+# Code based on https://github.com/drkane/find-that-postcode/blob/main/findthatpostcode/commands/postcodes.py
 
 
 class NSPLSource(object):
     """Imports NSPL (National Statistics Postcode Lookup) data and
     outputs 'recipientOrganization' location data into additional_data"""
 
-    # This is the Feb 2020 data url. We need to find a way to search for the newest url.
-    NSPL_URL = "https://www.arcgis.com/sharing/rest/content/items/1951e70c3cc3483c9e643902d858355b/data"
+    # Current url is August 2023 data based on 2021 Cencus, taken from:
+    #  https://geoportal.statistics.gov.uk/datasets/national-statistics-postcode-lookup-2021-census-august-2023/about
+    # To find the latest when it updates, have a look on the gov statistics geoportal:
+    #  Search for the most recent "National Statistics Postcode Lookup 2021 Cencus"
+    #  https://geoportal.statistics.gov.uk/search?collection=Dataset&q=National%20Statistics%20Postcode%20Lookup%20-%202021%20Census&sort=-modified&source=office%20for%20national%20statistics&tags=national%20statistics%20postcode%20lookup%2C2021_cencus&type=csv%20collection
+    NSPL_URL = "https://www.arcgis.com/sharing/rest/content/items/204e40244d4d4903ba1861d492f47d29/data"
 
     def __init__(self):
         self._nspl_cache = {}
@@ -31,7 +35,7 @@ class NSPLSource(object):
 
         for file in zip_file.filelist:
             if not file.filename.endswith(".csv") or not file.filename.startswith(
-                "Data/multi_csv/NSPL_"
+                "Data/multi_csv/NSPL"
             ):
                 continue
 
@@ -60,7 +64,7 @@ class NSPLSource(object):
                     # date fields
                     for field in ["dointr", "doterm"]:
                         if record[field]:
-                            date_field = datetime.strptime(record[field], "%Y%m")
+                            date_field = datetime.strptime(record[field][:6], "%Y%m")
                             record[field] = str(date_field)
 
                     # latitude and longitude
