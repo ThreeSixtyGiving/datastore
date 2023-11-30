@@ -76,13 +76,8 @@ echo_stamp "Create GrantNav package"
 
 # Tidy up
 
-# Delete datagetter runs if we have reached the max
-TOTAL_RUNS=`./datastore/manage.py list_datagetter_runs --total`
-
-if [ $TOTAL_RUNS -gt $MAX_TOTAL_RUNS_IN_DB ]; then
-    echo_stamp "Delete oldest datagetter data"
-    ./datastore/manage.py delete_datagetter_data --all-not-in-use --older-than-days 90 --force-delete-in-use-data --no-prompt
-fi
+echo_stamp "Deleting old unused datagetter data"
+./datastore/manage.py delete_datagetter_data --all-not-in-use --older-than-days 90 --force-delete-in-use-data --no-prompt
 
 echo_stamp "Deleting old GrantNav packages"
 find $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR -name "data_*.tar.gz" -mtime +$MAX_PACKAGE_AGE_DAYS | xargs rm -f
