@@ -29,6 +29,7 @@ $ pip install -r requirements.txt
 ## Run the dev server
 
 ```
+$ export DJANGO_SETTINGS_MODULE=settings.settings_dev
 $ manage.py migrate
 $ manage.py createsuperuser
 $ manage.py runserver
