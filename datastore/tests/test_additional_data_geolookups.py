@@ -12,11 +12,11 @@ test_files_dir = PurePath(__file__).parent.joinpath("files").joinpath("geolookup
 class TestAdditionalDataGeoLookup(TestCase):
     fixtures = ["test_data.json"]
     EXISTING_AREA = "E01011964"
+    TOTAL_GEOLOOKUPS = 821
 
     def mock_csv_downloads(self, m):
         # Import Geo lookups data.
         for areatype, a in GeoLookupSource.SOURCE_URLS.items():
-
             # mock the CSV downloads
             url_filename = a["url_lookup"].split("/")[-1]
             with open(test_files_dir.joinpath(url_filename), "r") as infile:
@@ -35,45 +35,50 @@ class TestAdditionalDataGeoLookup(TestCase):
 
             geo.import_geo_lookups()
 
-            self.assertEqual(len(GeoLookup.objects.all()), 500)
+            self.assertEqual(len(GeoLookup.objects.all()), self.TOTAL_GEOLOOKUPS)
 
             # check one example
             geo_object = GeoLookup.objects.filter(areacode=self.EXISTING_AREA)
             self.assertTrue(len(geo_object), 1)
             self.assertEqual(geo_object[0].data["areaname"], "Hartlepool 007B")
             self.assertEqual(
-                round(geo_object[0].data["latitude"], 5), round(54.68510808262816, 5)
+                round(geo_object[0].data["latitude"], 5), round(54.684671337771334, 5)
             )
             self.assertEqual(geo_object[0].data["areatype"], "lsoa")
             self.assertEqual(geo_object[0].data["rgncd"], "E12000001")
             # {
-            #     "ewcd": "K04000001",
-            #     "ewnm": "England and Wales",
-            #     "gbcd": "K03000001",
-            #     "gbnm": "Great Britain",
-            #     "ukcd": "K02000001",
-            #     "uknm": "United Kingdom",
-            #     "ladcd": "E06000001",
-            #     "ladnm": "Hartlepool",
-            #     "rgncd": "E12000001",
-            #     "rgnnm": "North East",
-            #     "ctrycd": "E92000001",
-            #     "ctrynm": "England",
-            #     "utlacd": "E06000001",
-            #     "utlanm": "Hartlepool",
-            #     "cauthcd": "E47000006",
-            #     "cauthnm": "Tees Valley",
-            #     "lad17cd": "E06000001",
-            #     "areacode": "E01011964",
-            #     "areaname": "Hartlepool 007B",
-            #     "areatype": "lsoa",
-            #     "msoa11cd": "E02002489",
-            #     "msoa11nm": "Hartlepool 007",
-            #     "ttwa11cd": "E30000215",
-            #     "ttwa11nm": "Hartlepool",
-            #     "msoa11hclnm": "Old Town & Grange",
-            #     "latitude": 54.68510808262816,
-            #     "longitude": -1.223715283044111,
+            #   "ewcd": "K04000001",
+            #   "ewnm": "England and Wales",
+            #   "gbcd": "K03000001",
+            #   "gbnm": "Great Britain",
+            #   "ukcd": "K02000001",
+            #   "uknm": "United Kingdom",
+            #   "ladcd": "E06000001",
+            #   "ladnm": "Hartlepool",
+            #   "rgncd": "E12000001",
+            #   "rgnnm": "North East",
+            #   "ctrycd": "E92000001",
+            #   "ctrynm": "England",
+            #   "msoacd": "E02002489",
+            #   "msoanm": "Hartlepool 007",
+            #   "utlacd": "E06000001",
+            #   "utlanm": "Hartlepool",
+            #   "cauthcd": "E47000006",
+            #   "cauthnm": "Tees Valley",
+            #   "areacode": "E01011964",
+            #   "areaname": "Hartlepool 007B",
+            #   "areatype": "lsoa",
+            #   "latitude": 54.684671337771334,
+            #   "lsoa11cd": "E01011964",
+            #   "lsoa11nm": "Hartlepool 007B",
+            #   "lsoa21cd": "E01011964",
+            #   "msoa11cd": "E02002489",
+            #   "msoa11nm": "Hartlepool 007",
+            #   "longitude": -1.223763133596042,
+            #   "msoahclnm": "Old Town & Grange",
+            #   "msoa11hclnm": "Old Town & Grange",
+            #   "ladcd_active": "E06000001",
+            #   "ladnm_active": "Hartlepool"
             # }
 
     def test_import_geolookup_deletes_previous_records(self):
@@ -85,7 +90,7 @@ class TestAdditionalDataGeoLookup(TestCase):
 
             geo.import_geo_lookups()
 
-            self.assertEqual(len(GeoLookup.objects.all()), 500)
+            self.assertEqual(len(GeoLookup.objects.all()), self.TOTAL_GEOLOOKUPS)
 
             # check one example
             self.assertTrue(
@@ -93,7 +98,7 @@ class TestAdditionalDataGeoLookup(TestCase):
             )
 
             geo.import_geo_lookups()
-            self.assertEqual(len(GeoLookup.objects.all()), 500)
+            self.assertEqual(len(GeoLookup.objects.all()), self.TOTAL_GEOLOOKUPS)
 
     def save_mock_data(self):
         geo = GeoLookupSource()
