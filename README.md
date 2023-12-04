@@ -51,16 +51,41 @@ Create/update the Recipient/Funder model entries from grant data.
 $ python manage.py manage_entities_data --update
 ```
 
-## Loading data for additional data
+## Updating additional data
 
-A number of the sources for additional_data have their own local caches these can be loaded via:
+A number of the sources for additional_data have their own local caches which need to be kept up-to-date.
 
+To better understand additional data, refer to [360Giving Datastore - additional data](https://docs.google.com/document/d/1ZhGDhkRnjeyK3dgycO6SdOrwPiwPytp-a2ekIXSqUKo/view).
+
+For a script which combines all the steps, see `datastore/additional_data/sources/update_all_sources.sh`
+
+Occasionally we also need to update the upstream URLs where data is fetched from, found in `datastore/additional_data/sources/*.py`.
+
+### 360G CodeLists
+
+Downloads codelists from the ThreeSixtyGiving/standard GitHub repo.
+
+```bash
+./manage.py load_codelist_codes
 ```
-$ manage.py load_geocode_names
-$ manage.py load_geolookups
-$ manage.py load_nspl
-$ manage.py load_org_data
-$ manage.py loaddata default_tsg_org_types
+
+### Geo Data
+
+Look at the `datastore_num_current_grants_with_beneficiary_location_geocode_without_lookup` metric of the getter run before and after updating geodata, it should go down.
+
+```bash
+./manage.py load_geocode_names # CHD Data
+./manage.py load_geolookups    # from https://github.com/drkane/geo-lookups
+./manage.py load_nspl
+```
+
+### Organisation Data
+
+```bash
+# Got to delete the old org data before loading in the new
+./manage.py delete_org_data --no-prompt
+
+./additional_data/sources/load_all_org_data.sh
 ```
 
 ## Other useful commands
@@ -68,7 +93,7 @@ $ manage.py loaddata default_tsg_org_types
 There are many useful management commands see:
 
 ```
-$ manage.py --help # !
+$ manage.py --help
 ```
 
 
