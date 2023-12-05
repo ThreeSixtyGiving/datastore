@@ -139,7 +139,7 @@ class ServiceMetrics(View):
                 .annotate(
                     geocode_count=Func(
                         F("geocodes"),
-                        function="jsonb__array_length",
+                        function="jsonb_array_length",
                         output_field=IntegerField(),
                     ),
                 )
