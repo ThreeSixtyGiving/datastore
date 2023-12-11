@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "prettyjson",
     "rest_framework",
     "django_filters",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -135,6 +136,7 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.UserRateThrottle",
     ),
     "DEFAULT_THROTTLE_RATES": {"anon": "2/second", "user": "8/second"},
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 
