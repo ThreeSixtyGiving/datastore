@@ -97,7 +97,7 @@ class OrganisationGrantsMadeView(generics.ListAPIView):
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
 
     def get_queryset(self):
-        org_id = self.kwargs["org_id"]
+        org_id = self.kwargs.get("org_id")
         return db.Latest.grants().filter(
             data__fundingOrganization__contains=[{"id": org_id}]
         )
@@ -109,7 +109,7 @@ class OrganisationGrantsReceivedView(generics.ListAPIView):
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
 
     def get_queryset(self):
-        org_id = self.kwargs["org_id"]
+        org_id = self.kwargs.get("org_id")
         return db.Latest.grants().filter(
             data__recipientOrganization__contains=[{"id": org_id}]
         )
