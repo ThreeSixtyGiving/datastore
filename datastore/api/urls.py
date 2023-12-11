@@ -1,10 +1,17 @@
 from django.urls import path
 from django.views.generic import TemplateView
 
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularRedocView,
+    SpectacularSwaggerView,
+)
+
 import api.control.api
 import api.experimental.api
 import api.grantnav.api
 import api.dashboard.api
+
 
 app_name = "api"
 
@@ -70,5 +77,18 @@ urlpatterns = [
         "experimental/grant/<str:grant_id>",
         api.experimental.api.GrantDetailView.as_view(),
         name="grant-detail",
+    ),
+    # Schema UI
+    path("schema/", SpectacularAPIView.as_view(), name="schema"),
+    # Optional UI:
+    path(
+        "swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="api:schema"),
+        name="swagger-ui",
+    ),
+    path(
+        "redoc/",
+        SpectacularRedocView.as_view(url_name="api:schema"),
+        name="redoc",
     ),
 ]
