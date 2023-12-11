@@ -79,9 +79,7 @@ class RecipientSerializer(serializers.ModelSerializer):
 class PublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Publisher
-        exclude = ["id"]
-
-    getter_run = GetterRunSerializer()
+        exclude = ["id", "getter_run"]
 
 
 class OrganisationListSerializer(serializers.Serializer):
