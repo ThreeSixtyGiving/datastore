@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 
 import db.models as db
 from . import models
@@ -15,6 +17,7 @@ class OrganisationRefSerializer(serializers.Serializer):
     org_id = serializers.CharField()
     self = serializers.SerializerMethodField()
 
+    @extend_schema_field(OpenApiTypes.URI)
     def get_self(self, org):
         """Get the URL to this object's detail."""
         return reverse(
@@ -34,6 +37,7 @@ class GrantSerializer(serializers.ModelSerializer):
     recipients = serializers.SerializerMethodField()
     funders = serializers.SerializerMethodField()
 
+    @extend_schema_field(OpenApiTypes.URI)
     def get_self(self, grant):
         """Get the URL to this object's detail."""
         return reverse(
@@ -42,11 +46,13 @@ class GrantSerializer(serializers.ModelSerializer):
             request=self.context.get("request"),
         )
 
+    @extend_schema_field(OrganisationRefSerializer)
     def get_publisher(self, grant):
         return OrganisationRefSerializer(
             models.OrganisationRef(grant.publisher.org_id), context=self.context
         ).data
 
+    @extend_schema_field(OrganisationRefSerializer(many=True))
     def get_recipients(self, grant):
         return [
             OrganisationRefSerializer(
@@ -55,6 +61,7 @@ class GrantSerializer(serializers.ModelSerializer):
             for recipient in grant.data.get("recipientOrganization", [])
         ]
 
+    @extend_schema_field(OrganisationRefSerializer(many=True))
     def get_funders(self, grant):
         return [
             OrganisationRefSerializer(
@@ -87,6 +94,7 @@ class OrganisationListSerializer(serializers.Serializer):
     org_id = serializers.CharField(max_length=200)
     name = serializers.CharField(allow_blank=True, required=False)
 
+    @extend_schema_field(OpenApiTypes.URI)
     def get_self(self, org):
         """Get the URL to this object's detail."""
         request = self.context.get("request")
@@ -104,6 +112,7 @@ class OrganisationSerializer(serializers.Serializer):
     recipient = OrganisationRecipientSerializer(required=False)
     publisher = OrganisationPublisherSerializer(required=False)
 
+    @extend_schema_field(OpenApiTypes.URI)
     def get_self(self, org):
         """Get the URL to this object's detail."""
         request = self.context.get("request")
@@ -111,6 +120,7 @@ class OrganisationSerializer(serializers.Serializer):
             "api:organisation-detail", kwargs={"org_id": org.org_id}, request=request
         )
 
+    @extend_schema_field(OpenApiTypes.URI)
     def get_grants_made(self, org):
         return reverse(
             "api:organisation-grants-made",
@@ -118,6 +128,7 @@ class OrganisationSerializer(serializers.Serializer):
             request=self.context.get("request"),
         )
 
+    @extend_schema_field(OpenApiTypes.URI)
     def get_grants_received(self, org):
         return reverse(
             "api:organisation-grants-received",
