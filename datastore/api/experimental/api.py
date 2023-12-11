@@ -74,36 +74,21 @@ class OrganisationDetailView(generics.RetrieveAPIView):
 
         funder_queryset = self.filter_queryset(db.Funder.objects.all())
         recipient_queryset = self.filter_queryset(db.Recipient.objects.all())
-        publisher_queryset = self.filter_queryset(db.Publisher.objects.all())
+        publisher_queryset = self.filter_queryset(
+            db.Publisher.objects.filter(getter_run__in=db.GetterRun.objects.in_use())
+        )
 
-        # is org a Funder?
-        try:
-            funder = funder_queryset.get(org_id=org_id)
+        organisation = api_experimental.Organisation.get(
+            org_id,
+            funder_queryset=funder_queryset,
+            recipient_queryset=recipient_queryset,
+            publisher_queryset=publisher_queryset,
+        )
 
-        except db.Funder.DoesNotExist:
-            funder = None
-
-        # is org a Recipient?
-        try:
-            recipient = recipient_queryset.get(org_id=org_id)
-
-        except db.Recipient.DoesNotExist:
-            recipient = None
-
-        # is org a Publisher?
-        try:
-            publisher = publisher_queryset.filter(
-                org_id=org_id, getter_run__in=db.GetterRun.objects.in_use()
-            ).order_by("-getter_run__datetime")[0]
-        except IndexError:
-            publisher = None
-
-        if funder is None and recipient is None and publisher is None:
+        if not organisation:
             raise Http404
 
-        return api_experimental.Organisation(
-            org_id=org_id, funder=funder, recipient=recipient, publisher=publisher
-        )
+        return organisation
 
 
 class OrganisationGrantsMadeView(generics.ListAPIView):
