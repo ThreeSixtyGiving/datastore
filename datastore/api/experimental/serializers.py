@@ -64,19 +64,19 @@ class GrantSerializer(serializers.ModelSerializer):
         ]
 
 
-class FunderSerializer(serializers.ModelSerializer):
+class OrganisationFunderSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Funder
         exclude = ["id"]
 
 
-class RecipientSerializer(serializers.ModelSerializer):
+class OrganisationRecipientSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Recipient
         exclude = ["id"]
 
 
-class PublisherSerializer(serializers.ModelSerializer):
+class OrganisationPublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Publisher
         exclude = ["id", "getter_run"]
@@ -100,9 +100,9 @@ class OrganisationSerializer(serializers.Serializer):
     org_id = serializers.CharField(max_length=200)
     grants_made = serializers.SerializerMethodField()
     grants_received = serializers.SerializerMethodField()
-    funder = FunderSerializer(required=False)
-    recipient = RecipientSerializer(required=False)
-    publisher = PublisherSerializer(required=False)
+    funder = OrganisationFunderSerializer(required=False)
+    recipient = OrganisationRecipientSerializer(required=False)
+    publisher = OrganisationPublisherSerializer(required=False)
 
     def get_self(self, org):
         """Get the URL to this object's detail."""
