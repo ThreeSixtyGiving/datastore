@@ -77,7 +77,7 @@ class TestDataQualityData(TestCase):
                 "fail": True,
             },
             "ClassificationNotPresent": {
-                "heading": "5 grants do not contain classifications field",
+                "heading": "5 grants do not contain classifications/0/title field",
                 "count": 5,
                 "percentage": 1.0,
                 "fail": True,
@@ -103,7 +103,7 @@ class TestDataQualityData(TestCase):
             "RecipientOrgPrefix50pcExternal": {
                 "count": 0,
                 "fail": True,
-                "percentage": 0,
+                "percentage": 0.0,
             },
         }
 
