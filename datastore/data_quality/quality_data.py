@@ -542,7 +542,7 @@ class SourceFilesStats(object):
 
 def create_publisher_stats(publisher):
     """Create stats and aggregate data about a publisher's grants"""
-    ret = generate_stats("single_publisher", publisher.get_sourcefiles())
+    ret = generate_stats("single_publisher", publisher.get_latest_sourcefiles())
 
     return ret["quality"], ret["aggregate"]
 

@@ -328,9 +328,9 @@ class Publisher(Entity):
     prefix = models.CharField(max_length=300)
     getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
 
-    def get_sourcefiles(self):
-        return SourceFile.objects.filter(
-            getter_run=self.getter_run, data__publisher__prefix=self.prefix
+    def get_latest_sourcefiles(self):
+        return Latest.objects.get(series=Latest.CURRENT).sourcefile_set.filter(
+            data__publisher__prefix=self.prefix
         )
 
     #  Update the convenience fields
