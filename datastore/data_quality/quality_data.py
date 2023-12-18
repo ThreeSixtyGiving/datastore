@@ -273,12 +273,18 @@ class SourceFilesStats(object):
             cursor.execute(query)
             total = len(cursor.fetchall())
 
+        if not total:
+            return 0
+
         return total
 
     def get_total_recipient_individuals(self):
-        return self.source_file_set.annotate(
+        ret = self.source_file_set.annotate(
             total=RawSQL("((aggregate->>%s)::int)", ("recipient_individuals",))
         ).aggregate(Sum("total"))["total__sum"]
+        if not ret:
+            return 0
+        return ret
 
     def get_total_funders(self):
         # Determine if we're dealing with just one publisher and whether we need to limit
@@ -357,12 +363,8 @@ class SourceFilesStats(object):
                 continue
 
             # For compatibility badge value 100 = True , 0 = False
-            ret[metric] = (
-                100
-                if self.source_file_set.count()
-                == self.source_file_set.filter(**query).count()
-                else 0
-            )
+            ret[metric] = 100 if self.source_file_set.filter(**query).count() > 0 else 0
+
         return ret
 
     def get_pc_quality_publishers(self):
@@ -601,7 +603,6 @@ def generate_stats(mode, source_file_set):
         ret["quality"] = source_files_stats.get_pc_quality_publishers()
     elif mode == "single_publisher":
         ret["aggregate"].update(source_files_stats.get_pc_total_file_types())
-        ret["quality"] = source_files_stats.get_publisher_quality_grants()
         ret["aggregate"][
             "awardYears"
         ] = source_files_stats.get_total_grants_awarded_in_last_ten_years()
@@ -614,6 +615,8 @@ def generate_stats(mode, source_file_set):
         ret["aggregate"][
             "awardedLastThreeMonths"
         ] = source_files_stats.get_pc_publishers_awarding_in_last(92)
+
+        ret["quality"] = source_files_stats.get_publisher_quality_grants()
 
     else:
         raise Exception("Unknown mode. Valid modes: publishers, grants")
