@@ -6,7 +6,7 @@
 #
 -e git+https://github.com/ThreeSixtyGiving/datagetter.git@58fae3d2f93ea9477c1184dfa9f9cb83ab9f870d#egg=datagetter
     # via -r requirements.in
--e git+https://github.com/ThreeSixtyGiving/dataquality.git@main#egg=lib360dataquality
+-e git+https://github.com/ThreeSixtyGiving/dataquality.git@e8676bea246ca850b449ff053948059cc611e17f#egg=lib360dataquality
     # via -r requirements.in
 asgiref==3.5.2
     # via django
@@ -110,7 +110,7 @@ persistent==4.7.0
     #   btrees
     #   datagetter
     #   zodb
-prometheus-client==0.7.0
+prometheus-client==0.7
     # via -r requirements.in
 psycopg2==2.8
     # via -r requirements.in
@@ -155,7 +155,6 @@ six==1.16.0
     #   django-prettyjson
     #   jsonschema
     #   python-dateutil
-    #   rfc3339-validator
     #   zodb
 sqlparse==0.4.3
     # via django
