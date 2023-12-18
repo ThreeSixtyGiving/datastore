@@ -52,7 +52,7 @@ class PublishersSerializer(serializers.ModelSerializer):
 class PublisherSerializer(PublishersSerializer):
 
     # Same as Publishers but with added `files`
-    files = SourcesSerializer(source="get_sourcefiles", many=True)
+    files = SourcesSerializer(source="get_latest_sourcefiles", many=True)
     last_published = serializers.JSONField(source="data.last_published")
 
     class Meta:
