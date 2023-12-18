@@ -43,6 +43,13 @@ class Command(BaseCommand):
             help="Only rewrite sourcefile data",
         )
 
+        parser.add_argument(
+            "--publisher",
+            action="store",
+            dest="publisher",
+            help="Update the quality data for specified publisher (prefix)",
+        )
+
     def handle(self, *args, **options):
 
         if "latest" in options["getter_run"]:
@@ -52,6 +59,11 @@ class Command(BaseCommand):
         else:
             source_files = db.SourceFile.objects.filter(
                 getter_run=options["getter_run"]
+            )
+
+        if options.get("publisher"):
+            source_files = source_files.filter(
+                data__publisher__prefix=options["publisher"]
             )
 
         publisher_objs_for_update = []
@@ -87,6 +99,8 @@ class Command(BaseCommand):
 
         def process_publishers(source_file):
             publisher = source_file.get_publisher()
+
+            print(publisher)
 
             try:
                 (
