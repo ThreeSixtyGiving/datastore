@@ -7,4 +7,4 @@ django-prettyjson==0.4.1
 psycopg2==2.8
 prometheus_client==0.7
 django-environ
-drf-spectacular>=0.26.5,<0.27
+drf-spectacular>=0.27,<0.28
