@@ -26,22 +26,39 @@ class OrganisationRefSerializer(DataclassSerializer):
         )
 
 
+class OrganisationAggregateCurrencySerializer(serializers.Serializer):
+    avg = serializers.FloatField()
+    max = serializers.FloatField()
+    min = serializers.FloatField()
+    total = serializers.FloatField()
+    grants = serializers.IntegerField()
+
+
+class OrganisationAggregateSerializer(serializers.Serializer):
+    grants = serializers.IntegerField()
+    currencies = serializers.DictField(child=OrganisationAggregateCurrencySerializer())
+
+
 class OrganisationFunderSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Funder
-        exclude = ["id"]
+        fields = ["aggregate"]
+
+    aggregate = OrganisationAggregateSerializer()
 
 
 class OrganisationRecipientSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Recipient
-        exclude = ["id"]
+        fields = ["aggregate"]
+
+    aggregate = OrganisationAggregateSerializer()
 
 
 class OrganisationPublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Publisher
-        exclude = ["id", "getter_run"]
+        fields = ["prefix"]
 
 
 class OrganisationListSerializer(serializers.Serializer):
