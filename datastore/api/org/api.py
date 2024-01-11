@@ -122,17 +122,3 @@ class OrganisationGrantsReceivedView(generics.ListAPIView):
         return db.Latest.grants().filter(
             data__recipientOrganization__contains=[{"id": org_id}]
         )
-
-
-class GrantDetailView(generics.RetrieveAPIView):
-    """
-    Get the grant data for a single grant.
-
-    For grant data schema, see the 360G schema: https://standard.threesixtygiving.org/en/latest/_static/docson/index.html#../360-giving-schema.json
-    """
-
-    serializer_class = serializers.GrantSerializer
-
-    def get_object(self):
-        grant_id = self.kwargs["grant_id"]
-        return db.Latest.grants().get(grant_id=grant_id)

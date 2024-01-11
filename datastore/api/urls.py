@@ -75,11 +75,6 @@ urlpatterns = [
         api.org.api.OrganisationListView.as_view(),
         name="organisation-list",
     ),
-    path(
-        "experimental/grant/<str:grant_id>/",
-        api.org.api.GrantDetailView.as_view(),
-        name="grant-detail",
-    ),
     # Schema UI
     path(
         "experimental/schema/",
