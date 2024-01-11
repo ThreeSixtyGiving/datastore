@@ -109,19 +109,9 @@ class GrantSerializer(serializers.ModelSerializer):
 
     data = GrantDataField()
 
-    self = serializers.SerializerMethodField()
     publisher = serializers.SerializerMethodField()
     recipients = serializers.SerializerMethodField()
     funders = serializers.SerializerMethodField()
-
-    @extend_schema_field(OpenApiTypes.URI)
-    def get_self(self, grant):
-        """Get the URL to this object's detail."""
-        return reverse(
-            "api:grant-detail",
-            kwargs={"grant_id": grant.grant_id},
-            request=self.context.get("request"),
-        )
 
     @extend_schema_field(OrganisationRefSerializer)
     def get_publisher(self, grant):
