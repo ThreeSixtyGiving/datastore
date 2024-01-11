@@ -58,7 +58,7 @@ class OrganisationRecipientSerializer(serializers.ModelSerializer):
 class OrganisationPublisherSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Publisher
-        fields = ["prefix"]
+        fields = ["prefix", "quality"]
 
 
 class OrganisationListSerializer(serializers.Serializer):
