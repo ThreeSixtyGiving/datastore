@@ -26,6 +26,7 @@ class Organisation:
     """
 
     org_id: str
+    name: str
     funder: Optional[db.Funder]
     recipient: Optional[db.Recipient]
     publisher: Optional[db.Publisher]
@@ -67,25 +68,30 @@ class Organisation:
                 getter_run__in=db.GetterRun.objects.in_use()
             )
 
-        # is org a Funder?
-        try:
-            funder = funder_queryset.get(org_id=org_id)
-
-        except db.Funder.DoesNotExist:
-            funder = None
+        name = None
 
         # is org a Recipient?
         try:
             recipient = recipient_queryset.get(org_id=org_id)
+            name = recipient.name
 
         except db.Recipient.DoesNotExist:
             recipient = None
+
+        # is org a Funder?
+        try:
+            funder = funder_queryset.get(org_id=org_id)
+            name = funder.name
+
+        except db.Funder.DoesNotExist:
+            funder = None
 
         # is org a Publisher?
         try:
             publisher = publisher_queryset.filter(org_id=org_id).order_by(
                 "-getter_run__datetime"
             )[0]
+            name = publisher.name
         except IndexError:
             publisher = None
 
@@ -93,5 +99,9 @@ class Organisation:
             raise Organisation.DoesNotExist
 
         return Organisation(
-            org_id=org_id, funder=funder, recipient=recipient, publisher=publisher
+            org_id=org_id,
+            name=name,
+            funder=funder,
+            recipient=recipient,
+            publisher=publisher,
         )
