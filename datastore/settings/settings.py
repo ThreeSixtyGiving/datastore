@@ -157,7 +157,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+TSG_OPENAPI_SCHEMA_STATICFILE = "360-giving-schema-1.3-openapi.json"
+
 STATIC_URL = "/static/"
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 CACHES = {
     "default": {
