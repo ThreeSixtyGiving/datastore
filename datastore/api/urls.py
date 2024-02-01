@@ -10,6 +10,7 @@ import api.control.api
 import api.experimental.api
 import api.grantnav.api
 import api.dashboard.api
+import api.org.api
 import api.org.api_schema
 
 
@@ -54,28 +55,28 @@ urlpatterns = [
         name="current-latest-grants",
     ),
     path(
-        "experimental/org/<path:org_id>/grants_made",
-        api.experimental.api.OrganisationGrantsMadeView.as_view(),
+        "experimental/org/<path:org_id>/grants_made/",
+        api.org.api.OrganisationGrantsMadeView.as_view(),
         name="organisation-grants-made",
     ),
     path(
-        "experimental/org/<path:org_id>/grants_received",
-        api.experimental.api.OrganisationGrantsReceivedView.as_view(),
+        "experimental/org/<path:org_id>/grants_received/",
+        api.org.api.OrganisationGrantsReceivedView.as_view(),
         name="organisation-grants-received",
     ),
     path(
-        "experimental/org/<path:org_id>",
-        api.experimental.api.OrganisationDetailView.as_view(),
+        "experimental/org/<path:org_id>/",
+        api.org.api.OrganisationDetailView.as_view(),
         name="organisation-detail",
     ),
     path(
-        "experimental/org",
-        api.experimental.api.OrganisationListView.as_view(),
+        "experimental/org/",
+        api.org.api.OrganisationListView.as_view(),
         name="organisation-list",
     ),
     path(
-        "experimental/grant/<str:grant_id>",
-        api.experimental.api.GrantDetailView.as_view(),
+        "experimental/grant/<str:grant_id>/",
+        api.org.api.GrantDetailView.as_view(),
         name="grant-detail",
     ),
     # Schema UI
@@ -86,12 +87,12 @@ urlpatterns = [
     ),
     # Optional UI:
     path(
-        "swagger-ui/",
+        "experimental/swagger-ui/",
         SpectacularSwaggerView.as_view(url_name="api:schema"),
         name="swagger-ui",
     ),
     path(
-        "redoc/",
+        "experimental/redoc/",
         SpectacularRedocView.as_view(url_name="api:schema"),
         name="redoc",
     ),
