@@ -12,7 +12,6 @@ import api.grantnav.api
 import api.dashboard.api
 import api.org.api
 import api.org.api_schema
-import api.rapidoc
 
 
 app_name = "api"
@@ -91,10 +90,5 @@ urlpatterns = [
         "experimental/redoc/",
         SpectacularRedocView.as_view(url_name="api:schema"),
         name="redoc",
-    ),
-    path(
-        "experimental/rapidoc/",
-        api.rapidoc.SpectacularRapiDocView.as_view(url_name="api:schema"),
-        name="rapidoc",
     ),
 ]
