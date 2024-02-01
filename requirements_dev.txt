@@ -68,6 +68,7 @@ django==3.2.16
     #   django-filter
     #   django-prettyjson
     #   djangorestframework
+    #   djangorestframework-dataclasses
     #   drf-spectacular
 django-cors-headers==3.13.0
     # via -r requirements_dev.in
@@ -80,7 +81,10 @@ django-prettyjson==0.4.1
 djangorestframework==3.11.2
     # via
     #   -r requirements.in
+    #   djangorestframework-dataclasses
     #   drf-spectacular
+djangorestframework-dataclasses==1.3.1
+    # via -r requirements.in
 docopt==0.6.2
     # via coveralls
 drf-spectacular==0.27.0
