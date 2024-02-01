@@ -11,6 +11,7 @@ import api.control.api
 import api.experimental.api
 import api.grantnav.api
 import api.dashboard.api
+import api.org.api_schema
 
 
 app_name = "api"
@@ -79,7 +80,11 @@ urlpatterns = [
         name="grant-detail",
     ),
     # Schema UI
-    path("schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "experimental/schema/",
+        api.org.api_schema.APISchemaView.as_view(),
+        name="schema",
+    ),
     # Optional UI:
     path(
         "swagger-ui/",
