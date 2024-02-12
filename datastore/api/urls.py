@@ -2,7 +2,6 @@ from django.urls import path
 from django.views.generic import TemplateView
 
 from drf_spectacular.views import (
-    SpectacularAPIView,
     SpectacularRedocView,
     SpectacularSwaggerView,
 )
