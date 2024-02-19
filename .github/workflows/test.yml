@@ -45,6 +45,7 @@ jobs:
     - run: coverage run --source='./datastore' ./datastore/manage.py test -v 3 tests
       env:
         DATA_RUN_PID_FILE: datarunpidfile.pid
+        DJANGO_SETTINGS_MODULE: settings.settings_test
     - name: Verify it compiles and is installed
       run: datagetter.py --help
 
