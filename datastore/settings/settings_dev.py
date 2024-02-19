@@ -2,7 +2,8 @@
 import os
 import socket
 import hashlib
-from settings.settings import *
+from settings.settings import *  # noqa F401, F403
+from settings.settings import REST_FRAMEWORK
 
 # This adds the CORS header to API calls for the django dev server
 
@@ -50,3 +51,7 @@ LOGGING = {
         },
     },
 }
+
+# Don't throttle in dev environment
+REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []
+REST_FRAMEWORK["DEFAULT_THROTTLE_RATE"] = {}
