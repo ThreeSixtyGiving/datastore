@@ -311,7 +311,7 @@ class OrgAPITestCase(TestCase):
     def test_recipient_grants_made(self):
         """A Recipient-only Org should not make any grants."""
         data = self.client.get(
-            f"/api/experimental/org/{self.recipient_grant_id}/grants_made/",
+            f"/api/experimental/org/{self.recipient_org_id}/grants_made/",
             headers={"accept": "application/json"},
         ).json()
 
