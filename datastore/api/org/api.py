@@ -72,14 +72,15 @@ class OrganisationDetailView(generics.RetrieveAPIView):
             db.Publisher.objects.filter(getter_run__in=db.GetterRun.objects.in_use())
         )
 
-        organisation = models.Organisation.get(
-            org_id,
-            funder_queryset=funder_queryset,
-            recipient_queryset=recipient_queryset,
-            publisher_queryset=publisher_queryset,
-        )
+        try:
+            organisation = models.Organisation.get(
+                org_id,
+                funder_queryset=funder_queryset,
+                recipient_queryset=recipient_queryset,
+                publisher_queryset=publisher_queryset,
+            )
 
-        if not organisation:
+        except models.Organisation.DoesNotExist:
             raise Http404
 
         return organisation
