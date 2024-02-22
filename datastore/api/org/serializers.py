@@ -7,7 +7,7 @@ from drf_spectacular.types import OpenApiTypes
 from rest_framework_dataclasses.serializers import DataclassSerializer
 
 import db.models as db
-from . import models
+from api.org import models
 
 
 class OrganisationRefSerializer(DataclassSerializer):
