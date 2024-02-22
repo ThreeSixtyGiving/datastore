@@ -10,4 +10,4 @@ class TestOrganisationModel(TransactionTestCase):
         self.assertTrue(Organisation.exists("360G-example-a"))
 
     def test_org_not_exists(self):
-        self.assertFalse(Organisation.exists("XE-DOESNTEXIST"))
+        self.assertFalse(Organisation.exists("XE-EXAMPLE-DOESNTEXIST"))
