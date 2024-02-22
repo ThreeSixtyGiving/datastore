@@ -43,6 +43,28 @@ class Organisation:
         pass
 
     @staticmethod
+    def exists(
+        org_id: str,
+        funder_queryset: Optional[QuerySet[db.Funder]] = None,
+        recipient_queryset: Optional[QuerySet[db.Recipient]] = None,
+        publisher_queryset: Optional[QuerySet[db.Publisher]] = None,
+    ) -> bool:
+        """
+        Checks if an Organisation with this Org ID exists, returns True if exists, False if not.
+        """
+        try:
+            _ = Organisation.get(
+                org_id=org_id,
+                funder_queryset=funder_queryset,
+                recipient_queryset=recipient_queryset,
+                publisher_queryset=publisher_queryset,
+            )
+        except Organisation.DoesNotExist:
+            return False
+
+        return True
+
+    @staticmethod
     def get(
         org_id: str,
         funder_queryset: Optional[QuerySet[db.Funder]] = None,
