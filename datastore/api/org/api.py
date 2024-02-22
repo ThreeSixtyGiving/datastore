@@ -1,5 +1,6 @@
-from django.http import Http404
 import django_filters.rest_framework
+import rest_framework.exceptions
+from django.http import Http404
 from rest_framework import generics
 from rest_framework.pagination import LimitOffsetPagination
 
@@ -101,6 +102,11 @@ class OrganisationGrantsMadeView(generics.ListAPIView):
 
     def get_queryset(self):
         org_id = self.kwargs.get("org_id")
+
+        # Raise 404 if the Org doesn't exist
+        if not models.Organisation.exists(org_id):
+            raise rest_framework.exceptions.NotFound()
+
         return db.Latest.grants().filter(
             data__fundingOrganization__contains=[{"id": org_id}]
         )
@@ -119,6 +125,11 @@ class OrganisationGrantsReceivedView(generics.ListAPIView):
 
     def get_queryset(self):
         org_id = self.kwargs.get("org_id")
+
+        # Raise 404 if the Org doesn't exist
+        if not models.Organisation.exists(org_id):
+            raise rest_framework.exceptions.NotFound()
+
         return db.Latest.grants().filter(
             data__recipientOrganization__contains=[{"id": org_id}]
         )
