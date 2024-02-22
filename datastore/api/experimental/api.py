@@ -3,7 +3,7 @@ from rest_framework import filters, generics
 from rest_framework.pagination import LimitOffsetPagination
 
 import db.models as db
-from . import serializers
+from api.experimental import serializers
 
 
 class CurrentLatestGrantsPaginator(LimitOffsetPagination):
