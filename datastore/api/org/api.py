@@ -5,8 +5,8 @@ from rest_framework import generics
 from rest_framework.pagination import LimitOffsetPagination
 
 import db.models as db
-from . import models
-from . import serializers
+from api.org import models
+from api.org import serializers
 
 
 class OrganisationsPagination(LimitOffsetPagination):
