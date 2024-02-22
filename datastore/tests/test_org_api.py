@@ -405,7 +405,9 @@ class OrgAPITestCase(TestCase):
     def test_non_existent_org_detail(self):
         """Check for 404 on non-existent Org detail"""
         response = self.client.get(
-            reverse_lazy("api:organisation-detail", kwargs={"org_id": "XE-DOESNTEXIST"})
+            reverse_lazy(
+                "api:organisation-detail", kwargs={"org_id": "XE-EXAMPLE-DOESNTEXIST"}
+            )
         )
 
         self.assertEqual(response.status_code, 404)
@@ -414,7 +416,8 @@ class OrgAPITestCase(TestCase):
         """Check for 404 on non-existent Org grants made"""
         response = self.client.get(
             reverse_lazy(
-                "api:organisation-grants-made", kwargs={"org_id": "XE-DOESNTEXIST"}
+                "api:organisation-grants-made",
+                kwargs={"org_id": "XE-EXAMPLE-DOESNTEXIST"},
             )
         )
 
@@ -424,7 +427,8 @@ class OrgAPITestCase(TestCase):
         """Check for 404 on non-existent Org grants received"""
         response = self.client.get(
             reverse_lazy(
-                "api:organisation-grants-received", kwargs={"org_id": "XE-DOESNTEXIST"}
+                "api:organisation-grants-received",
+                kwargs={"org_id": "XE-EXAMPLE-DOESNTEXIST"},
             )
         )
 
