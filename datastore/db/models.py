@@ -1,4 +1,4 @@
-from django.db.models import JSONField
+from django.db.models import JSONField, Index
 from django.db import connection, models
 from django.db.utils import DataError
 from django.utils import timezone
@@ -348,6 +348,7 @@ class Publisher(Entity):
     class Meta:
         unique_together = ("getter_run", "prefix")
         ordering = ["prefix"]
+        indexes = [Index(fields=["org_id", "name"])]
 
 
 class Recipient(Entity):
@@ -355,6 +356,7 @@ class Recipient(Entity):
         constraints = [
             models.UniqueConstraint(fields=["org_id"], name="recipient_unique_org_id")
         ]
+        indexes = [Index(fields=["org_id", "name"])]
 
 
 class Funder(Entity):
@@ -362,6 +364,7 @@ class Funder(Entity):
         constraints = [
             models.UniqueConstraint(fields=["org_id"], name="funder_unique_org_id")
         ]
+        indexes = [Index(fields=["org_id", "name"])]
 
 
 class Grant(models.Model):
