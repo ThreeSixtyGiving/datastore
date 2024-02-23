@@ -20,7 +20,9 @@ class OrganisationListView(generics.ListAPIView):
     def get_queryset(self):
         fields = ["org_id", "name"]
         return (
-            db.Publisher.objects.filter(getter_run__in=db.GetterRun.objects.in_use())
+            # Empty order_by to cancel default sort
+            db.Publisher.objects.order_by()
+            .filter(getter_run__in=db.GetterRun.objects.in_use())
             .values(*fields)
             .union(db.Funder.objects.all().values(*fields))
             .union(db.Recipient.objects.all().values(*fields))
@@ -69,7 +71,10 @@ class OrganisationDetailView(generics.RetrieveAPIView):
         funder_queryset = self.filter_queryset(db.Funder.objects.all())
         recipient_queryset = self.filter_queryset(db.Recipient.objects.all())
         publisher_queryset = self.filter_queryset(
-            db.Publisher.objects.filter(getter_run__in=db.GetterRun.objects.in_use())
+            # Empty order_by to cancel default sort
+            db.Publisher.objects.order_by().filter(
+                getter_run__in=db.GetterRun.objects.in_use()
+            )
         )
 
         try:

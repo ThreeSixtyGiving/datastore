@@ -86,7 +86,8 @@ class Organisation:
             recipient_queryset = db.Recipient.objects.all()
 
         if not publisher_queryset:
-            publisher_queryset = db.Publisher.objects.filter(
+            # Empty order_by to cancel default sort
+            publisher_queryset = db.Publisher.objects.order_by().filter(
                 getter_run__in=db.GetterRun.objects.in_use()
             )
 
