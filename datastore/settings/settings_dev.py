@@ -20,13 +20,22 @@ def get_secret_key():
 
 SECRET_KEY = get_secret_key()
 
-INSTALLED_APPS = INSTALLED_APPS + ["corsheaders"]
+INSTALLED_APPS = INSTALLED_APPS + ["corsheaders", "debug_toolbar"]
 
-MIDDLEWARE = MIDDLEWARE + [
-    "corsheaders.middleware.CorsMiddleware",
-]
+MIDDLEWARE = (
+    ["debug_toolbar.middleware.DebugToolbarMiddleware"]
+    + MIDDLEWARE
+    + ["corsheaders.middleware.CorsMiddleware"]
+)
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# Django Debug Toolbar will only appear to users on internal IPs listed here
+INTERNAL_IPS = [
+    "127.0.0.1",
+    "::1",
+]
+
 
 LOGGING = {
     "version": 1,
