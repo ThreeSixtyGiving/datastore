@@ -113,8 +113,10 @@ class OrganisationGrantsMadeView(generics.ListAPIView):
         if not models.Organisation.exists(org_id):
             raise rest_framework.exceptions.NotFound()
 
-        return db.Latest.grants().filter(
-            data__fundingOrganization__contains=[{"id": org_id}]
+        return (
+            db.Latest.grants()
+            .filter(data__fundingOrganization__contains=[{"id": org_id}])
+            .select_related("publisher")
         )
 
 
