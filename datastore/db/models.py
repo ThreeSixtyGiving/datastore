@@ -346,8 +346,12 @@ class Publisher(Entity):
         return "%s (datagetter %s)" % (self.name, str(self.getter_run.datetime))
 
     class Meta:
-        unique_together = ("getter_run", "prefix")
         ordering = ["prefix"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["prefix", "getter_run"], name="publisher_unique_prefix"
+            )
+        ]
 
 
 class Recipient(Entity):
