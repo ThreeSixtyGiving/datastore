@@ -102,8 +102,7 @@ class Command(BaseCommand):
                         additional_data = None
 
                     grant_bulk_insert.append(
-                        db.Grant(
-                            grant_id=grant["id"],
+                        db.Grant.from_data(
                             source_file=source_file,
                             publisher=publisher,
                             data=grant,

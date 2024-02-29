@@ -133,7 +133,7 @@ class GrantSerializer(serializers.ModelSerializer):
     @extend_schema_field(OrganisationRefSerializer)
     def get_publisher(self, grant):
         return OrganisationRefSerializer(
-            models.OrganisationRef(grant.publisher.org_id), context=self.context
+            models.OrganisationRef(grant.publisher_org_id), context=self.context
         ).data
 
     @extend_schema_field(OrganisationRefSerializer(many=True))
