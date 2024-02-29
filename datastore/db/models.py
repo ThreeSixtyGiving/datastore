@@ -1,6 +1,8 @@
+from typing import Dict, Any
 from django.db.models import JSONField, Index
 from django.db import connection, models
 from django.db.utils import DataError
+from django.contrib.postgres.fields import ArrayField
 from django.utils import timezone
 
 import datetime
@@ -381,6 +383,11 @@ class Grant(models.Model):
         verbose_name="Additional Grant data", null=True, blank=True
     )
 
+    # Convenience denormalised fields to aid creating indexes and speedup queries
+    publisher_org_id = models.TextField()
+    recipient_org_ids = ArrayField(models.TextField())
+    funding_org_ids = ArrayField(models.TextField())
+
     @staticmethod
     def estimated_total():
         """Big table count() is expensive so estimate instead"""
@@ -398,6 +405,36 @@ class Grant(models.Model):
 
     def __str__(self):
         return self.grant_id
+
+    @staticmethod
+    def from_data(
+        data: Dict[str, Any],
+        getter_run: GetterRun,
+        publisher: Publisher,
+        source_file: SourceFile,
+        additional_data: Dict[str, Any],
+    ):
+        """Make a Grant instance from JSON/dict data and fill out the denormalised convenience fields."""
+        return Grant(
+            grant_id=data["id"],
+            data=data,
+            getter_run=getter_run,
+            publisher=publisher,
+            source_file=source_file,
+            additional_data=additional_data,
+            publisher_org_id=publisher.org_id,
+            recipient_org_ids=[
+                org["id"]
+                # recipientOrganization isn't present in grants to individuals
+                for org in data.get("recipientOrganization", list())
+                if "id" in data.get("recipientOrganization", list())
+            ],
+            funding_org_ids=[
+                org["id"]
+                for org in data["fundingOrganization"]
+                if "id" in data["fundingOrganization"]
+            ],
+        )
 
 
 class Statuses(object):

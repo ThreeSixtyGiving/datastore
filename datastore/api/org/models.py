@@ -52,17 +52,28 @@ class Organisation:
         """
         Checks if an Organisation with this Org ID exists, returns True if exists, False if not.
         """
-        try:
-            _ = Organisation.get(
-                org_id=org_id,
-                funder_queryset=funder_queryset,
-                recipient_queryset=recipient_queryset,
-                publisher_queryset=publisher_queryset,
-            )
-        except Organisation.DoesNotExist:
-            return False
+        if not funder_queryset:
+            funder_queryset = db.Funder.objects.all()
 
-        return True
+        if not recipient_queryset:
+            recipient_queryset = db.Recipient.objects.all()
+
+        if not publisher_queryset:
+            # Empty order_by to cancel default sort
+            publisher_queryset = db.Publisher.objects.order_by().filter(
+                getter_run__in=db.GetterRun.objects.in_use()
+            )
+
+        if funder_queryset.filter(org_id=org_id).exists():
+            return True
+
+        if recipient_queryset.filter(org_id=org_id).exists():
+            return True
+
+        if publisher_queryset.order_by().filter(org_id=org_id).exists():
+            return True
+
+        return False
 
     @staticmethod
     def get(

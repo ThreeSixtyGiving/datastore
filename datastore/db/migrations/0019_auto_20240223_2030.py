@@ -6,20 +6,26 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('db', '0018_auto_20231003_1703'),
+        ("db", "0018_auto_20231003_1703"),
     ]
 
     operations = [
         migrations.AddIndex(
-            model_name='funder',
-            index=models.Index(fields=['org_id', 'name'], name='db_funder_org_id_199ff1_idx'),
+            model_name="funder",
+            index=models.Index(
+                fields=["org_id", "name"], name="db_funder_org_id_199ff1_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='publisher',
-            index=models.Index(fields=['org_id', 'name'], name='db_publishe_org_id_404b0a_idx'),
+            model_name="publisher",
+            index=models.Index(
+                fields=["org_id", "name"], name="db_publishe_org_id_404b0a_idx"
+            ),
         ),
         migrations.AddIndex(
-            model_name='recipient',
-            index=models.Index(fields=['org_id', 'name'], name='db_recipien_org_id_09afb3_idx'),
+            model_name="recipient",
+            index=models.Index(
+                fields=["org_id", "name"], name="db_recipien_org_id_09afb3_idx"
+            ),
         ),
     ]

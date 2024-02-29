@@ -108,16 +108,15 @@ class OrganisationGrantsMadeView(generics.ListAPIView):
 
     def get_queryset(self):
         org_id = self.kwargs.get("org_id")
+        print(f"Get Queryset {org_id}")
 
         # Raise 404 if the Org doesn't exist
         if not models.Organisation.exists(org_id):
             raise rest_framework.exceptions.NotFound()
 
-        return (
-            db.Latest.grants()
-            .filter(data__fundingOrganization__contains=[{"id": org_id}])
-            .select_related("publisher")
-        )
+        return db.Grant.objects.filter(
+            source_file__latest__series=db.Latest.CURRENT
+        ).filter(funding_org_ids__contains=[org_id])
 
 
 class OrganisationGrantsReceivedView(generics.ListAPIView):
