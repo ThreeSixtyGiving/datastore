@@ -19,6 +19,7 @@ class AdditionalDataRecipientLocation(object):
     def update_additional_data(self, grant, additional_data):
         # If we have locationLookup from beneficiaryLocation or we don't have any
         # recipientRegionName take whatever data we can from locationLookup instead
+        # which is populated in geo_lookup
         try:
             additional_data["recipientRegionName"] = additional_data["locationLookup"][
                 0
