@@ -126,10 +126,6 @@ class GeoLookupSource(object):
                     area["sourceCode"] = location.get("geoCode")
                     additional_data["locationLookup"].append(area)
 
-        if additional_data["locationLookup"]:
-            # if we've found data then return
-            return
-
         for recipient in grant.get("recipientOrganization", []):
             for location in recipient.get("location", []):
                 if location.get("geoCode"):
@@ -138,10 +134,6 @@ class GeoLookupSource(object):
                         area["source"] = "recipientOrganizationLocation"
                         area["sourceCode"] = location.get("geoCode")
                         additional_data["locationLookup"].append(area)
-
-        if additional_data["locationLookup"]:
-            # if we've found data then return
-            return
 
         lsoa = additional_data.get("recipientOrganizationLocation", {}).get("lsoa11")
         if lsoa:
