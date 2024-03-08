@@ -92,7 +92,7 @@ class OrganisationDetailView(generics.RetrieveAPIView):
 
 
 class GrantsPagination(LimitOffsetPagination):
-    default_limit = 60
+    default_limit = 100
 
 
 class OrganisationGrantsMadeView(generics.ListAPIView):
