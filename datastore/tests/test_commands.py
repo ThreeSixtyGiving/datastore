@@ -189,3 +189,26 @@ class CustomMgmtCommandsTest(TransactionTestCase):
 
         call_command("manage_entities_data", ("--list", "funder"), stderr=err_out)
         self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+
+    def test_rewrite_additional_data(self):
+        err_out = StringIO()
+
+        call_command("rewrite_additional_data", "latest", stderr=err_out)
+        self.assertEqual(
+            len(err_out.getvalue()),
+            0,
+            f"Errors output by command: {err_out.getvalue()}",
+        )
+
+        call_command(
+            "rewrite_additional_data",
+            "latest",
+            "--data-sources",
+            "tsg_recipient_type",
+            stderr=err_out,
+        )
+        self.assertEqual(
+            len(err_out.getvalue()),
+            0,
+            f"Errors output by command: {err_out.getvalue()}",
+        )
