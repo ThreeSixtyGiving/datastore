@@ -6,3 +6,4 @@ requests_mock
 coveralls
 chromedriver-autoinstaller
 django-cors-headers
+django-debug-toolbar>=4.3,<4.4 # When upgrading DDT, check that newer versions still support Django 3.2.
