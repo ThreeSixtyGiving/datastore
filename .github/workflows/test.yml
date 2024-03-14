@@ -32,6 +32,11 @@ jobs:
     - run: sudo apt-get install pwgen
 
     - run: pip install -r requirements.txt
+
+    # Check all apps load correctly w/o dev requirements
+    - run: ./datastore/manage.py --help
+    - run: ./datastore/manage.py check
+
     - run: pip install -r requirements_dev.txt
     # FIXME manual install datagetter requirements
     - run: pip install -r src/datagetter/requirements.txt
