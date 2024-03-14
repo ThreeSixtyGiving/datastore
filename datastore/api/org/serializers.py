@@ -122,7 +122,7 @@ class GrantDataField(serializers.JSONField):
 class GrantSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Grant
-        exclude = ["id", "getter_run", "latest", "source_file", "additional_data"]
+        fields = ["grant_id", "data", "publisher", "recipients", "funders"]
 
     data = GrantDataField()
 
