@@ -108,7 +108,6 @@ class OrganisationGrantsMadeView(generics.ListAPIView):
 
     def get_queryset(self):
         org_id = self.kwargs.get("org_id")
-        print(f"Get Queryset {org_id}")
 
         # Raise 404 if the Org doesn't exist
         if not models.Organisation.exists(org_id):
