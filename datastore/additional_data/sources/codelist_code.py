@@ -4,15 +4,15 @@ import requests
 from additional_data.models import CodelistCode
 
 code_lists_urls = [
-    "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/master/codelists/grantToIndividualsPurpose.csv",
-    "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/master/codelists/grantToIndividualsReason.csv",
-    "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/master/codelists/regrantType.csv",
+    "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/grantToIndividualsPurpose.csv",
+    "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/grantToIndividualsReason.csv",
+    "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/regrantType.csv",
     # These lists aren't yet ready for use in the datastore
     # https://github.com/ThreeSixtyGiving/standard/issues/348
     # https://github.com/ThreeSixtyGiving/standard/issues/349
-    # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/master/codelists/countryCode.csv",
-    # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/master/codelists/currency.csv",
-    # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/master/codelists/geoCodeType.csv",
+    # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/countryCode.csv",
+    # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/currency.csv",
+    # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/geoCodeType.csv",
 ]
 
 
