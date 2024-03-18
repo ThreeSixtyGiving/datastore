@@ -3,6 +3,7 @@ from django.db.models import JSONField, Index
 from django.db import connection, models
 from django.db.utils import DataError
 from django.contrib.postgres.fields import ArrayField
+from django.contrib.postgres.indexes import GinIndex, BTreeIndex
 from django.utils import timezone
 
 import datetime
@@ -405,6 +406,17 @@ class Grant(models.Model):
 
     def __str__(self):
         return self.grant_id
+
+    class Meta:
+        # Indexes on convenience fields to speed up API queries
+        # The source_file field in the indexes aims to speed up queries against CURRENT Latest
+        indexes = [
+            BTreeIndex(fields=["publisher_org_id"]),
+            GinIndex(fields=["recipient_org_ids"]),
+            GinIndex(fields=["source_file", "recipient_org_ids"]),
+            GinIndex(fields=["funding_org_ids"]),
+            GinIndex(fields=["source_file", "funding_org_ids"]),
+        ]
 
     @staticmethod
     def from_data(
