@@ -54,40 +54,41 @@ urlpatterns = [
         api.experimental.api.CurrentLatestGrants.as_view(),
         name="current-latest-grants",
     ),
+    # Public API
     path(
-        "experimental/org/<path:org_id>/grants_made/",
+        "v1/org/<path:org_id>/grants_made/",
         api.org.api.OrganisationGrantsMadeView.as_view(),
         name="organisation-grants-made",
     ),
     path(
-        "experimental/org/<path:org_id>/grants_received/",
+        "v1/org/<path:org_id>/grants_received/",
         api.org.api.OrganisationGrantsReceivedView.as_view(),
         name="organisation-grants-received",
     ),
     path(
-        "experimental/org/<path:org_id>/",
+        "v1/org/<path:org_id>/",
         api.org.api.OrganisationDetailView.as_view(),
         name="organisation-detail",
     ),
     path(
-        "experimental/org/",
+        "v1/org/",
         api.org.api.OrganisationListView.as_view(),
         name="organisation-list",
     ),
     # Schema UI
     path(
-        "experimental/schema/",
+        "v1/schema/",
         api.org.api_schema.APISchemaView.as_view(),
         name="schema",
     ),
     # Optional UI:
     path(
-        "experimental/swagger-ui/",
+        "v1/swagger-ui/",
         SpectacularSwaggerView.as_view(url_name="api:schema"),
         name="swagger-ui",
     ),
     path(
-        "experimental/redoc/",
+        "v1/redoc/",
         SpectacularRedocView.as_view(url_name="api:schema"),
         name="redoc",
     ),
