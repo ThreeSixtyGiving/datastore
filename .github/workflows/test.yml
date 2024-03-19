@@ -8,7 +8,9 @@ jobs:
       postgres:
         image: postgres:12
         env:
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: 360givingdatastore
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
@@ -40,10 +42,6 @@ jobs:
     - run: pip install -r requirements_dev.txt
     # FIXME manual install datagetter requirements
     - run: pip install -r src/datagetter/requirements.txt
-
-    - run: echo "localhost:5432:postgres:postgres:postgres" > ~/.pgpass && chmod 600 ~/.pgpass
-    - run: psql -c 'CREATE DATABASE "360givingdatastore";' -W -h localhost postgres postgres
-    - run: psql -c "CREATE USER test WITH ENCRYPTED PASSWORD 'test'; GRANT ALL PRIVILEGES ON DATABASE \"360givingdatastore\" TO test; ALTER USER test CREATEDB;" -W -h localhost postgres postgres
 
     - run: ./datastore/manage.py makemigrations --dry-run --check
     - run: ./datastore/manage.py migrate
