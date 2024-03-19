@@ -439,12 +439,10 @@ class Grant(models.Model):
                 org["id"]
                 # recipientOrganization isn't present in grants to individuals
                 for org in data.get("recipientOrganization", list())
-                if "id" in data.get("recipientOrganization", list())
+                if "id" in org
             ],
             funding_org_ids=[
-                org["id"]
-                for org in data["fundingOrganization"]
-                if "id" in data["fundingOrganization"]
+                org["id"] for org in data["fundingOrganization"] if "id" in org
             ],
         )
 
