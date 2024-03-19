@@ -25,7 +25,7 @@ def only_include_org_api_endpoints(endpoints):
 
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "360G Organisation Grants API",
+    "TITLE": "360 Giving Organisation Grants API",
     "DESCRIPTION": "Describe grants made and recieved by organisations.",
     "VERSION": "0.0.1",
     "COMPONENT_SPLIT_REQUEST": True,
