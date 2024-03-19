@@ -77,7 +77,7 @@ class OrgAPITestCase(TestCase):
         }
 
         data = self.client.get(
-            f"/api/experimental/org/{self.funder_org_id}/",
+            f"/api/v1/org/{self.funder_org_id}/",
             headers={"accept": "application/json"},
         ).json()
 
@@ -87,7 +87,7 @@ class OrgAPITestCase(TestCase):
         """A Funder-only Org should have received no grants."""
 
         data = self.client.get(
-            f"/api/experimental/org/{self.funder_org_id}/grants_received/",
+            f"/api/v1/org/{self.funder_org_id}/grants_received/",
             headers={"accept": "application/json"},
         ).json()
 
@@ -166,7 +166,7 @@ class OrgAPITestCase(TestCase):
         }
 
         data = self.client.get(
-            f"/api/experimental/org/{self.funder_org_id}/grants_made/",
+            f"/api/v1/org/{self.funder_org_id}/grants_made/",
             headers={"accept": "application/json"},
         ).json()
 
@@ -221,7 +221,7 @@ class OrgAPITestCase(TestCase):
         }
 
         data = self.client.get(
-            f"/api/experimental/org/{self.recipient_org_id}/",
+            f"/api/v1/org/{self.recipient_org_id}/",
             headers={"accept": "application/json"},
         ).json()
 
@@ -297,7 +297,7 @@ class OrgAPITestCase(TestCase):
         }
 
         data = self.client.get(
-            f"/api/experimental/org/{self.recipient_org_id}/grants_received/",
+            f"/api/v1/org/{self.recipient_org_id}/grants_received/",
             headers={"accept": "application/json"},
         ).json()
 
@@ -311,7 +311,7 @@ class OrgAPITestCase(TestCase):
     def test_recipient_grants_made(self):
         """A Recipient-only Org should not make any grants."""
         data = self.client.get(
-            f"/api/experimental/org/{self.recipient_org_id}/grants_made/",
+            f"/api/v1/org/{self.recipient_org_id}/grants_made/",
             headers={"accept": "application/json"},
         ).json()
 
@@ -346,7 +346,7 @@ class OrgAPITestCase(TestCase):
         }
 
         data = self.client.get(
-            f"/api/experimental/org/{self.publisher_org_id}/",
+            f"/api/v1/org/{self.publisher_org_id}/",
             headers={"accept": "application/json"},
         ).json()
 
@@ -355,7 +355,7 @@ class OrgAPITestCase(TestCase):
     def test_publisher_grants_made(self):
         """A Publisher-only Org should have made no grants."""
         data = self.client.get(
-            f"/api/experimental/org/{self.publisher_org_id}/grants_received/",
+            f"/api/v1/org/{self.publisher_org_id}/grants_received/",
             headers={"accept": "application/json"},
         ).json()
 
@@ -366,7 +366,7 @@ class OrgAPITestCase(TestCase):
         """A Publisher-only Org should have received no grants."""
 
         data = self.client.get(
-            f"/api/experimental/org/{self.publisher_org_id}/grants_received/",
+            f"/api/v1/org/{self.publisher_org_id}/grants_received/",
             headers={"accept": "application/json"},
         ).json()
 
@@ -380,7 +380,7 @@ class OrgAPITestCase(TestCase):
     def test_org_list(self):
         """Check that the given Org is in the Org List"""
         data = self.client.get(
-            "/api/experimental/org/",
+            "/api/v1/org/",
             headers={"accept": "application/json"},
         ).json()
 
