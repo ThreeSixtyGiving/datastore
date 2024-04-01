@@ -113,9 +113,11 @@ class OrganisationGrantsMadeView(generics.ListAPIView):
         if not models.Organisation.exists(org_id):
             raise rest_framework.exceptions.NotFound()
 
-        return db.Grant.objects.filter(
-            source_file__latest__series=db.Latest.CURRENT
-        ).filter(funding_org_ids__contains=[org_id])
+        return (
+            db.Grant.objects.filter(source_file__latest__series=db.Latest.CURRENT)
+            .filter(funding_org_ids__contains=[org_id])
+            .select_related("source_file")
+        )
 
 
 class OrganisationGrantsReceivedView(generics.ListAPIView):
@@ -136,6 +138,8 @@ class OrganisationGrantsReceivedView(generics.ListAPIView):
         if not models.Organisation.exists(org_id):
             raise rest_framework.exceptions.NotFound()
 
-        return db.Grant.objects.filter(
-            source_file__latest__series=db.Latest.CURRENT
-        ).filter(recipient_org_ids__contains=[org_id])
+        return (
+            db.Grant.objects.filter(source_file__latest__series=db.Latest.CURRENT)
+            .filter(recipient_org_ids__contains=[org_id])
+            .select_related("source_file")
+        )

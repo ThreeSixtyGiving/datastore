@@ -119,16 +119,41 @@ class GrantDataField(serializers.JSONField):
     pass
 
 
+class GrantLicenseSerializer(DataclassSerializer):
+    class Meta:
+        dataclass = models.GrantLicense
+
+    url = serializers.URLField()
+
+
 class GrantSerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Grant
-        fields = ["grant_id", "data", "publisher", "recipients", "funders"]
+        fields = [
+            "grant_id",
+            "data",
+            "data_license",
+            "publisher",
+            "recipients",
+            "funders",
+        ]
 
     data = GrantDataField()
+
+    data_license = serializers.SerializerMethodField()
 
     publisher = serializers.SerializerMethodField()
     recipients = serializers.SerializerMethodField()
     funders = serializers.SerializerMethodField()
+
+    @extend_schema_field(GrantLicenseSerializer)
+    def get_data_license(self, grant):
+        return GrantLicenseSerializer(
+            models.GrantLicense(
+                url=grant.source_file.data.get("license"),
+                name=grant.source_file.data.get("license_name"),
+            )
+        ).data
 
     @extend_schema_field(OrganisationRefSerializer)
     def get_publisher(self, grant):

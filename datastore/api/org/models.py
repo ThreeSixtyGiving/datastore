@@ -139,3 +139,9 @@ class Organisation:
             recipient=recipient,
             publisher=publisher,
         )
+
+
+@dataclass
+class GrantLicense:
+    url: str
+    name: str

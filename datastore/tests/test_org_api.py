@@ -137,6 +137,10 @@ class OrgAPITestCase(TestCase):
                     }
                 ],
             },
+            "data_license": {
+                "url": "https://creativecommons.org/licenses/by/4.0/",
+                "name": "Creative Commons Attribution 4.0",
+            },
             "publisher": {
                 "self": "http://testserver"
                 + reverse_lazy(
@@ -267,6 +271,10 @@ class OrgAPITestCase(TestCase):
                         "addressLocality": "LONDON",
                     }
                 ],
+            },
+            "data_license": {
+                "url": "https://creativecommons.org/licenses/by/4.0/",
+                "name": "Creative Commons Attribution 4.0",
             },
             "publisher": {
                 "self": "http://testserver"
