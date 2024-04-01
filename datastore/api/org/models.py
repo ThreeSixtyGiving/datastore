@@ -52,13 +52,13 @@ class Organisation:
         """
         Checks if an Organisation with this Org ID exists, returns True if exists, False if not.
         """
-        if not funder_queryset:
+        if funder_queryset is None:
             funder_queryset = db.Funder.objects.all()
 
-        if not recipient_queryset:
+        if recipient_queryset is None:
             recipient_queryset = db.Recipient.objects.all()
 
-        if not publisher_queryset:
+        if publisher_queryset is None:
             # Empty order_by to cancel default sort
             publisher_queryset = db.Publisher.objects.order_by().filter(
                 getter_run__in=db.GetterRun.objects.in_use()
@@ -90,13 +90,13 @@ class Organisation:
 
         Returns an instance of Organisation if found, otherwise raises Organisation.DoesNotExist if not found.
         """
-        if not funder_queryset:
+        if funder_queryset is None:
             funder_queryset = db.Funder.objects.all()
 
-        if not recipient_queryset:
+        if recipient_queryset is None:
             recipient_queryset = db.Recipient.objects.all()
 
-        if not publisher_queryset:
+        if publisher_queryset is None:
             # Empty order_by to cancel default sort
             publisher_queryset = db.Publisher.objects.order_by().filter(
                 getter_run__in=db.GetterRun.objects.in_use()
