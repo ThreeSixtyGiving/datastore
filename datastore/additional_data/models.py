@@ -1,9 +1,9 @@
 import re
 
 from django.contrib.postgres.fields import ArrayField
-from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.indexes import GinIndex, HashIndex, BTreeIndex
 from django.core.exceptions import ValidationError
-from django.db.models import JSONField
+from django.db.models import JSONField, UniqueConstraint
 from django.db import models
 
 
@@ -173,3 +173,30 @@ class CodelistCode(models.Model):
 
     class Meta:
         unique_together = ("list_name", "code")
+
+
+class IMDWardLookup(models.Model):
+    """Lookup UK Index of Multiple Deprivation values by Ward Code"""
+
+    wd23cd = models.TextField(help_text="2023 Ward Code")
+    wd23nm = models.TextField(help_text="2023 Ward Name (English)")
+    wd23nmw = models.TextField(
+        help_text="2023 Ward Name (Welsh)", null=True
+    )  # Not all Wards have Welsh names
+    uk_imd_e_score = models.FloatField()
+    original_decile = models.PositiveSmallIntegerField()
+    e_expanded_decile = models.PositiveSmallIntegerField()
+    uk_imd_e_rank = models.FloatField()
+    uk_imd_e_pop_decile = models.PositiveSmallIntegerField()
+    uk_imd_e_pop_quintile = models.PositiveSmallIntegerField()
+    total_population = models.PositiveIntegerField(
+        null=True
+    )  # Not all Wards have population available
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                name="additional_data_imd_ward_lookup_unique_wd23cd", fields=["wd23cd"]
+            )
+        ]
+        indexes = [BTreeIndex(fields=["wd23cd"]), HashIndex(fields=["wd23cd"])]
