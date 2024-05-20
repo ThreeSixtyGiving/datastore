@@ -7,6 +7,7 @@ from additional_data.sources.additional_data_recipient_location import (
 )
 from additional_data.sources.codelist_code import CodeListSource
 from additional_data.sources.tsg_recipient_types import TSGRecipientTypesSource
+from additional_data.sources.imd_snapshot import IMDSnapshotSource
 
 
 # This ordering is important for any data dependencies
@@ -19,6 +20,7 @@ DATA_SOURCES = [
     "additional_data_recipient_location",
     "code_lists",
     "tsg_recipient_type",
+    "imd_snapshot",
 ]
 
 
@@ -33,6 +35,7 @@ class AdditionalDataGenerator(object):
         self.additional_data_recipient_location = AdditionalDataRecipientLocation()
         self.code_lists = CodeListSource()
         self.tsg_recipient_type = TSGRecipientTypesSource()
+        self.imd_snapshot = IMDSnapshotSource()
         # Initialise Other Sources here
 
     def create(self, grant, data_sources=DATA_SOURCES):
