@@ -124,17 +124,28 @@ class FindThatCharitySource(object):
         pass
 
 
-def non_primary_org_ids_map():
-    """Returns a dict of all non-primary org-ids and their corresponding primary org-id"""
-    org_ids = {}
+def non_primary_org_ids_lookup_maps():
+    """
+    Returns a tuple of:
+    * a dict of all non-primary org-ids mapped to their corresponding primary org-id.
+    * a dict of all primary org-ids mapped to their corresponding non-primary org-ids.
+    """
+    non_primary_to_primary = {}
+    primary_to_non_primary = {}
+
+    # [[orgid, orgid], [orgid, orgid] ...]
     orgs = OrgInfoCache.objects.filter(org_ids__len__gt=1).values_list(
         "org_ids", flat=True
     )
-    # [[orgid, orgid], [orgid, orgid] ...]
+
     for org in orgs:
         # [ primary-org-id, secondary-org-id, ...org-id ]
         for non_primary_org_id in org[1:]:
-            org_ids[non_primary_org_id] = org[0]
             # { non_primary_org_id : primary_org_id }
+            non_primary_to_primary[non_primary_org_id] = org[0]
 
-    return org_ids
+        if len(org) > 1:
+            # { primary_org_id : [non_primary_org_ids] }
+            primary_to_non_primary[org[0]] = org[1:]
+
+    return non_primary_to_primary, primary_to_non_primary
