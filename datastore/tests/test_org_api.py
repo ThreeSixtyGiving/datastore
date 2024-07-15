@@ -74,6 +74,7 @@ class OrgAPITestCase(TestCase):
             "publisher": None,
             "org_id": self.funder_org_id,
             "name": self.funder_org_name,
+            "linked_orgs": [],
         }
 
         data = self.client.get(
@@ -201,6 +202,7 @@ class OrgAPITestCase(TestCase):
         )
 
         expected_org_data = {
+            "linked_orgs": [],
             "self": "http://testserver" + expected_self_url,
             "grants_made": "http://testserver" + expected_grants_made_url,
             "grants_received": "http://testserver" + expected_received_made_url,
@@ -330,7 +332,6 @@ class OrgAPITestCase(TestCase):
     #
 
     def test_publisher_detail(self):
-
         expected_self_url = reverse_lazy(
             "api:organisation-detail", kwargs={"org_id": self.publisher_org_id}
         )
@@ -351,6 +352,7 @@ class OrgAPITestCase(TestCase):
             "publisher": {"prefix": "360g-Ap0inaap5e"},
             "org_id": self.publisher_org_id,
             "name": self.publisher_org_name,
+            "linked_orgs": [],
         }
 
         data = self.client.get(
