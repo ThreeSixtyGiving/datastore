@@ -110,12 +110,16 @@ class OrganisationGrantsMadeView(generics.ListAPIView):
         org_id = self.kwargs.get("org_id")
 
         # Raise 404 if the Org doesn't exist
-        if not models.Organisation.exists(org_id):
+        try:
+            org = models.Organisation.get(org_id)
+        except models.Organisation.DoesNotExist:
             raise rest_framework.exceptions.NotFound()
+
+        org_ids = [org.org_id] + [lo.org_id for lo in org.linked_orgs]
 
         return (
             db.Grant.objects.filter(source_file__latest__series=db.Latest.CURRENT)
-            .filter(funding_org_ids__contains=[org_id])
+            .filter(funding_org_ids__overlap=org_ids)
             .select_related("source_file")
         )
 
@@ -135,11 +139,15 @@ class OrganisationGrantsReceivedView(generics.ListAPIView):
         org_id = self.kwargs.get("org_id")
 
         # Raise 404 if the Org doesn't exist
-        if not models.Organisation.exists(org_id):
+        try:
+            org = models.Organisation.get(org_id)
+        except models.Organisation.DoesNotExist:
             raise rest_framework.exceptions.NotFound()
+
+        org_ids = [org.org_id] + [lo.org_id for lo in org.linked_orgs]
 
         return (
             db.Grant.objects.filter(source_file__latest__series=db.Latest.CURRENT)
-            .filter(recipient_org_ids__contains=[org_id])
+            .filter(recipient_org_ids__overlap=org_ids)
             .select_related("source_file")
         )
