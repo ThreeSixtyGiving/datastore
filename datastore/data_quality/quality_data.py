@@ -106,16 +106,19 @@ def create(grants):
                 ],
             }
 
+    # Sort recipient / funder org-id lists to be deterministic for tests
     aggregates = {
         "count": cove_results["grants_aggregates"]["count"],
         "recipient_organisations": list(
-            cove_results["grants_aggregates"]["distinct_recipient_org_identifier"]
+            sorted(
+                cove_results["grants_aggregates"]["distinct_recipient_org_identifier"]
+            )
         ),
         "recipient_individuals": cove_results["grants_aggregates"][
             "recipient_individuals_count"
         ],
         "funders": list(
-            cove_results["grants_aggregates"]["distinct_funding_org_identifier"]
+            sorted(cove_results["grants_aggregates"]["distinct_funding_org_identifier"])
         ),
         "max_award_date": cove_results["grants_aggregates"]["max_award_date"],
         "min_award_date": cove_results["grants_aggregates"]["min_award_date"],
@@ -432,7 +435,6 @@ class SourceFilesStats(object):
         )
 
     def get_pc_publishers_with_recipient_ext_org(self):
-
         ret = {}
         total_publishers = self.get_total_publishers()
 
@@ -468,7 +470,6 @@ class SourceFilesStats(object):
         return ret
 
     def get_total_grants_awarded_in_last_ten_years(self):
-
         this_year_int = datetime.now().year
         award_years = {}
 
@@ -485,7 +486,6 @@ class SourceFilesStats(object):
         return award_years
 
     def get_pc_publishers_with_grants_awarded_in_last_ten_years(self):
-
         this_year_int = datetime.now().year
         award_years = {}
 
