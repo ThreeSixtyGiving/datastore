@@ -32,7 +32,9 @@ class TestDataQualityData(TestCase):
 
         expected_sourcefile_aggregate = {
             "count": 5,
-            "recipient_organisations": ["360G-example-a", "360G-example-nonprimary"],
+            "recipient_organisations": sorted(
+                ["360G-example-a", "360G-example-nonprimary"]
+            ),
             "recipient_individuals": 0,
             "funders": ["GB-example-b"],
             "max_award_date": "2019-10-03",
