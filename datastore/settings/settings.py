@@ -134,7 +134,16 @@ REST_FRAMEWORK = {
         "rest_framework.throttling.AnonRateThrottle",
         "rest_framework.throttling.UserRateThrottle",
     ),
-    "DEFAULT_THROTTLE_RATES": {"anon": "2/second", "user": "8/second"},
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "2/second",
+        "user": "8/second",
+        # Allow most Public API endpoints to be queried at 1000 requests / minute
+        # which should give sufficient room for bursts by scripts and user spikes,
+        # but org list is a relatively expensive endpoint.
+        "public-api-org-list": "100/min",
+        "public-api-org-detail": "1000/min",
+        "public-api-grants-list": "1000/min",
+    },
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
