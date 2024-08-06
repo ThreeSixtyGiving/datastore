@@ -3,6 +3,7 @@ import rest_framework.exceptions
 from django.http import Http404
 from rest_framework import generics
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.throttling import ScopedRateThrottle
 
 import db.models as db
 from api.org import models
@@ -14,6 +15,8 @@ class OrganisationsPagination(LimitOffsetPagination):
 
 
 class OrganisationListView(generics.ListAPIView):
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "public-api-org-list"
     serializer_class = serializers.OrganisationListSerializer
     pagination_class = OrganisationsPagination
 
@@ -42,6 +45,8 @@ class OrganisationDetailView(generics.RetrieveAPIView):
     publisher will be null.
     """
 
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "public-api-org-detail"
     lookup_field = "org_id"
     serializer_class = serializers.OrganisationSerializer
 
@@ -102,6 +107,8 @@ class OrganisationGrantsMadeView(generics.ListAPIView):
     For grant data schema, see the 360G schema: https://standard.threesixtygiving.org/en/latest/_static/docson/index.html#../360-giving-schema.json
     """
 
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "public-api-grants-list"
     serializer_class = serializers.GrantSerializer
     pagination_class = GrantsPagination
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
@@ -131,6 +138,8 @@ class OrganisationGrantsReceivedView(generics.ListAPIView):
     For grant data schema, see the 360G schema: https://standard.threesixtygiving.org/en/latest/_static/docson/index.html#../360-giving-schema.json
     """
 
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "public-api-grants-list"
     serializer_class = serializers.GrantSerializer
     pagination_class = GrantsPagination
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
