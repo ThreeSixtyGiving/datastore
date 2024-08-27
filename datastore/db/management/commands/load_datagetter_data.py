@@ -101,15 +101,16 @@ class Command(BaseCommand):
                         )
                         additional_data = None
 
-                    grant_bulk_insert.append(
-                        db.Grant.from_data(
-                            source_file=source_file,
-                            publisher=publisher,
-                            data=grant,
-                            additional_data=additional_data,
-                            getter_run=getter_run,
+                    if db.Grant.is_grant_data_acceptable(grant):
+                        grant_bulk_insert.append(
+                            db.Grant.from_data(
+                                source_file=source_file,
+                                publisher=publisher,
+                                data=grant,
+                                additional_data=additional_data,
+                                getter_run=getter_run,
+                            )
                         )
-                    )
 
                 db.Grant.objects.bulk_create(grant_bulk_insert)
                 grants_added = grants_added + len(grant_data["grants"])
