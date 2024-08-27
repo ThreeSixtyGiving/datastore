@@ -1,13 +1,17 @@
 import json
+import logging
 import os
-from django.db import transaction
+
+from django.core.cache import cache
 from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
-from django.core.cache import cache
+from django.db import transaction
 
 import db.models as db
 from additional_data.generator import AdditionalDataGenerator
 from db.management.spinner import Spinner
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -110,6 +114,11 @@ class Command(BaseCommand):
                                 additional_data=additional_data,
                                 getter_run=getter_run,
                             )
+                        )
+                    else:
+                        logger.warning(
+                            "Found unacceptable data in grant '%s'",
+                            json.dumps(grant.get("id")),
                         )
 
                 db.Grant.objects.bulk_create(grant_bulk_insert)

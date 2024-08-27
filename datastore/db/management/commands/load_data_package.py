@@ -1,10 +1,14 @@
 import copy
+import logging
+import json
 
 import db.models as db
 
 from db.management.commands.load_datagetter_data import (
     Command as LoadDatagetterDataCommand,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class Command(LoadDatagetterDataCommand):
@@ -53,6 +57,11 @@ class Command(LoadDatagetterDataCommand):
                             additional_data=additional_data,
                             getter_run=getter_run,
                         )
+                    )
+                else:
+                    logger.warning(
+                        "Found unacceptable data in grant '%s'",
+                        json.dumps(grant.get("id")),
                     )
 
             db.Grant.objects.bulk_create(grant_bulk_insert)
