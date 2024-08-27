@@ -1,7 +1,7 @@
+import json
+import os
 from io import StringIO
 from tempfile import TemporaryDirectory
-import os
-import json
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -38,6 +38,48 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             self.assertEqual(
                 len(err_out.getvalue()), 0, "Errors output by load command"
             )
+
+    def test_dont_load_unacceptable_data_from_package(self):
+        err_out = StringIO()
+        with TemporaryDirectory() as tmpdir:
+            call_command("create_data_package", dir=tmpdir, stderr=err_out)
+            self.assertEqual(
+                len(err_out.getvalue()), 0, "Errors output by create command"
+            )
+
+            num_grants = db.Latest.grants().count()
+
+            # Open the data package, replace some data with unacceptable data, then check it doesn't load
+            with open(os.path.join(tmpdir, "data_all.json"), "r") as da_fp:
+                data_all = json.load(da_fp)
+
+            data_0_json_path = os.path.join(
+                tmpdir,
+                "json_all",
+                os.path.basename(data_all[0]["datagetter_metadata"]["json"]),
+            )
+            with open(data_0_json_path, "r") as d0j_fp:
+                first_data_json = json.load(d0j_fp)
+
+            first_data_json["grants"][0]["id"] += "\n"
+            first_data_json["grants"][1]["recipientOrganization"][0]["id"] += "\n"
+            first_data_json["grants"][2]["fundingOrganization"][0]["id"] += "\n"
+
+            with open(data_0_json_path, "w") as d0j_fp:
+                json.dump(first_data_json, d0j_fp)
+
+            call_command("load_data_package", tmpdir, stderr=err_out)
+
+            # The grants we removed should not be included, and there should be no unacceptable data after loading
+            self.assertEqual(db.Latest.grants().count(), num_grants - 3)
+            for grant in db.Latest.grants().all():
+                self.assertNotIn("\n", grant.grant_id)
+
+                for ro in grant.recipient_org_ids:
+                    self.assertNotIn("\n", ro)
+
+                for fo in grant.funding_org_ids:
+                    self.assertNotIn("\n", fo)
 
     def test_delete_datagetter_data(self):
         """
