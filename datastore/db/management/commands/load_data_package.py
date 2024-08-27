@@ -1,11 +1,11 @@
 import copy
-import logging
 import json
+import logging
 
 import db.models as db
-
 from db.management.commands.load_datagetter_data import (
     Command as LoadDatagetterDataCommand,
+    check_grant_data_tools_compatible,
 )
 
 logger = logging.getLogger(__name__)
@@ -48,7 +48,7 @@ class Command(LoadDatagetterDataCommand):
                 additional_data = copy.deepcopy(grant["additional_data"])
                 del grant["additional_data"]
 
-                if db.Grant.is_grant_data_acceptable(grant):
+                if check_grant_data_tools_compatible(grant):
                     grant_bulk_insert.append(
                         db.Grant.from_data(
                             source_file=source_file,
@@ -61,6 +61,7 @@ class Command(LoadDatagetterDataCommand):
                 else:
                     logger.warning(
                         "Found unacceptable data in grant '%s'",
+                        # json.dumps() the grant id to escape any unexpected characters
                         json.dumps(grant.get("id")),
                     )
 

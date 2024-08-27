@@ -1,12 +1,12 @@
+import datetime
 from typing import Dict, Any
-from django.db.models import JSONField, Index
-from django.db import connection, models
-from django.db.utils import DataError
+
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.postgres.indexes import GinIndex, BTreeIndex
+from django.db import connection, models
+from django.db.models import JSONField, Index
+from django.db.utils import DataError
 from django.utils import timezone
-
-import datetime
 
 
 class Latest(models.Model):
@@ -417,42 +417,6 @@ class Grant(models.Model):
             GinIndex(fields=["funding_org_ids"]),
             GinIndex(fields=["source_file", "funding_org_ids"]),
         ]
-
-    @classmethod
-    def is_grant_data_acceptable(cls, grant: Dict[str, Any]) -> bool:
-        """
-        Some Grants contain data that is valid according to the current standard, but not acceptable to tooling
-        e.g. will cause errors when trying to process or render the data.
-        This method checks for such data, with the goal of excluding unacceptable Grants from our dataset.
-
-        Checks made are:
-        - Does the Grant ID contain newline characters
-        - Does any Org IDs contain newline characters
-        """
-        # Does Grant ID contain newlines?
-        grant_id = grant["id"]
-
-        if "\n" in grant_id:
-            return False
-
-        # Does any Org ID contain newlines?
-        # Note we don't check Publisher Org ID because that's not part of the original grant data
-        recipient_org_ids = [
-            ro["id"] for ro in grant["recipientOrganization"] if "id" in ro
-        ]
-        funding_org_ids = [
-            fo["id"] for fo in grant["fundingOrganization"] if "id" in fo
-        ]
-
-        for org_id in recipient_org_ids:
-            if "\n" in org_id:
-                return False
-
-        for org_id in funding_org_ids:
-            if "\n" in org_id:
-                return False
-
-        return True
 
     @staticmethod
     def from_data(

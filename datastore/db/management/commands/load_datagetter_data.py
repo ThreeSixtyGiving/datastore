@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from typing import Dict, Any
 
 from django.core.cache import cache
 from django.core.management import call_command
@@ -12,6 +13,40 @@ from additional_data.generator import AdditionalDataGenerator
 from db.management.spinner import Spinner
 
 logger = logging.getLogger(__name__)
+
+
+def check_grant_data_tools_compatible(grant: Dict[str, Any]) -> bool:
+    """
+    Some Grants contain data that is valid according to the current standard, but not acceptable to tooling
+    e.g. will cause errors when trying to process or render the data.
+    This method checks for such data, with the goal of excluding unacceptable Grants from our dataset.
+
+    Checks made are:
+    - Does the Grant ID contain newline characters
+    - Does any Org IDs contain newline characters
+    """
+    # Does Grant ID contain newlines?
+    grant_id = grant["id"]
+
+    if "\n" in grant_id:
+        return False
+
+    # Does any Org ID contain newlines?
+    # Note we don't check Publisher Org ID because that's not part of the original grant data
+    recipient_org_ids = [
+        ro["id"] for ro in grant["recipientOrganization"] if "id" in ro
+    ]
+    funding_org_ids = [fo["id"] for fo in grant["fundingOrganization"] if "id" in fo]
+
+    for org_id in recipient_org_ids:
+        if "\n" in org_id:
+            return False
+
+    for org_id in funding_org_ids:
+        if "\n" in org_id:
+            return False
+
+    return True
 
 
 class Command(BaseCommand):
@@ -105,7 +140,7 @@ class Command(BaseCommand):
                         )
                         additional_data = None
 
-                    if db.Grant.is_grant_data_acceptable(grant):
+                    if check_grant_data_tools_compatible(grant):
                         grant_bulk_insert.append(
                             db.Grant.from_data(
                                 source_file=source_file,
@@ -118,6 +153,7 @@ class Command(BaseCommand):
                     else:
                         logger.warning(
                             "Found unacceptable data in grant '%s'",
+                            # json.dumps() the grant id to escape any unexpected characters
                             json.dumps(grant.get("id")),
                         )
 
