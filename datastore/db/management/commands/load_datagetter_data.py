@@ -33,14 +33,20 @@ def check_grant_data_tools_compatible(grant: Dict[str, Any]) -> bool:
 
     # Does any Org ID contain newlines?
     # Note we don't check Publisher Org ID because that's not part of the original grant data
-    recipient_org_ids = [
-        ro["id"] for ro in grant["recipientOrganization"] if "id" in ro
-    ]
-    funding_org_ids = [fo["id"] for fo in grant["fundingOrganization"] if "id" in fo]
 
-    for org_id in recipient_org_ids:
-        if "\n" in org_id:
-            return False
+    try:
+        recipient_org_ids = [
+            ro["id"] for ro in grant["recipientOrganization"] if "id" in ro
+        ]
+
+        for org_id in recipient_org_ids:
+            if "\n" in org_id:
+                return False
+
+    except KeyError:
+        pass
+
+    funding_org_ids = [fo["id"] for fo in grant["fundingOrganization"] if "id" in fo]
 
     for org_id in funding_org_ids:
         if "\n" in org_id:
