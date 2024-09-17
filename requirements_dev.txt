@@ -4,10 +4,12 @@
 #
 #    pip-compile requirements_dev.in
 #
--e git+https://github.com/ThreeSixtyGiving/datagetter.git@58fae3d2f93ea9477c1184dfa9f9cb83ab9f870d#egg=datagetter
+-e git+https://github.com/ThreeSixtyGiving/datagetter.git@9c1c431fd0d0b01f0181008fb39bfefde200f534#egg=datagetter
     # via -r requirements.in
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@e8676bea246ca850b449ff053948059cc611e17f#egg=lib360dataquality
     # via -r requirements.in
+apsw==3.45.3.0
+    # via datagetter
 asgiref==3.5.2
     # via django
 async-generator==1.10
@@ -116,8 +118,6 @@ ijson==3.1.4
     #   datagetter
     #   flattentool
     #   lib360dataquality
-importlib-metadata==1.7.0
-    # via datagetter
 inflection==0.5.1
     # via drf-spectacular
 jdcal==1.4.1
@@ -164,7 +164,7 @@ persistent==4.7.0
     #   zodb
 platformdirs==2.6.0
     # via black
-prometheus-client==0.7.0
+prometheus-client==0.7
     # via -r requirements.in
 psycopg2==2.8
     # via -r requirements.in
@@ -201,7 +201,6 @@ requests[socks]==2.26.0
     #   coveralls
     #   datagetter
     #   libcove
-    #   requests
     #   requests-mock
 requests-mock==1.10.0
     # via -r requirements_dev.in
@@ -279,10 +278,6 @@ zconfig==3.6.0
     # via
     #   datagetter
     #   zodb
-zipp==3.6.0
-    # via
-    #   datagetter
-    #   importlib-metadata
 zodb==5.6.0
     # via
     #   datagetter
