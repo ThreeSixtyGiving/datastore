@@ -48,7 +48,7 @@ class Command(LoadDatagetterDataCommand):
                 additional_data = copy.deepcopy(grant["additional_data"])
                 del grant["additional_data"]
 
-                if check_grant_data_tools_compatible(grant):
+                if check_grant_data_tools_compatible(grant, ob["distribution"][0]):
                     grant_bulk_insert.append(
                         db.Grant.from_data(
                             source_file=source_file,
