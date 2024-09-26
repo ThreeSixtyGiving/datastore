@@ -15,7 +15,9 @@ from db.management.spinner import Spinner
 logger = logging.getLogger(__name__)
 
 
-def check_grant_data_tools_compatible(grant: Dict[str, Any]) -> bool:
+def check_grant_data_tools_compatible(
+    grant: Dict[str, Any], distribution: Dict[str, Any]
+) -> bool:
     """
     Some Grants contain data that is valid according to the current standard, but not acceptable to tooling
     e.g. will cause errors when trying to process or render the data.
@@ -25,32 +27,52 @@ def check_grant_data_tools_compatible(grant: Dict[str, Any]) -> bool:
     - Does the Grant ID contain newline characters
     - Does any Org IDs contain newline characters
     """
-    # Does Grant ID contain newlines?
-    grant_id = grant["id"]
-
-    if "\n" in grant_id:
-        return False
-
-    # Does any Org ID contain newlines?
-    # Note we don't check Publisher Org ID because that's not part of the original grant data
-
     try:
-        recipient_org_ids = [
-            ro["id"] for ro in grant["recipientOrganization"] if "id" in ro
+        # Does Grant ID contain newlines?
+        grant_id = grant["id"]
+        download_url = distribution.get("downloadURL", "unknown url")
+
+        if "\n" in grant_id:
+            logger.warning(
+                "ProblemChar: grant_id, '%s', %s, skipping grant",
+                # json.dumps() the grant id to escape any unexpected characters
+                json.dumps(grant_id),
+                download_url,
+            )
+            return False
+
+        # Does any Org ID contain newlines?
+        # Note we don't check Publisher Org ID because that's not part of the original grant data
+
+        try:
+            recipient_org_ids = [
+                ro["id"] for ro in grant["recipientOrganization"] if "id" in ro
+            ]
+
+            for org_id in recipient_org_ids:
+                if "\n" in org_id:
+                    logger.warning(
+                        "ProblemChar: recipientOrganization, '%s', %s, skipping grant",
+                        # json.dumps() the grant id to escape any unexpected characters
+                        json.dumps(org_id),
+                        download_url,
+                    )
+                    return False
+
+        except KeyError:
+            pass
+
+        funding_org_ids = [
+            fo["id"] for fo in grant["fundingOrganization"] if "id" in fo
         ]
 
-        for org_id in recipient_org_ids:
+        for org_id in funding_org_ids:
             if "\n" in org_id:
                 return False
-
-    except KeyError:
-        pass
-
-    funding_org_ids = [fo["id"] for fo in grant["fundingOrganization"] if "id" in fo]
-
-    for org_id in funding_org_ids:
-        if "\n" in org_id:
-            return False
+    except Exception as e:
+        logger.warning(
+            "Error in check_grant_data_tools_compatible continuing anyway %s", e
+        )
 
     return True
 
@@ -146,7 +168,7 @@ class Command(BaseCommand):
                         )
                         additional_data = None
 
-                    if check_grant_data_tools_compatible(grant):
+                    if check_grant_data_tools_compatible(grant, ob["distribution"][0]):
                         grant_bulk_insert.append(
                             db.Grant.from_data(
                                 source_file=source_file,
@@ -155,12 +177,6 @@ class Command(BaseCommand):
                                 additional_data=additional_data,
                                 getter_run=getter_run,
                             )
-                        )
-                    else:
-                        logger.warning(
-                            "Found unacceptable data in grant '%s'",
-                            # json.dumps() the grant id to escape any unexpected characters
-                            json.dumps(grant.get("id")),
                         )
 
                 db.Grant.objects.bulk_create(grant_bulk_insert)
