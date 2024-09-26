@@ -31,5 +31,8 @@ urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
 ]
 
-if settings.DEBUG:
-    urlpatterns += [path("__debug__/", include("debug_toolbar.urls"))]
+try:
+    if settings.DEBUG:
+        urlpatterns += [path("__debug__/", include("debug_toolbar.urls"))]
+except ModuleNotFoundError:
+    pass
