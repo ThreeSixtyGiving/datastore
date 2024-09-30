@@ -2,16 +2,17 @@ from django.core.management.base import BaseCommand, CommandError
 
 import db.models as db
 
-from django.db import connection
+from django.db import connection, transaction
 from django.db.backends.postgresql.introspection import DatabaseIntrospection
 
-import sys, json
+import sys
+import json
 
 from additional_data.sources.find_that_charity import non_primary_org_ids_lookup_maps
 
 
+@transaction.atomic
 def update_entities():
-
     grants = db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.values_list(
         "data", flat=True
     )
@@ -142,7 +143,6 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-
         if options.get("update_entities"):
             update_entities()
             return
