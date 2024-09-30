@@ -231,7 +231,8 @@ class Entity(models.Model):
     class Meta:
         abstract = True
 
-    org_id = models.CharField(max_length=200)  # Unique
+    org_id = models.CharField(max_length=200)  # Primary Org ID, Unique
+
     # Allowed to be null or blank for progressive building of the record
     name = models.TextField(null=True, blank=True)
 
@@ -359,7 +360,12 @@ class Recipient(Entity):
         constraints = [
             models.UniqueConstraint(fields=["org_id"], name="recipient_unique_org_id")
         ]
-        indexes = [Index(fields=["org_id", "name"])]
+        indexes = [
+            GinIndex(fields=["non_primary_org_ids"]),
+            Index(fields=["org_id", "name"]),
+        ]
+
+    non_primary_org_ids = ArrayField(models.TextField())
 
 
 class Funder(Entity):
@@ -367,7 +373,12 @@ class Funder(Entity):
         constraints = [
             models.UniqueConstraint(fields=["org_id"], name="funder_unique_org_id")
         ]
-        indexes = [Index(fields=["org_id", "name"])]
+        indexes = [
+            GinIndex(fields=["non_primary_org_ids"]),
+            Index(fields=["org_id", "name"]),
+        ]
+
+    non_primary_org_ids = ArrayField(models.TextField())
 
 
 class Grant(models.Model):

@@ -1,9 +1,8 @@
 import datetime
 
-from django.urls import reverse_lazy
-from django.test import TestCase
 from django.core.management import call_command
-
+from django.test import TestCase
+from django.urls import reverse_lazy
 
 current_year = datetime.date.today().year
 
@@ -21,6 +20,7 @@ class OrgAPITestCase(TestCase):
     funder_grant_id = "360G-kahM5Ooc2u"
 
     recipient_org_id = "360G-example-a"
+    recipient_nonprimary_org_id = "360G-example-nonprimary"
     recipient_org_name = "Receive an example grant"
     recipient_grant_id = "360G-Eiz4Veij8o"
 
@@ -74,6 +74,7 @@ class OrgAPITestCase(TestCase):
             "publisher": None,
             "org_id": self.funder_org_id,
             "name": self.funder_org_name,
+            "linked_orgs": [],
         }
 
         data = self.client.get(
@@ -201,6 +202,7 @@ class OrgAPITestCase(TestCase):
         )
 
         expected_org_data = {
+            "linked_orgs": [{"org_id": "360G-example-nonprimary"}],
             "self": "http://testserver" + expected_self_url,
             "grants_made": "http://testserver" + expected_grants_made_url,
             "grants_received": "http://testserver" + expected_received_made_url,
@@ -224,8 +226,17 @@ class OrgAPITestCase(TestCase):
             "name": self.recipient_org_name,
         }
 
+        # Lookup by primary org ID
         data = self.client.get(
             f"/api/v1/org/{self.recipient_org_id}/",
+            headers={"accept": "application/json"},
+        ).json()
+
+        self.assertEqual(data, expected_org_data)
+
+        # Lookup by non-primary org ID
+        data = self.client.get(
+            f"/api/v1/org/{self.recipient_nonprimary_org_id}/",
             headers={"accept": "application/json"},
         ).json()
 
@@ -316,6 +327,15 @@ class OrgAPITestCase(TestCase):
         self.assertIn(self.recipient_grant_id, grants)
         self.assertEqual(expected_grant_data, grants[self.recipient_grant_id])
 
+    def test_recipient_nonprimary_grants_received(self):
+        # Check that searching by a non-primary OrgID successfully returns results
+        data = self.client.get(
+            f"/api/v1/org/{self.recipient_nonprimary_org_id}/grants_received/",
+            headers={"accept": "application/json"},
+        ).json()
+
+        self.assertEqual(data["count"], 50)
+
     def test_recipient_grants_made(self):
         """A Recipient-only Org should not make any grants."""
         data = self.client.get(
@@ -330,7 +350,6 @@ class OrgAPITestCase(TestCase):
     #
 
     def test_publisher_detail(self):
-
         expected_self_url = reverse_lazy(
             "api:organisation-detail", kwargs={"org_id": self.publisher_org_id}
         )
@@ -351,6 +370,7 @@ class OrgAPITestCase(TestCase):
             "publisher": {"prefix": "360g-Ap0inaap5e"},
             "org_id": self.publisher_org_id,
             "name": self.publisher_org_name,
+            "linked_orgs": [],
         }
 
         data = self.client.get(

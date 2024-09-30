@@ -7,7 +7,7 @@ from django.db.backends.postgresql.introspection import DatabaseIntrospection
 
 import sys, json
 
-from additional_data.sources.find_that_charity import non_primary_org_ids_map
+from additional_data.sources.find_that_charity import non_primary_org_ids_lookup_maps
 
 
 def update_entities():
@@ -23,7 +23,10 @@ def update_entities():
 
     recipient_orgs_bulk = {}
     funder_orgs_bulk = {}
-    non_primary_org_ids_map_cache = non_primary_org_ids_map()
+    (
+        non_primary_to_primary_org_ids_lookup,
+        primary_to_non_primary_org_ids_lookup,
+    ) = non_primary_org_ids_lookup_maps()
 
     print("Analysing latest best grant data for entities")
 
@@ -31,12 +34,17 @@ def update_entities():
         for recipient in grant.get("recipientOrganization", []):
             # If the org-id provided is a non-primary org-id return the primary
             # otherwise return the specified org-id
-            org_id = non_primary_org_ids_map_cache.get(recipient["id"], recipient["id"])
+            org_id = non_primary_to_primary_org_ids_lookup.get(
+                recipient["id"], recipient["id"]
+            )
+            non_primary_org_ids = primary_to_non_primary_org_ids_lookup.get(org_id, [])
 
             try:
                 recipient_ob = recipient_orgs_bulk[org_id]
             except KeyError:
-                recipient_ob = db.Recipient(org_id=org_id)
+                recipient_ob = db.Recipient(
+                    org_id=org_id, non_primary_org_ids=non_primary_org_ids
+                )
                 recipient_orgs_bulk[org_id] = recipient_ob
 
             recipient_ob.add_name(recipient["name"])
@@ -47,13 +55,16 @@ def update_entities():
         for funder in grant["fundingOrganization"]:
             # If the org-id provided is a non-primary org-id return the primary
             # otherwise return the specified org-id
-            org_id = non_primary_org_ids_map_cache.get(funder["id"], funder["id"])
+            org_id = non_primary_to_primary_org_ids_lookup.get(
+                funder["id"], funder["id"]
+            )
+            non_primary_org_ids = primary_to_non_primary_org_ids_lookup.get(org_id, [])
 
             try:
                 funder_ob = funder_orgs_bulk[org_id]
             except KeyError:
                 funder_ob = db.Funder(
-                    org_id=org_id,
+                    org_id=org_id, non_primary_org_ids=non_primary_org_ids
                 )
                 funder_orgs_bulk[org_id] = funder_ob
 
