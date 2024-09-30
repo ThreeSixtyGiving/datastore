@@ -78,12 +78,20 @@ class FindThatCharitySource(object):
                         # e.g. A name [with brackets] Association
                         continue
 
+            # Fall back to orgIDs if linked_orgs_verified not available, otherwise a minimal orgIDs array containing
+            # just the primary orgID.
             if "orgIDs" not in row:
-                row["orgIDs"] = None
+                row["orgIDs"] = [row["id"]]
+
+            if "linked_orgs_verified" not in row:
+                row["linked_orgs_verified"] = row["orgIDs"]
 
             bulk_list.append(
                 OrgInfoCache(
-                    data=row, org_type=org_type, org_id=row["id"], org_ids=row["orgIDs"]
+                    data=row,
+                    org_type=org_type,
+                    org_id=row["id"],
+                    org_ids=row["linked_orgs_verified"],
                 )
             )
             added += 1
