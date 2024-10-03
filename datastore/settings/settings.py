@@ -11,10 +11,25 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
-
 import environ
 
 from django.utils.crypto import get_random_string
+
+# https://docs.djangoproject.com/en/5.1/topics/logging/#logging-explanation
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "WARNING",
+    },
+}
+
 
 env = environ.Env(  # set default values and casting
     # TODO could use $XDG_RUNTIME_DIR ?
