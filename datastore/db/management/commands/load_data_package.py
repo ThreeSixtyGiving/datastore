@@ -1,14 +1,9 @@
 import copy
-import json
-import logging
 
 import db.models as db
 from db.management.commands.load_datagetter_data import (
     Command as LoadDatagetterDataCommand,
-    check_grant_data_tools_compatible,
 )
-
-logger = logging.getLogger(__name__)
 
 
 class Command(LoadDatagetterDataCommand):
@@ -48,7 +43,9 @@ class Command(LoadDatagetterDataCommand):
                 additional_data = copy.deepcopy(grant["additional_data"])
                 del grant["additional_data"]
 
-                if check_grant_data_tools_compatible(grant, ob["distribution"][0]):
+                if self.check_grant_data_tools_compatible(
+                    grant, ob["distribution"][0]["downloadURL"], ob["publisher"]["name"]
+                ):
                     grant_bulk_insert.append(
                         db.Grant.from_data(
                             source_file=source_file,
@@ -57,12 +54,6 @@ class Command(LoadDatagetterDataCommand):
                             additional_data=additional_data,
                             getter_run=getter_run,
                         )
-                    )
-                else:
-                    logger.warning(
-                        "Found unacceptable data in grant '%s'",
-                        # json.dumps() the grant id to escape any unexpected characters
-                        json.dumps(grant.get("id")),
                     )
 
             db.Grant.objects.bulk_create(grant_bulk_insert)

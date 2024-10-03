@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 from typing import Dict, Any
 
@@ -11,70 +10,6 @@ from django.db import transaction
 import db.models as db
 from additional_data.generator import AdditionalDataGenerator
 from db.management.spinner import Spinner
-
-logger = logging.getLogger(__name__)
-
-
-def check_grant_data_tools_compatible(
-    grant: Dict[str, Any], distribution: Dict[str, Any]
-) -> bool:
-    """
-    Some Grants contain data that is valid according to the current standard, but not acceptable to tooling
-    e.g. will cause errors when trying to process or render the data.
-    This method checks for such data, with the goal of excluding unacceptable Grants from our dataset.
-
-    Checks made are:
-    - Does the Grant ID contain newline characters
-    - Does any Org IDs contain newline characters
-    """
-    try:
-        # Does Grant ID contain newlines?
-        grant_id = grant["id"]
-        download_url = distribution.get("downloadURL", "unknown url")
-
-        if "\n" in grant_id:
-            logger.warning(
-                "ProblemChar: grant_id, '%s', %s, skipping grant",
-                # json.dumps() the grant id to escape any unexpected characters
-                json.dumps(grant_id),
-                download_url,
-            )
-            return False
-
-        # Does any Org ID contain newlines?
-        # Note we don't check Publisher Org ID because that's not part of the original grant data
-
-        try:
-            recipient_org_ids = [
-                ro["id"] for ro in grant["recipientOrganization"] if "id" in ro
-            ]
-
-            for org_id in recipient_org_ids:
-                if "\n" in org_id:
-                    logger.warning(
-                        "ProblemChar: recipientOrganization, '%s', %s, skipping grant",
-                        # json.dumps() the grant id to escape any unexpected characters
-                        json.dumps(org_id),
-                        download_url,
-                    )
-                    return False
-
-        except KeyError:
-            pass
-
-        funding_org_ids = [
-            fo["id"] for fo in grant["fundingOrganization"] if "id" in fo
-        ]
-
-        for org_id in funding_org_ids:
-            if "\n" in org_id:
-                return False
-    except Exception as e:
-        logger.warning(
-            "Error in check_grant_data_tools_compatible continuing anyway %s", e
-        )
-
-    return True
 
 
 class Command(BaseCommand):
@@ -95,6 +30,69 @@ class Command(BaseCommand):
             help="Skip any missing dataset files instead of raising an error",
             default=False,
         )
+
+    def check_grant_data_tools_compatible(
+        self, grant: Dict[str, Any], distribution_url: [str], publisher_name: [str]
+    ) -> bool:
+        """
+        Some Grants contain data that is valid according to the current standard, but not acceptable to tooling
+        e.g. will cause errors when trying to process or render the data.
+        This method checks for such data, with the goal of excluding unacceptable Grants from our dataset.
+
+        Checks made are:
+        - Does the Grant ID contain newline characters
+        - Does any Org IDs contain newline characters
+        """
+        try:
+            # Does Grant ID contain newlines?
+            grant_id = grant["id"]
+
+            def log_problem_char(field, value):
+                # json.dumps() the grant id to escape any unexpected characters
+                value = json.dumps(value)
+                grant_id_esc = json.dumps(grant_id)
+                funding_org_name = grant["fundingOrganization"][0]["name"]
+
+                print(
+                    f"ProblemChar, {grant_id_esc}, {field}, {value}, {funding_org_name}, {publisher_name}, {distribution_url}, skipping grant",
+                    file=self.stdout,
+                )
+
+            if "\n" in grant_id:
+                log_problem_char("grant_id", grant_id)
+                return False
+
+            # Does any Org ID contain newlines?
+            # Note we don't check Publisher Org ID because that's not part of the original grant data
+
+            try:
+                recipient_org_ids = [
+                    ro["id"] for ro in grant["recipientOrganization"] if "id" in ro
+                ]
+
+                for org_id in recipient_org_ids:
+                    if "\n" in org_id:
+                        log_problem_char("recipientOrganization id", org_id)
+                        return False
+
+            except KeyError:
+                pass
+
+            funding_org_ids = [
+                fo["id"] for fo in grant["fundingOrganization"] if "id" in fo
+            ]
+
+            for org_id in funding_org_ids:
+                if "\n" in org_id:
+                    log_problem_char("fundingOrganization id", org_id)
+                    return False
+        except Exception as e:
+            print(
+                "Error in check_grant_data_tools_compatible continuing anyway %s" % e,
+                file=self.stderr,
+            )
+
+        return True
 
     def check_dir_looks_right(self):
         """Quickly check if the supplied dir looks correct"""
@@ -168,7 +166,11 @@ class Command(BaseCommand):
                         )
                         additional_data = None
 
-                    if check_grant_data_tools_compatible(grant, ob["distribution"][0]):
+                    if self.check_grant_data_tools_compatible(
+                        grant,
+                        ob["distribution"][0]["downloadURL"],
+                        ob["publisher"]["name"],
+                    ):
                         grant_bulk_insert.append(
                             db.Grant.from_data(
                                 source_file=source_file,
@@ -193,6 +195,7 @@ class Command(BaseCommand):
         return grants_added
 
     def handle(self, *args, **options):
+
         self.options = options
         grants_added = 0
 
