@@ -40,12 +40,11 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             )
 
     def test_dont_load_unacceptable_data_from_package(self):
-        err_out = StringIO()
+
         with TemporaryDirectory() as tmpdir:
-            call_command("create_data_package", dir=tmpdir, stderr=err_out)
-            self.assertEqual(
-                len(err_out.getvalue()), 0, "Errors output by create command"
-            )
+            out = StringIO()
+            call_command("create_data_package", dir=tmpdir, stderr=out)
+            self.assertEqual(len(out.getvalue()), 0, "Errors output by create command")
 
             num_grants = db.Latest.grants().count()
 
@@ -68,7 +67,15 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             with open(data_0_json_path, "w") as d0j_fp:
                 json.dump(first_data_json, d0j_fp)
 
-            call_command("load_data_package", tmpdir, stderr=err_out)
+            out = StringIO()
+            call_command("load_data_package", tmpdir, stdout=out)
+
+            log_output = out.getvalue()
+
+            self.assertTrue(log_output.count("ProblemChar") == 3)
+            self.assertIn("grant_id", log_output)
+            self.assertIn("recipientOrganization id", log_output)
+            self.assertIn("fundingOrganization id", log_output)
 
             # The grants we removed should not be included, and there should be no unacceptable data after loading
             self.assertEqual(db.Latest.grants().count(), num_grants - 3)
