@@ -15,7 +15,7 @@ $ createdb -U test -W 360givingdatastore
 
 ```
 
-(In development you can also set the `DATABASE_HOST`, `DATABASE_NAME`,`DATABASE_USER` and `DATABASE_PASSWORD` environmental variables.)
+_Note: Special Postgresql extensions are used for indexes, if you don't want to have these installed in the database or the database user doesn't have permissions to install extensions then set environment variable `SKIP_SPECIAL_DB_INDEX=true` before you run migrate. In development you can also set the `DATABASE_HOST`, `DATABASE_NAME`,`DATABASE_USER` and `DATABASE_PASSWORD` environmental variables._
 
 ## Python setup
 
@@ -29,7 +29,7 @@ $ pip install -r requirements.txt
 
 ```
 $ export DJANGO_SETTINGS_MODULE=settings.settings_dev
-$ manage.py migrate
+$ manage.py migrate # see note above about Special Postgres extensions
 $ manage.py createsuperuser
 $ manage.py runserver
 ```
@@ -52,7 +52,7 @@ $ python manage.py manage_entities_data --update
 
 ## Updating additional data
 
-A number of the sources for additional_data have their own local caches which need to be kept up-to-date.
+A number of the sources for `additional_data` have their own local caches which need to be kept up-to-date.
 
 To better understand additional data, refer to [360Giving Datastore - additional data](https://docs.google.com/document/d/1ZhGDhkRnjeyK3dgycO6SdOrwPiwPytp-a2ekIXSqUKo/view).
 
@@ -174,6 +174,8 @@ $ ./manage.py test tests
 $ flake8
 $ black --check ./
 ```
+
+_Note: You may want to run this with `SKIP_SPECIAL_DB_INDEX=true` to avoid the need for the test database user to have permissions for installing postgresql extensions when running the tests._
 
 ### Running specific tests
 
