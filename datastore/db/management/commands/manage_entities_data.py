@@ -10,6 +10,9 @@ import json
 
 from additional_data.sources.find_that_charity import non_primary_org_ids_lookup_maps
 
+data_types_reverse = DatabaseIntrospection(connection).data_types_reverse.copy()
+data_types_reverse.update({1009: "ArrayField"})
+
 
 @transaction.atomic
 def update_entities():
@@ -84,11 +87,10 @@ def create_orgs_list(entity_type, output=sys.stdout):
     entity_type: publisher, recipient, funder
     output: io
     """
-    introspect = DatabaseIntrospection(connection)
-
     query = f"""
         SELECT DISTINCT
         db_{entity_type}.org_id as "id",
+        db_{entity_type}.non_primary_org_ids as "non_primary_org_ids",
         db_{entity_type}.name as name,
         db_{entity_type}."aggregate" as "aggregate",
         db_{entity_type}.additional_data as "additionalData",
@@ -115,9 +117,7 @@ def create_orgs_list(entity_type, output=sys.stdout):
     with connection.cursor() as cursor:
         cursor.execute(query)
         cols = [col.name for col in cursor.description]
-        col_types = [
-            introspect.data_types_reverse[col.type_code] for col in cursor.description
-        ]
+        col_types = [data_types_reverse[col.type_code] for col in cursor.description]
 
         for row in cursor.fetchall():
             row_new = parse_data_in_result(row, col_types)
