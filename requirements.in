@@ -1,11 +1,45 @@
--e git+https://github.com/ThreeSixtyGiving/datagetter.git@9c1c431fd0d0b01f0181008fb39bfefde200f534#egg=datagetter
+# Note: this project uses Python 3.8
+
+-e git+https://github.com/ThreeSixtyGiving/datagetter.git@b7462fb250ee60466bb9b8e1ce89c5bdb4682f47#egg=datagetter
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@e8676bea246ca850b449ff053948059cc611e17f#egg=lib360dataquality
-Django<4.0
-djangorestframework==3.11.2
-django-filter
+
+Django>=4.2,<5.0
+# Use Django 4.2
+# Stable until April 2026 https://endoflife.date/django
+
+djangorestframework>=3.15.2,<3.16
+# DRF claim patch releases are API compatible
+# See: https://www.django-rest-framework.org/community/release-notes/#versioning
+
+django-filter>=22.1,<26
+# django-filter uses "CalVer" releases, says they give two years notice of breaking changes
+# https://github.com/carltongibson/django-filter/blob/main/CHANGES.rst#version-211-2021-9-24
+
 django-prettyjson==0.4.1
-psycopg2==2.8
-prometheus_client==0.7
-django-environ
+# django-prettyjson is very old
+# how does it still work
+
+psycopg2>=2.8,<2.10
+# psycopg2 is in maintenance mode since the release of psycopg3
+# so don't expect any new breaking releases
+
+prometheus_client>=0.7,<0.8
+# prometheus_client seems to use ZeroVer, so "minor" updates can be breaking
+# (inferred from looking at the changelog)
+# Changelog: https://github.com/prometheus/client_python/releases
+# Latest is 0.21 - TODO: Check if newer releases still work?
+
+django-environ>=0.9.0,<0.10
+# django-environ uses ZeroVer, so "minor" updates can be breaking
+# Latest is v0.11 - TODO: Check if newer releases still work?
+# Changelog: https://django-environ.readthedocs.io/en/latest/changelog.html
+
 drf-spectacular>=0.27,<0.28
+# drf-spectacular uses ZeroVer, so "minor" updates can be breaking
+# See: https://drf-spectacular.readthedocs.io/en/latest/readme.html#release-management
+# Changelog: https://drf-spectacular.readthedocs.io/en/latest/changelog.html
+
 djangorestframework-dataclasses>=1.3.1,<2
+# drf-dataclasses uses Semantic Versioning according to https://semver.org/
+# See: https://github.com/oxan/djangorestframework-dataclasses/blob/master/README.rst#installation
+# Changelog: https://github.com/oxan/djangorestframework-dataclasses/blob/master/CHANGELOG.rst

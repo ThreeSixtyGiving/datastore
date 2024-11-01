@@ -172,6 +172,10 @@ TIME_ZONE = "UTC"
 
 USE_I18N = True
 
+# Note that as of Django 4.0, USE_L10N = True is made default, and the setting is removed in 5.0
+# See: https://docs.djangoproject.com/en/5.1/releases/4.0/#localization
+#      https://docs.djangoproject.com/en/5.1/releases/5.0/#features-removed-in-5-0
+# Remove this when upgrading to Django 5.
 USE_L10N = True
 
 USE_TZ = True
