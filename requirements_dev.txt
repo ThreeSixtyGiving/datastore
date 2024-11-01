@@ -10,7 +10,7 @@
     # via -r requirements.in
 apsw==3.45.3.0
     # via datagetter
-asgiref==3.5.2
+asgiref==3.8.1
     # via django
 async-generator==1.10
     # via
@@ -26,6 +26,8 @@ backports-datetime-fromisoformat==1.0.0
     # via
     #   datagetter
     #   flattentool
+backports-zoneinfo==0.2.1
+    # via django
 black==22.12.0
     # via -r requirements_dev.in
 btrees==4.9.2
@@ -63,7 +65,7 @@ defusedxml==0.7.1
     # via
     #   datagetter
     #   odfpy
-django==3.2.16
+django==4.2.16
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -164,7 +166,7 @@ persistent==4.7.0
     #   zodb
 platformdirs==2.6.0
     # via black
-prometheus-client==0.7
+prometheus-client==0.7.0
     # via -r requirements.in
 psycopg2==2.8
     # via -r requirements.in
@@ -190,7 +192,6 @@ python-dateutil==2.8.2
 pytz==2021.3
     # via
     #   datagetter
-    #   django
     #   flattentool
 pyyaml==6.0.1
     # via drf-spectacular
@@ -251,6 +252,7 @@ trio-websocket==0.9.2
     # via selenium
 typing-extensions==4.4.0
     # via
+    #   asgiref
     #   black
     #   drf-spectacular
 uritemplate==4.1.1
