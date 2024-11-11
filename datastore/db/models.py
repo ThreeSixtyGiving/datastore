@@ -185,6 +185,7 @@ class SourceFile(models.Model):
         return self.data["distribution"][0]
 
     def get_publisher(self):
+        """returns the Publisher object for this source file"""
         return Publisher.objects.get(
             getter_run=self.getter_run, prefix=self.data["publisher"]["prefix"]
         )
