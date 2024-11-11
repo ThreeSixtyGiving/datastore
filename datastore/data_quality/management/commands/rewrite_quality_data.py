@@ -98,7 +98,16 @@ class Command(BaseCommand):
             )
 
         def process_publishers(source_file):
-            publisher = source_file.get_publisher()
+            """Updates the publisher data with aggregates and quality data relating to their source files"""
+
+            # We want to store the quality and aggregate data against the latest version of the publisher
+            # object rather than the version from the getter_run that this source file came from
+            # This is so that when we serialise the latest publishers we get the latest aggregate and
+            # quality data regardless of when the source file entered the system.
+            publisher = db.Publisher.objects.get(
+                getter_run=db.GetterRun.latest(),
+                prefix=source_file.data["publisher"]["prefix"],
+            )
 
             print(publisher)
 
