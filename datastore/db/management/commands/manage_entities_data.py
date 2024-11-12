@@ -99,7 +99,7 @@ def create_orgs_list(entity_type, output=sys.stdout):
         db_publisher.prefix as "publisherPrefix"
         FROM db_{entity_type}
         LEFT OUTER JOIN additional_data_orginfocache on db_{entity_type}.org_id = additional_data_orginfocache.org_id
-        LEFT OUTER JOIN db_publisher on db_{entity_type}.org_id = db_publisher.org_id
+        LEFT OUTER JOIN db_publisher on db_{entity_type}.org_id = db_publisher.org_id OR db_publisher.org_id = ANY(db_{entity_type}.non_primary_org_ids)
     """
 
     def parse_data_in_result(result, col_types):
