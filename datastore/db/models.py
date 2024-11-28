@@ -26,6 +26,11 @@ class Latest(models.Model):
         """Return the QuerySet of latest best Grants."""
         return cls.objects.get(series=cls.CURRENT).grant_set.all()
 
+    @classmethod
+    def sourcefiles(cls):
+        """Return the QuerySet of latest best SourceFiles."""
+        return cls.objects.get(series=cls.CURRENT).sourcefile_set.all()
+
     @staticmethod
     def update():
         latest_getter = GetterRun.objects.order_by("-datetime")[:1].get()

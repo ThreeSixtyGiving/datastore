@@ -12,7 +12,7 @@ import api.grantnav.api
 import api.dashboard.api
 import api.org.api
 import api.org.api_schema
-
+import api.monitoring.api
 
 app_name = "api"
 
@@ -74,6 +74,47 @@ urlpatterns = [
         "v1/org/",
         api.org.api.OrganisationListView.as_view(),
         name="organisation-list",
+    ),
+    # Monitoring
+    path(
+        "v1/monitoring/snapshot/dataset/",
+        api.monitoring.api.DatasetMetricsSnapshotAPIView.as_view(),
+        name="dataset-metrics-snapshot",
+    ),
+    path(
+        "v1/monitoring/snapshot/dataset/<str:snapshot_date>/",
+        api.monitoring.api.DatasetMetricsSnapshotAPIView.as_view(),
+        name="dataset-metrics-snapshot",
+    ),
+    path(
+        "v1/monitoring/snapshot/publisher/",
+        api.monitoring.api.PublisherMetricsSnapshotAPIView.as_view(),
+        name="publisher-metrics-snapshot",
+    ),
+    path(
+        "v1/monitoring/snapshot/publisher/<str:snapshot_date>/",
+        api.monitoring.api.PublisherMetricsSnapshotAPIView.as_view(),
+        name="publisher-metrics-snapshot",
+    ),
+    path(
+        "v1/monitoring/snapshot/funder/",
+        api.monitoring.api.FunderMetricsSnapshotAPIView.as_view(),
+        name="funder-metrics-snapshot",
+    ),
+    path(
+        "v1/monitoring/snapshot/funder/<str:snapshot_date>/",
+        api.monitoring.api.FunderMetricsSnapshotAPIView.as_view(),
+        name="funder-metrics-snapshot",
+    ),
+    path(
+        "v1/monitoring/snapshot/sourcefile/",
+        api.monitoring.api.SourceFileMetricsSnapshotAPIView.as_view(),
+        name="source-file-metrics-snapshot",
+    ),
+    path(
+        "v1/monitoring/snapshot/sourcefile/<str:snapshot_date>/",
+        api.monitoring.api.SourceFileMetricsSnapshotAPIView.as_view(),
+        name="source-file-metrics-snapshot",
     ),
     # Schema UI
     path(
