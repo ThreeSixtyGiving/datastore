@@ -1,12 +1,9 @@
 FROM python:3.8.16-buster
 
 RUN mkdir /code
-COPY . /code/
 WORKDIR /code/
-RUN pip install -r /code/requirements.txt
-
-# This CMD never actually used; currently Docker Compose replaces it.
-# Should be command for production web server later.
-CMD sh -c ' ls'
+COPY requirements_dev.txt /code/requirements_dev.txt
+RUN python -m venv /ve && . /ve/bin/activate && pip install --upgrade setuptools pip wheel
+RUN . /ve/bin/activate && pip install -r requirements_dev.txt
 
 EXPOSE 8000
