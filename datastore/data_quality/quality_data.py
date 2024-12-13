@@ -324,21 +324,33 @@ class SourceFilesStats(object):
         )
 
         for metric, query in self.quality_query_parameters.items():
-            # Aggregate total number of errors for the metric
-            ret[metric] = (
-                self.source_file_set.filter(**query)
-                .annotate(total=RawSQL("((aggregate->>%s)::int)", ("count",)))
-                .aggregate(Sum("total"))["total__sum"]
-            )
+            # Aggregate total count of errors for the metrics
 
-            if ret[metric] == None:
-                ret[metric] = 0
+            # We need to drop down to SQL to do the casting/aggregates of the number of grants that are
+            # affected. Extract column/key from django orm syntax
+            # e.g. for hasRecipientIndividualsCodelists:
+            # {'quality__IndividualsCodeListsNotPresent__fail': False} extract "IndividualsCodeListsNotPresent"
+            metric_dqt_name = list(query.keys())[0].split("__")[1]
 
-            # Workout percentage of total errors / all grants in the relevant recipient set
+            metric_total_errors_count = self.source_file_set.annotate(
+                total=RawSQL("((quality->%s->>'count')::numeric)", (metric_dqt_name,))
+            ).aggregate(Sum("total"))["total__sum"]
+
+            # Guard as the query can technically return None
+            if metric_total_errors_count == None:
+                metric_total_errors_count = 0
+
+            # Workout percentage of total which don't have errors / all grants in the relevant recipient set
             if "Org" in metric:
-                ret[metric] = round(ret[metric] / total_recipient_org_grants * 100)
+                ret[metric] = round(
+                    (total_recipient_org_grants - metric_total_errors_count)
+                    / total_recipient_org_grants
+                    * 100
+                )
             else:
-                ret[metric] = round(ret[metric] / total_grants * 100)
+                ret[metric] = round(
+                    (total_grants - metric_total_errors_count) / total_grants * 100
+                )
 
         return ret
 
