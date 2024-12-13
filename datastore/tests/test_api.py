@@ -46,7 +46,7 @@ class DashBoardAPITests(TestCase):
                 "hasGrantClassification": 0,
                 "hasBeneficiaryLocationGeoCode": 100,
                 "hasRecipientOrgCompanyOrCharityNumber": 0,
-                "has50pcExternalOrgId": 0,
+                "has50pcExternalOrgId": 100,
                 "hasRecipientIndividualsCodelists": 100,
             },
         }
