@@ -50,8 +50,14 @@ class Command(BaseCommand):
             help="Update the quality data for specified publisher (prefix)",
         )
 
-    def handle(self, *args, **options):
+        parser.add_argument(
+            "--threads",
+            type=int,
+            default=8,
+            help="Number of threads to use for processing quality data",
+        )
 
+    def handle(self, *args, **options):
         if "latest" in options["getter_run"]:
             source_files = db.Latest.objects.get(
                 series=db.Latest.CURRENT
@@ -82,7 +88,7 @@ class Command(BaseCommand):
                     }
                 )
 
-            with Pool(8) as process_pool:
+            with Pool(options.get("threads") or 8) as process_pool:
                 source_file_results = process_pool.map(
                     process_source_file, process_sf_list
                 )

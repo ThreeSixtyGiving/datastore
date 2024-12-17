@@ -12,7 +12,7 @@ import api.grantnav.api
 import api.dashboard.api
 import api.org.api
 import api.org.api_schema
-
+import monitoring.api
 
 app_name = "api"
 
@@ -74,6 +74,22 @@ urlpatterns = [
         "v1/org/",
         api.org.api.OrganisationListView.as_view(),
         name="organisation-list",
+    ),
+    # Monitoring
+    path(
+        "v1/monitoring/snapshot/publisher",
+        monitoring.api.ListPublisherMetricsAPIView.as_view(),
+        name="list-publisher-metrics",
+    ),
+    path(
+        "v1/monitoring/snapshot/funder",
+        monitoring.api.ListFunderMetricsAPIView.as_view(),
+        name="list-funder-metrics",
+    ),
+    path(
+        "v1/monitoring/snapshot/sourcefile",
+        monitoring.api.ListSourceFileMetricsAPIView.as_view(),
+        name="list-source-file-metrics",
     ),
     # Schema UI
     path(

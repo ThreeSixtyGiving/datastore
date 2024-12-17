@@ -82,8 +82,11 @@ django-prettyjson==0.4.1
 djangorestframework==3.15.2
     # via
     #   -r /home/rikki/Projects/datastore/requirements.in
+    #   djangorestframework-csv
     #   djangorestframework-dataclasses
     #   drf-spectacular
+djangorestframework-csv==3.0.2
+    # via -r /home/rikki/Projects/datastore/requirements.in
 djangorestframework-dataclasses==1.3.1
     # via -r /home/rikki/Projects/datastore/requirements.in
 docopt==0.6.2
