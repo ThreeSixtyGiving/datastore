@@ -77,19 +77,34 @@ urlpatterns = [
     ),
     # Monitoring
     path(
-        "v1/monitoring/snapshot/publisher",
-        monitoring.api.ListPublisherMetricsAPIView.as_view(),
-        name="list-publisher-metrics",
+        "v1/monitoring/snapshot/publisher/",
+        monitoring.api.PublisherMetricsSnapshotAPIView.as_view(),
+        name="publisher-metrics-snapshot",
     ),
     path(
-        "v1/monitoring/snapshot/funder",
-        monitoring.api.ListFunderMetricsAPIView.as_view(),
-        name="list-funder-metrics",
+        "v1/monitoring/snapshot/publisher/<str:snapshot_date>/",
+        monitoring.api.PublisherMetricsSnapshotAPIView.as_view(),
+        name="publisher-metrics-snapshot",
     ),
     path(
-        "v1/monitoring/snapshot/sourcefile",
-        monitoring.api.ListSourceFileMetricsAPIView.as_view(),
-        name="list-source-file-metrics",
+        "v1/monitoring/snapshot/funder/",
+        monitoring.api.FunderMetricsSnapshotAPIView.as_view(),
+        name="funder-metrics-snapshot",
+    ),
+    path(
+        "v1/monitoring/snapshot/funder/<str:snapshot_date>/",
+        monitoring.api.FunderMetricsSnapshotAPIView.as_view(),
+        name="funder-metrics-snapshot",
+    ),
+    path(
+        "v1/monitoring/snapshot/sourcefile/",
+        monitoring.api.SourceFileMetricsSnapshotAPIView.as_view(),
+        name="source-file-metrics-snapshot",
+    ),
+    path(
+        "v1/monitoring/snapshot/sourcefile/<str:snapshot_date>/",
+        monitoring.api.SourceFileMetricsSnapshotAPIView.as_view(),
+        name="source-file-metrics-snapshot",
     ),
     # Schema UI
     path(

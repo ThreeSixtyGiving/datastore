@@ -1,3 +1,6 @@
+import datetime
+
+from django.db.models import Max, OuterRef, Subquery, Field, F
 from rest_framework.generics import ListAPIView
 from rest_framework.settings import api_settings
 from rest_framework_csv.renderers import CSVRenderer
@@ -14,22 +17,60 @@ from monitoring.serializers import (
 )
 
 
-class ListPublisherMetricsAPIView(ListAPIView):
-    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (CSVRenderer,)
+class SnapshotAPIView(ListAPIView):
+    identifier_fields = []  # override in subclasses
 
-    queryset = PublisherMetricsRecord.objects.all()
+    def get_queryset(self):
+        snapshot_date = self.kwargs.get("snapshot_date")
+        queryset = super().get_queryset()
+
+        ident_filter = {idf: OuterRef(idf) for idf in self.identifier_fields}
+
+        # If a snapshot date is given, find the latest snapshot on that day or earlier
+        if snapshot_date is not None:
+            snapshot_date_end_of_day = datetime.datetime.combine(
+                datetime.date.fromisoformat(snapshot_date), datetime.datetime.max.time()
+            )
+            queryset = queryset.filter(timestamp__lte=snapshot_date_end_of_day)
+
+        # This is not the most efficient query, but it's only meant to be accessed occasionally, and still renders in ms
+        snapshot = (
+            queryset.filter(
+                pk__in=Subquery(
+                    queryset.filter(**ident_filter)
+                    .order_by("-timestamp")[:1]
+                    .values("pk")
+                )
+            )
+            # We don't need to sort by identifiers but
+            # PostgreSQL requires order by fields must match distinct fields.
+            .order_by("-timestamp", *self.identifier_fields)
+            # Distinct to only return a single (latest) snapshot for each identifier.
+            .distinct("timestamp", *self.identifier_fields)
+        )
+
+        return snapshot
+
+
+class PublisherMetricsSnapshotAPIView(SnapshotAPIView):
+    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (CSVRenderer,)
     serializer_class = PublisherMetricsRecordSerializer
 
+    queryset = PublisherMetricsRecord.objects.all()
+    identifier_fields = ["publisher_prefix"]
 
-class ListFunderMetricsAPIView(ListAPIView):
+
+class FunderMetricsSnapshotAPIView(SnapshotAPIView):
     renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (CSVRenderer,)
-
-    queryset = FunderMetricsRecord.objects.all()
     serializer_class = FunderMetricsRecordSerializer
 
+    queryset = FunderMetricsRecord.objects.all()
+    identifier_fields = ["funder_org_id"]
 
-class ListSourceFileMetricsAPIView(ListAPIView):
+
+class SourceFileMetricsSnapshotAPIView(SnapshotAPIView):
     renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (CSVRenderer,)
+    serializer_class = SourceFileMetricsRecordSerializer
 
     queryset = SourceFileMetricsRecord.objects.all()
-    serializer_class = SourceFileMetricsRecordSerializer
+    identifier_fields = ["publisher_prefix", "sourcefile_identifier"]
