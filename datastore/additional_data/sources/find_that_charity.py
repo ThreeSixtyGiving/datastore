@@ -116,7 +116,13 @@ class FindThatCharitySource(object):
             raise self.OrgTypeNotKnownError
 
         if "http" in path:
-            with requests.get(path, stream=True) as r:
+            with requests.get(
+                # Jan 2025: Temporarily change the user agent because FindThatCharity blocked
+                # the normal python-requests user agent due to excessive scraping by AI bots
+                path,
+                stream=True,
+                headers={"User-Agent": "360Giving Datastore"},
+            ) as r:
                 file_data = csv.DictReader(
                     r.iter_lines(decode_unicode=True), delimiter=","
                 )
