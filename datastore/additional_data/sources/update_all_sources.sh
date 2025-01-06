@@ -19,8 +19,7 @@ $manage_py load_nspl
 
 # Org data
 
-$manage_py delete_org_data --no-prompt
-bash ./additional_data/sources/load_all_org_data.sh
+$manage_py load_org_data --all-ftc-sources --replace
 
 # $manage_py rewrite_additional_data
 # $manage_py rewrite_quality_data

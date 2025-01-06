@@ -23,7 +23,14 @@ class OrgInfoCache(models.Model):
     LANI = "lani"
     LAS = "las"
     PLA = "pla"
-    NHSODS = "nhsods"
+    NHSODS_EPRACCUR = "nhsods-epraccur"
+    NHSODS_ETR = "nhsods-etr"
+    NHSODS_ENSA = "nhsods-ensa"
+    NHSODS_ECCG = "nhsods-eccg"
+    NHSODS_ECSU = "nhsods-ecsu"
+    NHSODS_ESPHA = "nhsods-espha"
+    NHSODS_WLHB = "nhsods-wlhb"
+    NHSODS_ECT = "nhsods-ect"
     RSL = "rsl"
     SCHOOLS_GIAS = "schools_gias"
     SCHOOLS_NI = "schools_ni"
@@ -50,7 +57,14 @@ class OrgInfoCache(models.Model):
         (LANI, "Register of local authorities in Northern Ireland"),
         (LAS, "Register of local authorities in Scotland"),
         (PLA, "Register of principal local authorities in Wales"),
-        (NHSODS, "NHS organisations"),
+        (NHSODS_EPRACCUR, "NHS organisations"),
+        (NHSODS_ETR, "NHS organisations"),
+        (NHSODS_ENSA, "NHS organisations"),
+        (NHSODS_ECCG, "NHS organisations"),
+        (NHSODS_ECSU, "NHS organisations"),
+        (NHSODS_ESPHA, "NHS organisations"),
+        (NHSODS_WLHB, "NHS organisations"),
+        (NHSODS_ECT, "NHS organisations"),
         (RSL, "Registered social landlords"),
         (SCHOOLS_GIAS, "Schools in England (also includes Universities)"),
         (SCHOOLS_NI, "Schools in Northern Ireland"),
