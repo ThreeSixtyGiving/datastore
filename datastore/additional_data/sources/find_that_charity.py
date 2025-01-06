@@ -1,9 +1,68 @@
 import csv
 import json
+from typing import List, Tuple, Optional
 
 import requests
 
 from additional_data.models import OrgInfoCache
+
+# Tuple of (CSV URL, org type)
+# See OrgInfoCache model for possible org types
+FTC_SOURCES: List[Tuple[str, Optional[str]]] = [
+    ("https://findthatcharity.uk/orgid/source/casc.csv", OrgInfoCache.CASC),
+    ("https://findthatcharity.uk/orgid/source/ccew.csv", OrgInfoCache.CCEW),
+    ("https://findthatcharity.uk/orgid/source/ccni.csv", OrgInfoCache.CCNI),
+    ("https://findthatcharity.uk/orgid/source/oscr.csv", OrgInfoCache.OSCR),
+    ("https://findthatcharity.uk/orgid/source/companies.csv", OrgInfoCache.COMPANIES),
+    ("https://findthatcharity.uk/orgid/source/mutuals.csv", OrgInfoCache.MUTUALS),
+    ("https://findthatcharity.uk/orgid/source/gor.csv", OrgInfoCache.GOR),
+    ("https://findthatcharity.uk/orgid/source/ror.csv", OrgInfoCache.ROR),
+    ("https://findthatcharity.uk/orgid/source/hesa.csv", OrgInfoCache.HESA),
+    ("https://findthatcharity.uk/orgid/source/lae.csv", OrgInfoCache.LAE),
+    ("https://findthatcharity.uk/orgid/source/lani.csv", OrgInfoCache.LANI),
+    ("https://findthatcharity.uk/orgid/source/las.csv", OrgInfoCache.LAS),
+    ("https://findthatcharity.uk/orgid/source/pla.csv", OrgInfoCache.PLA),
+    (
+        "https://findthatcharity.uk/orgid/source/nhsods-epraccur.csv",
+        OrgInfoCache.NHSODS_EPRACCUR,
+    ),
+    ("https://findthatcharity.uk/orgid/source/nhsods-etr.csv", OrgInfoCache.NHSODS_ETR),
+    (
+        "https://findthatcharity.uk/orgid/source/nhsods-ensa.csv",
+        OrgInfoCache.NHSODS_ENSA,
+    ),
+    (
+        "https://findthatcharity.uk/orgid/source/nhsods-eccg.csv",
+        OrgInfoCache.NHSODS_ECCG,
+    ),
+    (
+        "https://findthatcharity.uk/orgid/source/nhsods-ecsu.csv",
+        OrgInfoCache.NHSODS_ECSU,
+    ),
+    (
+        "https://findthatcharity.uk/orgid/source/nhsods-espha.csv",
+        OrgInfoCache.NHSODS_ESPHA,
+    ),
+    (
+        "https://findthatcharity.uk/orgid/source/nhsods-wlhb.csv",
+        OrgInfoCache.NHSODS_WLHB,
+    ),
+    ("https://findthatcharity.uk/orgid/source/nhsods-ect.csv", OrgInfoCache.NHSODS_ECT),
+    ("https://findthatcharity.uk/orgid/source/rsl.csv", OrgInfoCache.RSL),
+    ("https://findthatcharity.uk/orgid/source/gias.csv", OrgInfoCache.SCHOOLS_GIAS),
+    (
+        "https://findthatcharity.uk/orgid/source/nideptofeducation.csv",
+        OrgInfoCache.SCHOOLS_NI,
+    ),
+    (
+        "https://findthatcharity.uk/orgid/source/schoolsscotland.csv",
+        OrgInfoCache.SCHOOLS_SCOTLAND,
+    ),
+    (
+        "https://findthatcharity.uk/orgid/source/walesschools.csv",
+        OrgInfoCache.SCHOOLS_WALES,
+    ),
+]
 
 
 class FindThatCharitySource(object):
@@ -56,8 +115,11 @@ class FindThatCharitySource(object):
             # Store no hit so that we don't bother the db for impossible queries
             self._cache[org_id] = None
 
-    def process_csv(self, file_data, org_type):
-        """Returns total added. file_data array from csv"""
+    def process_csv(self, file_data, org_type, replace=False):
+        """
+        Returns total added. file_data array from csv.
+        Set replace=True to update existing entries as well as creating new ones.
+        """
         added = 0
         bulk_list = []
 
@@ -96,11 +158,19 @@ class FindThatCharitySource(object):
             )
             added += 1
 
-        OrgInfoCache.objects.bulk_create(bulk_list)
+        if replace:
+            OrgInfoCache.objects.bulk_create(
+                bulk_list,
+                update_conflicts=True,
+                unique_fields=["org_id"],
+                update_fields=["org_ids", "org_type", "fetched", "data"],
+            )
+        else:
+            OrgInfoCache.objects.bulk_create(bulk_list)
 
         return added
 
-    def import_from_path(self, path, org_type=None):
+    def import_from_path(self, path, org_type=None, replace=False):
         """Path can be http or file path, org_type if omitted we guess from the filename"""
         added = 0
 
@@ -126,11 +196,11 @@ class FindThatCharitySource(object):
                 file_data = csv.DictReader(
                     r.iter_lines(decode_unicode=True), delimiter=","
                 )
-                added = self.process_csv(file_data, org_type)
+                added = self.process_csv(file_data, org_type, replace=replace)
         else:
             with open(path) as csv_file:
                 file_data = csv.DictReader(csv_file, delimiter=",")
-                added = self.process_csv(file_data, org_type)
+                added = self.process_csv(file_data, org_type, replace=replace)
 
         return added
 
