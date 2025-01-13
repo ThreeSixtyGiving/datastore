@@ -4,6 +4,8 @@ from additional_data.sources.codelist_code import CodeListSource
 
 class TestCodeLists(TestCase):
     def test_code_list(self):
+        self.maxDiff = None
+
         source = CodeListSource()
         source.import_codelists()
 
@@ -13,11 +15,15 @@ class TestCodeLists(TestCase):
                 "grantPurpose": ["GTIP170"],
             },
             "regrantType": "FRG010",
+            "locationScope": "GLS040",
+            "fundingOrganization": [{"location": [{"geoCodeType": "CTY"}]}],
+            "recipientOrganization": [{"location": [{"geoCodeType": "LONB"}]}],
+            "beneficiaryLocation": [{"geoCodeType": "MD"}],
         }
 
         additional_data_in = {}
 
-        additional_data_out = {
+        expected_additional_data_out = {
             "codeListLookup": {
                 "toIndividualsDetails": {
                     "primaryGrantReason": "Mental Health",
@@ -25,6 +31,12 @@ class TestCodeLists(TestCase):
                     "grantPurpose": ["Exceptional costs"],
                 },
                 "regrantType": "Common Regrant",
+                "locationScope": "Subnational region",
+                "geoCodeType": {
+                    "beneficiaryLocations": ["Metropolitan Districts"],
+                    "recipientOrganization0": "London Boroughs",
+                    "fundingOrganization0": "Counties",
+                },
             }
         }
 
@@ -32,6 +44,6 @@ class TestCodeLists(TestCase):
 
         self.assertEqual(
             additional_data_in,
-            additional_data_out,
+            expected_additional_data_out,
             "The expected additional data isn't correct",
         )
