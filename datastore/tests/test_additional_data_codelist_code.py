@@ -16,9 +16,6 @@ class TestCodeLists(TestCase):
             },
             "regrantType": "FRG010",
             "locationScope": "GLS040",
-            "fundingOrganization": [{"location": [{"geoCodeType": "CTY"}]}],
-            "recipientOrganization": [{"location": [{"geoCodeType": "LONB"}]}],
-            "beneficiaryLocation": [{"geoCodeType": "MD"}],
         }
 
         additional_data_in = {}
@@ -32,11 +29,6 @@ class TestCodeLists(TestCase):
                 },
                 "regrantType": "Common Regrant",
                 "locationScope": "Subnational region",
-                "geoCodeType": {
-                    "beneficiaryLocations": ["Metropolitan Districts"],
-                    "recipientOrganization0": "London Boroughs",
-                    "fundingOrganization0": "Counties",
-                },
             }
         }
 
