@@ -1,3 +1,4 @@
+from typing import Optional
 from datetime import datetime, date
 from dataclasses import dataclass
 from django.db import models
@@ -52,8 +53,13 @@ class FunderMetricsRecord(models.Model):
 
 @dataclass
 class SourceFileMetrics:
-    last_downloaded_at: datetime
-    valid: bool
+    # None if never successfully downloaded
+    last_successful_download_at: Optional[datetime]
+    last_download_attempt_at: datetime
+    last_download_attempt_downloaded: bool
+    last_download_attempt_valid: bool
+    last_download_attempt_error: str
+    days_since_last_successful_download: int
 
 
 class SourceFileMetricsRecord(models.Model):

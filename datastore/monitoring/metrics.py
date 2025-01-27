@@ -97,10 +97,30 @@ def gather_funders_metrics(timestamp):
 
 
 def source_file_metrics(sourcefile: SourceFile) -> SourceFileMetrics:
-    datagetter_metadata = sourcefile.data["datagetter_metadata"]
+    best_metadata = sourcefile.data["datagetter_metadata"]
+    last_attempt_metadata = (
+        GetterRun.latest()
+        .sourcefile_set.get(data__identifier=sourcefile.data["identifier"])
+        .data["datagetter_metadata"]
+    )
+
+    # datetime downloaded is in format "2025-01-27T00:02:46+00:00"
+    best_downloaded_datetime = datetime.fromisoformat(
+        best_metadata["datetime_downloaded"]
+    )
+    last_attempt_downloaded_datetime = datetime.fromisoformat(
+        last_attempt_metadata["datetime_downloaded"]
+    )
+
     return SourceFileMetrics(
-        last_downloaded_at=datagetter_metadata["datetime_downloaded"],
-        valid=datagetter_metadata["valid"],
+        last_successful_download_at=best_downloaded_datetime,
+        last_download_attempt_at=last_attempt_downloaded_datetime,
+        last_download_attempt_downloaded=last_attempt_metadata["downloads"],
+        last_download_attempt_valid=last_attempt_metadata["valid"],
+        last_download_attempt_error=last_attempt_metadata.get("error", ""),
+        days_since_last_successful_download=(
+            last_attempt_downloaded_datetime - best_downloaded_datetime
+        ).days,
     )
 
 

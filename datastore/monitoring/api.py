@@ -1,5 +1,4 @@
-import datetime
-
+from datetime import datetime, date
 from django.db.models import OuterRef, Subquery, ForeignKey, DO_NOTHING
 from rest_framework.generics import ListAPIView
 from rest_framework.settings import api_settings
@@ -21,16 +20,18 @@ class SnapshotAPIView(ListAPIView):
     identifier_fields = []  # override in subclasses
 
     def get_queryset(self):
-        snapshot_date = self.kwargs.get("snapshot_date")
+        snapshot_date_str = self.kwargs.get("snapshot_date")
         queryset = super().get_queryset()
 
-        if snapshot_date is None:
-            snapshot_date = datetime.date.today()
+        if snapshot_date_str is None:
+            # default to today's latest snapshot
+            snapshot_date = date.today()
+        else:
+            # convert from str to date
+            snapshot_date = date.fromisoformat(snapshot_date_str)
 
         # Find the latest snapshot on the given day, or earlier
-        snapshot_date_end_of_day = datetime.datetime.combine(
-            datetime.date.fromisoformat(snapshot_date), datetime.datetime.max.time()
-        )
+        snapshot_date_end_of_day = datetime.combine(snapshot_date, datetime.max.time())
         filtered_queryset = queryset.filter(timestamp__lte=snapshot_date_end_of_day)
 
         ident_filter = {idf: OuterRef(idf) for idf in self.identifier_fields}
