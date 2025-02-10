@@ -13,11 +13,13 @@ class TestTSGRecipientTypes(TestCase):
             },
         }
 
+        source_file = {}
+
         additional_data_in = {}
 
         additional_data_out = {"TSGRecipientType": "Individual"}
 
-        source.update_additional_data(grant, additional_data_in)
+        source.update_additional_data(grant, source_file, additional_data_in)
 
         self.assertEqual(
             additional_data_in,
@@ -35,11 +37,13 @@ class TestTSGRecipientTypes(TestCase):
             ],
         }
 
+        source_file = {}
+
         additional_data_in = {}
 
         additional_data_out = {"TSGRecipientType": "Organisation"}
 
-        source.update_additional_data(grant, additional_data_in)
+        source.update_additional_data(grant, source_file, additional_data_in)
 
         self.assertEqual(
             additional_data_in,

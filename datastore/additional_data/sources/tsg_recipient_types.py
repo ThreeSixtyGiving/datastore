@@ -5,7 +5,7 @@ class TSGRecipientTypesSource(object):
 
     ADDITIONAL_DATA_KEY = "TSGRecipientType"
 
-    def update_additional_data(self, grant, additional_data):
+    def update_additional_data(self, grant, source_file, additional_data):
         try:
             grant["recipientOrganization"][0]["id"]
             additional_data[self.ADDITIONAL_DATA_KEY] = "Organisation"

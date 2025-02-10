@@ -16,7 +16,27 @@ class Command(BaseCommand):
             help="The JSON file that contains an array of ThreeSixtyGiving grant data",
         )
 
+        parser.add_argument(
+            "--license-name",
+            action="store",
+            dest="license_name",
+            help="The name of the license under which this grant data is published",
+        )
+
+        parser.add_argument(
+            "--license-url",
+            action="store",
+            dest="license",
+            help="The URL of the license under which this grant data is published",
+        )
+
     def handle(self, *args, **options):
+
+        source_file = {}
+        if options["license_name"]:
+            source_file["license_name"] = options["license_name"]
+        if options["license"]:
+            source_file["license"] = options["license"]
 
         with open(options["grants_file"]) as grants_file:
             grants_json = json.load(grants_file)
@@ -24,7 +44,7 @@ class Command(BaseCommand):
             generator = AdditionalDataGenerator()
 
             for grant in grants_json["grants"]:
-                additional_data = generator.create(grant)
+                additional_data = generator.create(grant, source_file)
                 grant["additional_data"] = additional_data
 
             with open(options["grants_file"], "w") as grants_file:

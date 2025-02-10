@@ -78,7 +78,7 @@ class FindThatCharitySource(object):
         # This cache object typical size 68,458
         self._cache = {}
 
-    def update_additional_data(self, grant, additional_data):
+    def update_additional_data(self, grant, source_file, additional_data):
         # We can't do anything if this grant doesn't have a recipientOrganization
         if not grant.get("recipientOrganization"):
             return

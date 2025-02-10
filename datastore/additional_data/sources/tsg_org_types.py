@@ -27,7 +27,7 @@ class TSGOrgTypesSource(object):
             except re.error:
                 continue
 
-    def update_additional_data(self, grant, additional_data):
+    def update_additional_data(self, grant, source_file, additional_data):
         try:
             funding_org_id = grant["fundingOrganization"][0]["id"]
         except (KeyError, TypeError) as e:

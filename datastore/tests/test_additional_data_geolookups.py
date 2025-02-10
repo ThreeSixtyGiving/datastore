@@ -113,7 +113,7 @@ class TestAdditionalDataGeoLookup(TestCase):
 
         additional_data = {}
         geo = GeoLookupSource()
-        geo.update_additional_data(grant.data, additional_data)
+        geo.update_additional_data(grant.data, grant.source_file.data, additional_data)
 
         self.assertIn("locationLookup", additional_data)
         self.assertEqual(
@@ -139,7 +139,7 @@ class TestAdditionalDataGeoLookup(TestCase):
         }
 
         geo = GeoLookupSource()
-        geo.update_additional_data(grant.data, additional_data)
+        geo.update_additional_data(grant.data, grant.source_file.data, additional_data)
 
         self.assertIn("locationLookup", additional_data)
         self.assertEqual(
@@ -157,7 +157,7 @@ class TestAdditionalDataGeoLookup(TestCase):
 
         additional_data = {}
         geo = GeoLookupSource()
-        geo.update_additional_data(grant.data, additional_data)
+        geo.update_additional_data(grant.data, grant.source_file.data, additional_data)
 
         self.assertIn("locationLookup", additional_data)
         self.assertEqual(
@@ -180,7 +180,7 @@ class TestAdditionalDataGeoLookup(TestCase):
             "recipientOrganizationLocation": {"lsoa11": self.EXISTING_AREA}
         }
         geo = GeoLookupSource()
-        geo.update_additional_data(grant.data, additional_data)
+        geo.update_additional_data(grant.data, grant.source_file.data, additional_data)
 
         self.assertIn("locationLookup", additional_data)
         self.assertEqual(

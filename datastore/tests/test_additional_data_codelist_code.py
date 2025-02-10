@@ -18,6 +18,8 @@ class TestCodeLists(TestCase):
             "locationScope": "GLS040",
         }
 
+        source_file = {}
+
         additional_data_in = {}
 
         expected_additional_data_out = {
@@ -32,7 +34,7 @@ class TestCodeLists(TestCase):
             }
         }
 
-        source.update_additional_data(grant, additional_data_in)
+        source.update_additional_data(grant, source_file, additional_data_in)
 
         self.assertEqual(
             additional_data_in,

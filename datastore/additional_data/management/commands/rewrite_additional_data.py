@@ -44,9 +44,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if "latest" in options["getter_run"]:
-            grants = Latest.objects.get(series=Latest.CURRENT).grant_set.all()
+            grants = (
+                Latest.objects.get(series=Latest.CURRENT)
+                .grant_set.select_related("source_file")
+                .all()
+            )
         else:
-            grants = Grant.objects.filter(getter_run=options["getter_run"])
+            grants = Grant.objects.select_related("source_file").filter(
+                getter_run=options["getter_run"]
+            )
 
         generator = AdditionalDataGenerator()
         data_sources = options["data_sources"]
@@ -64,9 +70,15 @@ class Command(BaseCommand):
 
             for grant in page_grants:
                 if data_sources:
-                    additional_data = generator.create(grant.data, data_sources)
+                    additional_data = generator.create(
+                        grant.data,
+                        grant.source_file.data,
+                        additional_data_sources=data_sources,
+                    )
                 else:
-                    additional_data = generator.create(grant.data)
+                    additional_data = generator.create(
+                        grant.data, grant.source_file.data
+                    )
 
                 grant.additional_data = additional_data
 

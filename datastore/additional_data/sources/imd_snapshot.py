@@ -45,6 +45,6 @@ class IMDSnapshotSource:
 
         logger.info(f"Loaded {len(created)} Wards from CSV")
 
-    def update_additional_data(self, grant, additional_data):
+    def update_additional_data(self, grant, source_file, additional_data):
         # TODO: Annotate additional_data with IMD & population values
         pass
