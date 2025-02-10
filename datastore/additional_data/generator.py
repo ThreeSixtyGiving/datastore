@@ -8,6 +8,7 @@ from additional_data.sources.additional_data_recipient_location import (
 from additional_data.sources.codelist_code import CodeListSource
 from additional_data.sources.tsg_recipient_types import TSGRecipientTypesSource
 from additional_data.sources.imd_snapshot import IMDSnapshotSource
+from additional_data.sources.grant_metadata import GrantMetadataSource
 
 
 # This ordering is important for any data dependencies
@@ -21,6 +22,7 @@ DATA_SOURCES = [
     "code_lists",
     "tsg_recipient_type",
     "imd_snapshot",
+    "grant_metadata",
 ]
 
 
@@ -36,17 +38,22 @@ class AdditionalDataGenerator(object):
         self.code_lists = CodeListSource()
         self.tsg_recipient_type = TSGRecipientTypesSource()
         self.imd_snapshot = IMDSnapshotSource()
-        # Initialise Other Sources here
+        self.grant_metadata = GrantMetadataSource()
+        # Initialise other additional data sources here
 
-    def create(self, grant, data_sources=DATA_SOURCES):
+    def create(self, grant, source_file, additional_data_sources=DATA_SOURCES):
         """Takes a grant's data and returns a dict of additional data"""
 
         additional_data = {}
 
-        for source in data_sources:
+        for additional_data_source in additional_data_sources:
             try:
-                getattr(self, source).update_additional_data(grant, additional_data)
+                getattr(self, additional_data_source).update_additional_data(
+                    grant, source_file, additional_data
+                )
             except AttributeError:
-                raise Exception(f"Data source {source} is not a known data source.")
+                raise Exception(
+                    f"Data source {additional_data_source} is not a known additional data source."
+                )
 
         return additional_data

@@ -50,7 +50,9 @@ class TestAdditionalData(TestCase):
 
         additional_data = {}
 
-        find_that_charity_source.update_additional_data(grant.data, additional_data)
+        find_that_charity_source.update_additional_data(
+            grant.data, grant.source_file.data, additional_data
+        )
 
         self.assertEqual(
             FindThatCharitySource.ADDITIONAL_DATA_KEY in additional_data,

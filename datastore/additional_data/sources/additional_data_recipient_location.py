@@ -16,7 +16,7 @@ class AdditionalDataRecipientLocation(object):
        "recipientLocation", # string of all the above
     """
 
-    def update_additional_data(self, grant, additional_data):
+    def update_additional_data(self, grant, source_file, additional_data):
         # If we have locationLookup from beneficiaryLocation or we don't have any
         # recipientRegionName take whatever data we can from locationLookup instead
         # which is populated in geo_lookup

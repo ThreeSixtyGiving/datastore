@@ -42,9 +42,8 @@ class CodeListSource(object):
                             list_name=list_name,
                         )
 
-    def update_additional_data(self, grant, additional_data):
-        # check All the fields in the grant data that use codelists and make
-        # additional data field versions of them
+    def update_additional_data(self, grant, source_file, additional_data):
+        # check All the fields in the grant data that use codelists and make additional data field versions of them
 
         primaryGrantReason = ""
         secondaryGrantReason = ""

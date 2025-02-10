@@ -189,7 +189,7 @@ class NSPLSource(object):
 
         return location_data
 
-    def update_additional_data(self, grant, additional_data):
+    def update_additional_data(self, grant, source_file, additional_data):
         """
         Updates with 'recipientOrganizationLocation' based on it's postcode.
         It checks first the `recipientOrganization` `postalCode` in the grant.

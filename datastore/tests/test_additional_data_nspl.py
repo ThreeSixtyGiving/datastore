@@ -138,7 +138,7 @@ class TestAdditionalDataNSPL(TestCase):
 
         additional_data = {}
         nspl = NSPLSource()
-        nspl.update_additional_data(grant.data, additional_data)
+        nspl.update_additional_data(grant.data, grant.source_file.data, additional_data)
 
         self.assertIn("recipientOrganizationLocation", additional_data)
         self.assertEqual(
@@ -167,7 +167,9 @@ class TestAdditionalDataNSPL(TestCase):
 
                 additional_data = {}
                 nspl = NSPLSource()
-                nspl.update_additional_data(grant.data, additional_data)
+                nspl.update_additional_data(
+                    grant.data, grant.source_file.data, additional_data
+                )
 
                 self.assertIn("recipientOrganizationLocation", additional_data)
                 self.assertNotEqual(
@@ -191,7 +193,7 @@ class TestAdditionalDataNSPL(TestCase):
 
         additional_data = {}
         nspl = NSPLSource()
-        nspl.update_additional_data(grant.data, additional_data)
+        nspl.update_additional_data(grant.data, grant.source_file.data, additional_data)
 
         self.assertNotIn("recipientOrganizationLocation", additional_data)
         self.assertEqual(len(additional_data), 0)
@@ -205,7 +207,7 @@ class TestAdditionalDataNSPL(TestCase):
 
         additional_data = {}
         nspl = NSPLSource()
-        nspl.update_additional_data(grant.data, additional_data)
+        nspl.update_additional_data(grant.data, grant.source_file.data, additional_data)
 
         self.assertNotIn("recipientOrganizationLocation", additional_data)
         self.assertEqual(len(additional_data), 0)
@@ -220,7 +222,7 @@ class TestAdditionalDataNSPL(TestCase):
 
         additional_data = {"recipientOrgInfos": [{"postalCode": "EX364DE"}]}
         nspl = NSPLSource()
-        nspl.update_additional_data(grant.data, additional_data)
+        nspl.update_additional_data(grant.data, grant.source_file.data, additional_data)
 
         self.assertEqual(
             additional_data["recipientOrganizationLocation"],

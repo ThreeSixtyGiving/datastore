@@ -16,7 +16,9 @@ class TestTSGOrgTypeAdditionalData(TestCase):
 
         additional_data = {}
 
-        tsg_org_types.update_additional_data(grant.data, additional_data)
+        tsg_org_types.update_additional_data(
+            grant.data, grant.source_file.data, additional_data
+        )
 
         lowest_priority_org_type = (
             TSGOrgType.objects.order_by("priority").first().tsg_org_type
@@ -36,7 +38,9 @@ class TestTSGOrgTypeAdditionalData(TestCase):
         grant.data["fundingOrganization"][0]["id"] = "GB-GOR-PC390"
 
         additional_data = {}
-        tsg_org_types.update_additional_data(grant.data, additional_data)
+        tsg_org_types.update_additional_data(
+            grant.data, grant.source_file.data, additional_data
+        )
 
         self.assertTrue(
             "Lottery Distributor"

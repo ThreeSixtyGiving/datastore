@@ -114,7 +114,7 @@ class GeoLookupSource(object):
         except GeoLookup.DoesNotExist:
             pass
 
-    def update_additional_data(self, grant, additional_data):
+    def update_additional_data(self, grant, source_file, additional_data):
         """Updates with 'locationLookup' based on available areas."""
         additional_data["locationLookup"] = []
 

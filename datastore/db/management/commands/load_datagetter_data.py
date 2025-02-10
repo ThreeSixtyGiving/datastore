@@ -157,7 +157,9 @@ class Command(BaseCommand):
 
                 for grant in grant_data["grants"]:
                     try:
-                        additional_data = grant_additional_data_generator.create(grant)
+                        additional_data = grant_additional_data_generator.create(
+                            grant, source_file.data
+                        )
                     except Exception as e:
                         print(
                             "Generating additional for grant %s failed %s"
