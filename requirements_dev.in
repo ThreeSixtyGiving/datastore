@@ -27,3 +27,14 @@ django-cors-headers<4.5
 django-debug-toolbar>=4.3.0,<5
 # django-debug-toolbar does sometimes break things in "minor" releases
 # Changelog: https://django-debug-toolbar.readthedocs.io/en/latest/changes.html
+
+polyfactory>=2.19.0,<3
+# For testing
+# Follows semantic versioning where major version denotes breaking changes
+# See: https://github.com/litestar-org/polyfactory/blob/main/docs/releases.rst#polyfactory-releases
+# Changelog: https://github.com/litestar-org/polyfactory/releases
+
+Faker>=35.2.0,<36
+# For testing
+# Project: https://faker.readthedocs.io/en/stable/
+# Changelog: https://github.com/joke2k/faker/blob/master/CHANGELOG.md

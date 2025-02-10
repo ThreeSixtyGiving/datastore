@@ -101,6 +101,10 @@ exceptiongroup==1.2.2
     # via
     #   trio
     #   trio-websocket
+faker==35.2.0
+    # via
+    #   -r requirements_dev.in
+    #   polyfactory
 flake8==6.0.0
     # via -r requirements_dev.in
 flattentool==0.26.0
@@ -163,6 +167,8 @@ persistent==6.1
     #   zodb
 platformdirs==4.3.6
     # via black
+polyfactory==2.19.0
+    # via -r requirements_dev.in
 prometheus-client==0.7.1
     # via -r /home/rikki/Projects/datastore/requirements.in
 psycopg2==2.9.10
@@ -185,7 +191,9 @@ pysocks==1.7.1
     #   requests
     #   urllib3
 python-dateutil==2.9.0.post0
-    # via lib360dataquality
+    # via
+    #   faker
+    #   lib360dataquality
 pytz==2024.2
     # via
     #   datagetter
@@ -250,6 +258,8 @@ typing-extensions==4.12.2
     #   asgiref
     #   black
     #   drf-spectacular
+    #   faker
+    #   polyfactory
     #   selenium
 uritemplate==4.1.1
     # via drf-spectacular

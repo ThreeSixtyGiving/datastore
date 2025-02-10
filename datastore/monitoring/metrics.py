@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from typing import Optional
 
 from django.db import transaction
 
@@ -21,9 +22,10 @@ from monitoring.serializers import (
 logger = logging.getLogger(__name__)
 
 
-def gather_metrics():
+def gather_metrics(timestamp: Optional[datetime] = None) -> None:
     with transaction.atomic():
-        timestamp = GetterRun.latest().datetime
+        if not timestamp:
+            timestamp = GetterRun.latest().datetime
 
         created_publisher_metrics = gather_publisher_metrics(timestamp)
         logger.info(

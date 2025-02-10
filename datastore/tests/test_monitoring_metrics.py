@@ -1,6 +1,28 @@
-from django.test import TestCase
+from datetime import timedelta, datetime, date
+from typing import Dict, Any, TypedDict, NamedTuple, Literal, List, Optional
+from contextlib import contextmanager
+from django.urls import reverse
+from rest_framework.test import APITestCase
 
-from db.models import Publisher, Funder, SourceFile
+from dataclasses import asdict
+from django.test import TestCase
+from django.utils import timezone
+
+import faker
+
+from django.db import transaction
+
+from db.models import (
+    Publisher,
+    Funder,
+    SourceFile,
+    GetterRun,
+    Entity,
+    Recipient,
+    Grant,
+    Latest,
+)
+from db.management.commands.manage_entities_data import update_entities
 from monitoring.metrics import (
     gather_metrics,
     publisher_metrics,
@@ -12,6 +34,209 @@ from monitoring.models import (
     FunderMetricsRecord,
     SourceFileMetricsRecord,
 )
+
+from .fake_testdata import (
+    fake_getter_run,
+    fake_publisher,
+    fake_sourcefile,
+    fake_grant,
+    copy_sourcefile,
+    copy_publisher,
+    copy_grant,
+)
+
+
+class TestMonitoringMetricsQueries(APITestCase):
+    # Things to test:
+    # * Adding a new thing e.g. Publisher in a new GetterRun
+    #    - Displayed when looking up new metrics
+    #    - Doesn't crash when looking up old metrics, and old one shouldn't be displayed
+    # * Removing a thing e.g. Funder
+    #   - Should show all others with new timestamp, removed thing with old timestamp?
+    # * Get a snapshot for a specific day, not earlier or later values
+    # * Get the latest values for a day where there are multiple values for the same day
+    # * A sourcefile goes down, increasing the timestamp difference, and comes back up again
+
+    def get_sourcefile_record(
+        self, sourcefile_identifier: str, snapshot_date: Optional[date] = None
+    ):
+        """Helper method to get the metrics record for a given sourcefile via API"""
+        query_kwargs = {}
+        if snapshot_date:
+            query_kwargs = {"snapshot_date": snapshot_date.isoformat()}
+
+        response = self.client.get(
+            reverse("api:source-file-metrics-snapshot", kwargs=query_kwargs)
+        ).json()
+        sourcefile_record = [
+            sf
+            for sf in response
+            if sf["sourcefile_identifier"] == sourcefile_identifier
+        ]
+        # The metrics API should only ever return one record per SourceFile
+        # ie. the most recent before the given timestamp (or latest if timestamp is None)
+        self.assertEqual(len(sourcefile_record), 1)
+        return sourcefile_record[0]
+
+    @transaction.atomic()
+    def test_new_publisher(self):
+        # Check that:
+        # * When a new GetterRun introduces a new Publisher, it appears in the new metrics snapshot
+        # * and the old metrics snapshot still renders correctly
+        fake = faker.Faker()
+
+        # Check that we start with no metrics snapshots
+        self.assertEqual(PublisherMetricsRecord.objects.count(), 0)
+
+        # Create first test GetterRun & Metrics
+        getter_run_1 = GetterRun.objects.create(datetime=fake.past_date())
+        publisher_1 = fake_publisher(fake, getter_run_1)
+        sourcefile_1 = fake_sourcefile(fake, publisher_1)
+        Latest.update(force_with_zero_grants=True)
+        gather_metrics()
+
+        # Check that we now have at least one Publisher
+        start_num_publishers = PublisherMetricsRecord.objects.filter(
+            timestamp=getter_run_1.datetime
+        ).count()
+        self.assertEqual(start_num_publishers, 1)
+
+        # Create second GetterRun, with old + new Publishers
+        getter_run_2 = GetterRun.objects.create(
+            datetime=getter_run_1.datetime + datetime.timedelta(days=1)
+        )
+
+        copy_publisher(fake, publisher_1, getter_run_2)
+        copy_sourcefile(fake, sourcefile_1, getter_run_2)
+
+        publisher_2 = fake_publisher(fake, getter_run_2)
+        sourcefile_2 = fake_sourcefile(fake, publisher_2)
+        Latest.update(force_with_zero_grants=True)
+        gather_metrics()
+
+        # Check that the previous snapshot still has the same number of Publishers
+        self.assertEqual(
+            PublisherMetricsRecord.objects.filter(
+                timestamp=getter_run_1.datetime
+            ).count(),
+            start_num_publishers,
+        )
+
+        # Check that the new snapshot has +1 Publishers
+        self.assertEqual(
+            PublisherMetricsRecord.objects.filter(
+                timestamp=getter_run_2.datetime
+            ).count(),
+            start_num_publishers + 1,
+        )
+
+    @transaction.atomic()
+    def test_sourcefile_downtime(self):
+        # Create a Publisher with a SourceFile
+        # The SourceFile will be down in the second GetterRun, then back up in the fourth
+        # Check that the timestamp diff is as expected
+        # Create first test GetterRun & Metrics
+        url_name = "api:source-file-metrics-snapshot"
+        fake = faker.Faker()
+
+        funding_org = {"id": "GB-CHC-9000147", "name": fake.company()}
+        recipient_org = {"id": "GB-CHC-9058631", "name": fake.company()}
+
+        # Check that we start with no metrics snapshots
+        self.assertEqual(PublisherMetricsRecord.objects.count(), 0)
+        self.assertEqual(SourceFileMetricsRecord.objects.all().count(), 0)
+        response = self.client.get(reverse(url_name))
+
+        # First GetterRun
+        with fake_getter_run(fake) as getter_run:
+            getter_run_1 = getter_run
+            test_publisher = fake_publisher(fake, getter_run_1)
+            test_sourcefile = fake_sourcefile(
+                fake, test_publisher, valid=True, downloads=True
+            )
+            test_sourcefile_identifier = test_sourcefile.data["identifier"]
+            test_grant = fake_grant(
+                fake,
+                sourcefile=test_sourcefile,
+                funder=funding_org,
+                recipient=recipient_org,
+            )
+
+        self.assertEqual(
+            Latest.objects.get(series=Latest.CURRENT).sourcefile_set.count(), 1
+        )
+        self.assertEqual(SourceFileMetricsRecord.objects.all().count(), 1)
+
+        # Check that the SourceFile is up
+        self.assertEqual(
+            self.get_sourcefile_record(test_sourcefile_identifier)["metrics"][
+                "days_since_last_successful_download"
+            ],
+            0,
+        )
+
+        # Fake two days of sourcefile downtime
+        # Run two GetterRuns (as they tend to be about 24 hours apart, but can be slightly less,
+        # so it can still be less than 1 full day difference after just one)
+
+        with fake_getter_run(fake) as getter_run:
+            getter_run_2 = getter_run
+            copy_publisher(fake, test_publisher, getter_run_2)
+            copy_sourcefile(
+                fake,
+                test_sourcefile,
+                getter_run_2,
+                downloads=False,
+                valid=False,
+                copy_grants=False,
+            )
+
+        with fake_getter_run(fake) as getter_run:
+            getter_run_3 = getter_run
+            copy_publisher(fake, test_publisher, getter_run_3)
+            copy_sourcefile(
+                fake,
+                test_sourcefile,
+                getter_run_3,
+                downloads=True,
+                valid=False,
+                copy_grants=False,
+            )
+
+        # Check that sourcefile is down
+        # i.e. days_since_last_successful_download >= 1
+        self.assertGreaterEqual(
+            self.get_sourcefile_record(test_sourcefile_identifier)["metrics"][
+                "days_since_last_successful_download"
+            ],
+            1,
+        )
+
+        # Fake bringing the sourcefile back up
+        with fake_getter_run(fake) as getter_run:
+            getter_run_4 = getter_run
+            copy_publisher(fake, test_publisher, getter_run_4)
+            test_sourcefile_4 = copy_sourcefile(
+                fake,
+                sourcefile=test_sourcefile,
+                new_getter_run=getter_run,
+                downloads=True,
+                valid=True,
+            )
+            copy_grant(
+                fake,
+                grant=test_grant,
+                new_getter_run=getter_run,
+                new_sourcefile=test_sourcefile_4,
+            )
+
+        # Check that sourcefile back up
+        self.assertEqual(
+            self.get_sourcefile_record(test_sourcefile_identifier)["metrics"][
+                "days_since_last_successful_download"
+            ],
+            0,
+        )
 
 
 class TestMonitoringMetrics(TestCase):
@@ -33,8 +258,12 @@ class TestMonitoringMetrics(TestCase):
     ]
 
     source_file_metrics = [
-        "last_downloaded_at",
-        "valid",
+        "last_successful_download_at",
+        "last_download_attempt_at",
+        "last_download_attempt_downloaded",
+        "last_download_attempt_valid",
+        "last_download_attempt_error",
+        "days_since_last_successful_download",
     ]
 
     def test_gather_metrics(self):
@@ -53,22 +282,22 @@ class TestMonitoringMetrics(TestCase):
         )
 
     def test_publisher_metrics(self):
-        values = publisher_metrics(Publisher.objects.last())
+        for publisher in Publisher.objects.all():
+            values = asdict(publisher_metrics(publisher))
 
-        for metric in self.publisher_metrics:
-            self.assertIn(metric, values)
-            self.assertIsNotNone(values[metric])
+            for metric in self.publisher_metrics:
+                self.assertIn(metric, values)
 
     def test_funder_metrics(self):
-        values = funder_metrics(Funder.objects.last())
+        for funder in Funder.objects.all():
+            values = asdict(funder_metrics(funder))
 
-        for metric in self.funder_metrics:
-            self.assertIn(metric, values)
-            self.assertIsNotNone(values[metric])
+            for metric in self.funder_metrics:
+                self.assertIn(metric, values)
 
     def test_source_file_metrics(self):
-        values = source_file_metrics(SourceFile.objects.last())
+        for source_file in SourceFile.objects.all():
+            values = asdict(source_file_metrics(source_file))
 
-        for metric in self.source_file_metrics:
-            self.assertIn(metric, values)
-            self.assertIsNotNone(values[metric])
+            for metric in self.source_file_metrics:
+                self.assertIn(metric, values)
