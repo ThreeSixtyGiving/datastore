@@ -4,10 +4,10 @@
 #
 #    pip-compile requirements_dev.in
 #
--e git+https://github.com/ThreeSixtyGiving/datagetter.git@a532cfa17fe72212f1c2e4b268891c1e70eaabe6#egg=datagetter
-    # via -r /home/rikki/Projects/datastore/requirements.in
+-e git+https://github.com/ThreeSixtyGiving/datagetter.git@033f65fd5477f2024b02d5c7b4f05e496ffd274c#egg=datagetter
+    # via -r requirements.in
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@e8676bea246ca850b449ff053948059cc611e17f#egg=lib360dataquality
-    # via -r /home/rikki/Projects/datastore/requirements.in
+    # via -r requirements.in
 apsw==3.46.1.0
     # via datagetter
 asgiref==3.8.1
@@ -61,7 +61,7 @@ defusedxml==0.7.1
     #   odfpy
 django==4.2.16
     # via
-    #   -r /home/rikki/Projects/datastore/requirements.in
+    #   -r requirements.in
     #   django-cors-headers
     #   django-debug-toolbar
     #   django-filter
@@ -74,22 +74,22 @@ django-cors-headers==4.4.0
 django-debug-toolbar==4.4.6
     # via -r requirements_dev.in
 django-environ==0.9.0
-    # via -r /home/rikki/Projects/datastore/requirements.in
+    # via -r requirements.in
 django-filter==24.3
-    # via -r /home/rikki/Projects/datastore/requirements.in
+    # via -r requirements.in
 django-prettyjson==0.4.1
-    # via -r /home/rikki/Projects/datastore/requirements.in
+    # via -r requirements.in
 djangorestframework==3.15.2
     # via
-    #   -r /home/rikki/Projects/datastore/requirements.in
+    #   -r requirements.in
     #   djangorestframework-dataclasses
     #   drf-spectacular
 djangorestframework-dataclasses==1.3.1
-    # via -r /home/rikki/Projects/datastore/requirements.in
+    # via -r requirements.in
 docopt==0.6.2
     # via coveralls
 drf-spectacular==0.27.2
-    # via -r /home/rikki/Projects/datastore/requirements.in
+    # via -r requirements.in
 et-xmlfile==2.0.0
     # via
     #   datagetter
@@ -161,9 +161,9 @@ persistent==6.1
 platformdirs==4.3.6
     # via black
 prometheus-client==0.7.1
-    # via -r /home/rikki/Projects/datastore/requirements.in
+    # via -r requirements.in
 psycopg2==2.9.10
-    # via -r /home/rikki/Projects/datastore/requirements.in
+    # via -r requirements.in
 pycodestyle==2.10.0
     # via flake8
 pycparser==2.22
