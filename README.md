@@ -1,6 +1,6 @@
 # DataStore for [360 Giving](https://threesixtygiving.org) data
 
-[![Coverage Status](https://coveralls.io/repos/github/ThreeSixtyGiving/datastore/badge.svg?branch=master)](https://coveralls.io/github/ThreeSixtyGiving/datastore?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/ThreeSixtyGiving/datastore/badge.svg?branch=live)](https://coveralls.io/github/ThreeSixtyGiving/datastore?branch=live)
 
 ## Postgres setup
 
