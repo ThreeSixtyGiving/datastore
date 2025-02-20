@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements_dev.in
 #
--e git+https://github.com/ThreeSixtyGiving/datagetter.git@033f65fd5477f2024b02d5c7b4f05e496ffd274c#egg=datagetter
+-e git+https://github.com/ThreeSixtyGiving/datagetter.git@b907c5c0463c853b56abe4ca52df88d285cc7f67#egg=datagetter
     # via -r requirements.in
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@e8676bea246ca850b449ff053948059cc611e17f#egg=lib360dataquality
     # via -r requirements.in
