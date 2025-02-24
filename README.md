@@ -219,6 +219,13 @@ During the load of grant data (`datagetter` data) that is done by the `db` modul
 
 The `generator` ensures a particular order to additional_data fields being added which allows for dependencies of one source to another.
 
+## monitoring
+
+The `monitoring` module keeps a timeseries history of snapshots of statistics and metrics about the grant data.
+It exports a management command `record_monitoring_metrics` which creates a new snapshot of the current state of grants.
+These snapshots can be used both on a daily basis to monitor for changes or power live dashboards, or for historical analysis of changes over time.
+An API is exposed from the `api` module.
+
 ## prometheus
 
 Provides a [prometheus](https://prometheus.io/) endpoint to monitor vital metrics on the datastore
