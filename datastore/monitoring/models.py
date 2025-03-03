@@ -70,7 +70,12 @@ class DatasetMetrics:
     """
 
     total_grants: int
+    total_grants_to_individuals: int
     total_amount_awarded_gbp: int
+    total_publishers: int
+    total_funders: int
+    total_recipient_individuals: int
+    total_recipient_organisations: int
 
 
 class DatasetMetricsRecord(AbstractMetricsRecord):
