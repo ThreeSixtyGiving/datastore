@@ -32,7 +32,7 @@ class Latest(models.Model):
         return cls.objects.get(series=cls.CURRENT).sourcefile_set.all()
 
     @staticmethod
-    def update():
+    def update(force_with_zero_grants: bool = False):
         latest_getter = GetterRun.objects.order_by("-datetime")[:1].get()
 
         # Delete any old nexts hanging around
@@ -91,7 +91,7 @@ class Latest(models.Model):
 
         # Before we set this as current check that there are more than 0 grants
         # Do the switcher-round
-        if grant_count > 0:
+        if grant_count > 0 or force_with_zero_grants:
             # Delete the old previous
             Latest.objects.filter(series=Latest.PREVIOUS).delete()
             # Make the current the previous
