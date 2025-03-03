@@ -222,7 +222,7 @@ The `generator` ensures a particular order to additional_data fields being added
 ## monitoring
 
 The `monitoring` module keeps a timeseries history of snapshots of statistics and metrics about the grant data.
-It exports a management command `record_monitoring_metrics` which creates a new snapshot of the current state of grants.
+It exports a management command `create_monitoring_snapshot` which creates a new snapshot of the current state of grants, as well as `list_monitoring_snapshots` and `delete_monitoring_snapshot` helper commands.
 These snapshots can be used both on a daily basis to monitor for changes or power live dashboards, or for historical analysis of changes over time.
 An API is exposed from the `api` module.
 
