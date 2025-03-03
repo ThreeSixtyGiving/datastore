@@ -3,10 +3,12 @@ from datetime import datetime
 from typing import Optional, List
 
 from django.db import transaction
-from django.db.models import Sum, FloatField, BigIntegerField
+from django.db.models import FloatField, BigIntegerField
+from django.db.models.aggregates import Sum, Count
+from django.db.models.fields import TextField
 from django.db.models.functions import Cast
 
-from db.models import Funder, GetterRun, SourceFile, Publisher, Latest
+from db.models import Funder, GetterRun, SourceFile, Publisher, Latest, Recipient
 from monitoring.models import (
     PublisherMetricsRecord,
     FunderMetricsRecord,
@@ -64,16 +66,33 @@ def gather_metrics(timestamp: Optional[datetime] = None) -> None:
 def dataset_metrics(latest: Latest) -> DatasetMetrics:
     # The Latest Best dataset comprises a set of sourcefiles
     sourcefiles = latest.sourcefile_set
+    grants = latest.grant_set
 
-    agg = sourcefiles.aggregate(
+    sf_agg = sourcefiles.aggregate(
         # In postgresql JSONB values must be cast before aggregate functions
         total_grants=Sum(Cast("aggregate__count", BigIntegerField())),
         total_gbp=Sum(Cast("aggregate__currencies__GBP__total_amount", FloatField())),
     )
 
+    gr_agg = grants.aggregate(
+        total_grants_to_individuals=Count(
+            Cast("data__recipientIndividual__id", TextField()), distinct=False
+        ),
+        total_recipient_individuals=Count(
+            Cast("data__recipientIndividual__id", TextField()), distinct=True
+        ),
+    )
+
     return DatasetMetrics(
-        total_grants=agg["total_grants"],
-        total_amount_awarded_gbp=agg["total_gbp"],
+        total_grants=sf_agg["total_grants"],
+        total_grants_to_individuals=gr_agg["total_grants_to_individuals"],
+        total_amount_awarded_gbp=sf_agg["total_gbp"],
+        total_publishers=Publisher.objects.filter(
+            getter_run=GetterRun.latest()
+        ).count(),
+        total_funders=Funder.objects.count(),
+        total_recipient_organisations=Recipient.objects.count(),
+        total_recipient_individuals=gr_agg["total_recipient_individuals"],
     )
 
 
