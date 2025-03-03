@@ -151,7 +151,7 @@ def funder_metrics(funder: Funder) -> FunderMetrics:
     )
 
 
-def gather_funders_metrics(snapshot: MonitoringSnapshot) -> SourceFileMetricsRecord:
+def gather_funders_metrics(snapshot: MonitoringSnapshot) -> List[FunderMetricsRecord]:
     records = [
         FunderMetricsRecord(
             snapshot=snapshot,
@@ -198,7 +198,7 @@ def source_file_metrics(sourcefile: SourceFile) -> SourceFileMetrics:
     )
 
 
-def gather_source_files_metrics(snapshot: datetime):
+def gather_source_files_metrics(snapshot: MonitoringSnapshot):
     records = [
         SourceFileMetricsRecord(
             snapshot=snapshot,
