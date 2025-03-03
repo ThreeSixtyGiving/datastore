@@ -53,6 +53,10 @@ def gather_metrics(timestamp: Optional[datetime] = None) -> None:
             "Created %s source file metrics records", len(created_source_file_metrics)
         )
 
+        logger.info(
+            f"Created Snapshot {snapshot.id} @ {snapshot.timestamp.isoformat()}"
+        )
+
 
 # Dataset
 
