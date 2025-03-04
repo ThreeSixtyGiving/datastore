@@ -68,6 +68,9 @@ echo_stamp "Load the downloaded datagetter data into datastore"
 
 ./datastore/manage.py load_datagetter_data $DOWNLOAD_DIR/data
 
+echo_stamp "Create monitoring snapshot"
+./datastore/manage.py create_monitoring_snapshot
+
 ./datastore/manage.py set_status --what datastore --status IDLE
 
 echo_stamp "Create GrantNav package"
