@@ -68,9 +68,6 @@ echo_stamp "Load the downloaded datagetter data into datastore"
 
 ./datastore/manage.py load_datagetter_data $DOWNLOAD_DIR/data
 
-echo_stamp "Create monitoring snapshot"
-./datastore/manage.py create_monitoring_snapshot
-
 ./datastore/manage.py set_status --what datastore --status IDLE
 
 echo_stamp "Create GrantNav package"
@@ -107,3 +104,9 @@ echo_stamp "Data package ready"
 
 ./datastore/manage.py set_status --what grantnav_data_package --status READY
 
+echo_stamp "Create monitoring snapshot"
+./datastore/manage.py set_status --what monitoring_snapshot --status IN_PROGRESS
+
+./datastore/manage.py create_monitoring_snapshot || true # Allow to fail without bringing down the whole pipeline
+
+./datastore/manage.py set_status --what monitoring_snapshot --status READY
