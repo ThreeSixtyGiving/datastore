@@ -143,7 +143,7 @@ class SourceFileMetrics:
     last_download_attempt_at: datetime
     last_download_attempt_download_url: str
     last_download_attempt_downloaded: bool
-    last_download_attempt_valid: bool
+    last_download_attempt_valid: Optional[bool]
     last_download_attempt_error: str
     days_since_last_successful_download: int
 

@@ -474,6 +474,7 @@ class Statuses(object):
     DATAGETTER = "datagetter"
     DATASTORE = "datastore"
     GRANTNAV_DATA_PACKAGE = "grantnav_data_package"
+    MONITORING_SNAPSHOT = "monitoring_snapshot"
 
 
 class Status(models.Model):
@@ -489,6 +490,8 @@ class Status(models.Model):
                 and Status.objects.get(what=Statuses.GRANTNAV_DATA_PACKAGE).status
                 == Statuses.READY
                 and Status.objects.get(what=Statuses.DATASTORE).status == Statuses.IDLE
+                and Status.objects.get(what=Statuses.MONITORING_SNAPSHOT).status
+                == Statuses.READY
             )
         except Status.DoesNotExist:
             # We have no status set so we consider this as idle and ready
