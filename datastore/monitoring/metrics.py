@@ -96,15 +96,20 @@ def dataset_metrics(latest: Latest) -> DatasetMetrics:
     )
 
 
-def gather_dataset_metrics(snapshot: MonitoringSnapshot) -> DatasetMetricsRecord:
-    record = DatasetMetricsRecord.objects.create(
-        snapshot=snapshot,
-        timestamp=snapshot.timestamp,
-        metrics=DatasetMetricsSerializer(
-            dataset_metrics(Latest.objects.get(series=Latest.CURRENT))
-        ).data,
-    )
-    return record
+def gather_dataset_metrics(
+    snapshot: MonitoringSnapshot,
+) -> Optional[DatasetMetricsRecord]:
+    try:
+        record = DatasetMetricsRecord.objects.create(
+            snapshot=snapshot,
+            timestamp=snapshot.timestamp,
+            metrics=DatasetMetricsSerializer(
+                dataset_metrics(Latest.objects.get(series=Latest.CURRENT))
+            ).data,
+        )
+        return record
+    except Exception as e:
+        logger.error("Failed to create metrics record for Dataset: %s", e)
 
 
 # Publisher
@@ -127,15 +132,25 @@ def publisher_metrics(publisher: Publisher) -> PublisherMetrics:
 def gather_publisher_metrics(
     snapshot: MonitoringSnapshot,
 ) -> List[PublisherMetricsRecord]:
-    records = [
-        PublisherMetricsRecord(
-            snapshot=snapshot,
-            timestamp=snapshot.timestamp,
-            publisher_prefix=publisher.prefix,
-            metrics=PublisherMetricsSerializer(publisher_metrics(publisher)).data,
-        )
-        for publisher in Publisher.objects.filter(getter_run=GetterRun.latest())
-    ]
+    records = list()
+    for publisher in Publisher.objects.filter(getter_run=GetterRun.latest()):
+        try:
+            records.append(
+                PublisherMetricsRecord(
+                    snapshot=snapshot,
+                    timestamp=snapshot.timestamp,
+                    publisher_prefix=publisher.prefix,
+                    metrics=PublisherMetricsSerializer(
+                        publisher_metrics(publisher)
+                    ).data,
+                )
+            )
+        except Exception as e:
+            logger.error(
+                "Exception while creating metrics record for Publisher %s: %s",
+                publisher.name,
+                e,
+            )
     return PublisherMetricsRecord.objects.bulk_create(records)
 
 
@@ -152,16 +167,24 @@ def funder_metrics(funder: Funder) -> FunderMetrics:
 
 
 def gather_funders_metrics(snapshot: MonitoringSnapshot) -> List[FunderMetricsRecord]:
-    records = [
-        FunderMetricsRecord(
-            snapshot=snapshot,
-            timestamp=snapshot.timestamp,
-            funder_org_id=funder.org_id,
-            funder_non_primary_org_ids=funder.non_primary_org_ids,
-            metrics=FunderMetricsSerializer(funder_metrics(funder)).data,
-        )
-        for funder in Funder.objects.all()
-    ]
+    records = list()
+    for funder in Funder.objects.all():
+        try:
+            records.append(
+                FunderMetricsRecord(
+                    snapshot=snapshot,
+                    timestamp=snapshot.timestamp,
+                    funder_org_id=funder.org_id,
+                    funder_non_primary_org_ids=funder.non_primary_org_ids,
+                    metrics=FunderMetricsSerializer(funder_metrics(funder)).data,
+                )
+            )
+        except Exception as e:
+            logger.error(
+                "Exception while creating metrics record for Funder %s: %s",
+                funder.org_id,
+                e,
+            )
     return FunderMetricsRecord.objects.bulk_create(records)
 
 
@@ -190,7 +213,7 @@ def source_file_metrics(sourcefile: SourceFile) -> SourceFileMetrics:
             "downloadURL"
         ],
         last_download_attempt_downloaded=last_attempt_metadata["downloads"],
-        last_download_attempt_valid=last_attempt_metadata["valid"],
+        last_download_attempt_valid=last_attempt_metadata.get("valid"),
         last_download_attempt_error=last_attempt_metadata.get("error", ""),
         days_since_last_successful_download=(
             last_attempt_downloaded_datetime - best_downloaded_datetime
@@ -199,15 +222,26 @@ def source_file_metrics(sourcefile: SourceFile) -> SourceFileMetrics:
 
 
 def gather_source_files_metrics(snapshot: MonitoringSnapshot):
-    records = [
-        SourceFileMetricsRecord(
-            snapshot=snapshot,
-            timestamp=snapshot.timestamp,
-            publisher_prefix=sourcefile.data["publisher"]["prefix"],
-            sourcefile_identifier=sourcefile.data["identifier"],
-            sourcefile_url=sourcefile.data["distribution"][0]["downloadURL"],
-            metrics=SourceFileMetricsSerializer(source_file_metrics(sourcefile)).data,
-        )
-        for sourcefile in Latest.objects.get(series=Latest.CURRENT).sourcefile_set.all()
-    ]
+    records = list()
+    for sourcefile in Latest.objects.get(series=Latest.CURRENT).sourcefile_set.all():
+        sourcefile: SourceFile
+        try:
+            records.append(
+                SourceFileMetricsRecord(
+                    snapshot=snapshot,
+                    timestamp=snapshot.timestamp,
+                    publisher_prefix=sourcefile.data["publisher"]["prefix"],
+                    sourcefile_identifier=sourcefile.data["identifier"],
+                    sourcefile_url=sourcefile.data["distribution"][0]["downloadURL"],
+                    metrics=SourceFileMetricsSerializer(
+                        source_file_metrics(sourcefile)
+                    ).data,
+                )
+            )
+        except Exception as e:
+            logger.error(
+                "Exception while creating metrics record for SourceFile %s: %s",
+                sourcefile.data.get("identifier"),
+                e,
+            )
     return SourceFileMetricsRecord.objects.bulk_create(records)
