@@ -329,6 +329,27 @@ class Entity(models.Model):
         if self.aggregate[c][currency]["min"] > amount:
             self.aggregate[c][currency]["min"] = amount
 
+        # Grants to individuals stats
+
+        if grant.get("recipientIndividual"):
+            # Only look at GBP for now
+            try:
+                self.aggregate["individual_recipients"]["grants"] += 1
+                self.aggregate["individual_recipients"]["total"] += amount
+            except KeyError:
+                self.aggregate["individual_recipients"] = {
+                    "grants": 1,
+                    "total": amount,
+                    "min": amount,
+                    "max": amount,
+                }
+
+            if self.aggregate["individual_recipients"]["max"] < amount:
+                self.aggregate["individual_recipients"]["max"] = amount
+
+            if self.aggregate["individual_recipients"]["min"] > amount:
+                self.aggregate["individual_recipients"]["min"] = amount
+
 
 class Publisher(Entity):
     data = JSONField()
