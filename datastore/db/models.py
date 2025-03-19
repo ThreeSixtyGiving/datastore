@@ -8,6 +8,8 @@ from django.db.models import JSONField, Index
 from django.db.utils import DataError
 from django.utils import timezone
 
+from additional_data.sources.find_that_charity import non_primary_org_ids_lookup_maps
+
 
 class Latest(models.Model):
     """Latest best data we have"""
@@ -277,6 +279,8 @@ class Entity(models.Model):
         #       "GBP": { "grants": 0, "total": 0, "avg": 0, min: 0, max: 0 } },
         #        ...
         # },
+        # This only covers common stats.
+        # See classes that inherit this - they may override update_aggregate() and add more.
 
         amount = grant["amountAwarded"]
         currency = grant["currency"]
@@ -362,6 +366,14 @@ class Publisher(Entity):
 
 
 class Recipient(Entity):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # While collecting aggregate info on funders, we need to store some data temporarily that we don't want to store in the database.
+        # This stores all primary ids so we can count unique funders.
+        self._aggregate_funders_primary_ids = set()
+        # This stores information by currency.
+        self._aggregate_funders_currencies = {}
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["org_id"], name="recipient_unique_org_id")
@@ -372,6 +384,42 @@ class Recipient(Entity):
         ]
 
     non_primary_org_ids = ArrayField(models.TextField())
+
+    def update_aggregate(self, grant):
+        # Step 1: Call parent
+        super().update_aggregate(grant)
+
+        # Step 2: update _aggregate_funders_* vars with info from this grant
+        # This function is called repeatedly from datastore/db/management/commands/manage_entities_data.py
+        # and it's inefficient to call non_primary_org_ids_lookup_maps every time.
+        # But after discussion with MW that is ok.
+        (
+            non_primary_to_primary_org_ids_lookup,
+            primary_to_non_primary_org_ids_lookup,
+        ) = non_primary_org_ids_lookup_maps()
+        currency = grant["currency"]
+        if currency not in self._aggregate_funders_currencies:
+            self._aggregate_funders_currencies[currency] = {
+                "funders_primary_ids": set(),
+            }
+        for funder in grant["fundingOrganization"]:
+            # If the org-id provided is a non-primary org-id return the primary
+            # otherwise return the specified org-id
+            funder_primary_id = non_primary_to_primary_org_ids_lookup.get(
+                funder["id"], funder["id"]
+            )
+            self._aggregate_funders_primary_ids.add(funder_primary_id)
+            self._aggregate_funders_currencies[currency]["funders_primary_ids"].add(
+                funder_primary_id
+            )
+
+        # Step 3: copy info from _aggregate_funders_* vars to aggregate for saving to the database
+        self.aggregate["funders"] = len(self._aggregate_funders_primary_ids)
+
+        for currency_id, currency_data in self._aggregate_funders_currencies.items():
+            self.aggregate["currencies"][currency_id]["funders"] = len(
+                self._aggregate_funders_currencies[currency_id]["funders_primary_ids"]
+            )
 
 
 class Funder(Entity):

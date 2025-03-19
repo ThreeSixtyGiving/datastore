@@ -2,6 +2,8 @@ from django.test import TransactionTestCase, TestCase
 
 import db.models as db
 
+import unittest.mock
+
 
 class GetterRunTest(TransactionTestCase):
     fixtures = ["test_data.json"]
@@ -91,3 +93,137 @@ class GrantTest(TestCase):
         self.assertSetEqual(set(grant.funding_org_ids), {"GB-CHC-12345"})
 
         self.assertEqual(grant.publisher_org_id, "XI-EXAMPLE-EXAMPLE")
+
+
+def mock_non_primary_org_ids_lookup_maps():
+    return {"GB-SECONDARY-12345": "GB-PRIMARY-12345"}, {}
+
+
+@unittest.mock.patch(
+    "db.models.non_primary_org_ids_lookup_maps", mock_non_primary_org_ids_lookup_maps
+)
+class RecipientUpdateAggregateTest(TestCase):
+    def test_single_grant(self):
+        recipient = db.Recipient()
+        recipient.update_aggregate(
+            {
+                "currency": "GBP",
+                "amountAwarded": 100,
+                "awardDate": "2019-10-03T00:00:00+00:00",
+                "fundingOrganization": [{"id": "GB-CHC-12345"}],
+                "recipientOrganization": [
+                    {"id": "GB-COH-12345"},
+                ],
+            }
+        )
+        self.assertEqual(recipient.aggregate["funders"], 1)
+        self.assertEqual(recipient.aggregate["currencies"]["GBP"]["funders"], 1)
+
+    def test_two_grants_from_same_funder(self):
+        recipient = db.Recipient()
+        recipient.update_aggregate(
+            {
+                "currency": "GBP",
+                "amountAwarded": 100,
+                "awardDate": "2019-10-03T00:00:00+00:00",
+                "fundingOrganization": [{"id": "GB-CHC-12345"}],
+                "recipientOrganization": [
+                    {"id": "GB-COH-12345"},
+                ],
+            }
+        )
+        recipient.update_aggregate(
+            {
+                "currency": "GBP",
+                "amountAwarded": 10000,
+                "awardDate": "2020-10-03T00:00:00+00:00",
+                "fundingOrganization": [{"id": "GB-CHC-12345"}],
+                "recipientOrganization": [
+                    {"id": "GB-COH-12345"},
+                ],
+            }
+        )
+        self.assertEqual(recipient.aggregate["funders"], 1)
+        self.assertEqual(recipient.aggregate["currencies"]["GBP"]["funders"], 1)
+
+    def test_two_grants_from_different_funders(self):
+        recipient = db.Recipient()
+        recipient.update_aggregate(
+            {
+                "currency": "GBP",
+                "amountAwarded": 100,
+                "awardDate": "2019-10-03T00:00:00+00:00",
+                "fundingOrganization": [{"id": "GB-CHC-12345"}],
+                "recipientOrganization": [
+                    {"id": "GB-COH-12345"},
+                ],
+            }
+        )
+        recipient.update_aggregate(
+            {
+                "currency": "GBP",
+                "amountAwarded": 10000,
+                "awardDate": "2020-10-03T00:00:00+00:00",
+                "fundingOrganization": [{"id": "GB-CHC-67890"}],
+                "recipientOrganization": [
+                    {"id": "GB-COH-12345"},
+                ],
+            }
+        )
+        self.assertEqual(recipient.aggregate["funders"], 2)
+        self.assertEqual(recipient.aggregate["currencies"]["GBP"]["funders"], 2)
+
+    def test_two_grants_from_different_funders_in_different_currencies(self):
+        recipient = db.Recipient()
+        recipient.update_aggregate(
+            {
+                "currency": "GBP",
+                "amountAwarded": 100,
+                "awardDate": "2019-10-03T00:00:00+00:00",
+                "fundingOrganization": [{"id": "GB-CHC-12345"}],
+                "recipientOrganization": [
+                    {"id": "GB-COH-12345"},
+                ],
+            }
+        )
+        recipient.update_aggregate(
+            {
+                "currency": "EUR",
+                "amountAwarded": 10000,
+                "awardDate": "2020-10-03T00:00:00+00:00",
+                "fundingOrganization": [{"id": "GB-CHC-67890"}],
+                "recipientOrganization": [
+                    {"id": "GB-COH-12345"},
+                ],
+            }
+        )
+        self.assertEqual(recipient.aggregate["funders"], 2)
+        self.assertEqual(recipient.aggregate["currencies"]["GBP"]["funders"], 1)
+        self.assertEqual(recipient.aggregate["currencies"]["EUR"]["funders"], 1)
+
+    def test_two_grants_from_same_funder_but_different_funder_ids_used(self):
+        recipient = db.Recipient()
+        recipient.update_aggregate(
+            {
+                "currency": "GBP",
+                "amountAwarded": 100,
+                "awardDate": "2019-10-03T00:00:00+00:00",
+                "fundingOrganization": [{"id": "GB-PRIMARY-12345"}],
+                "recipientOrganization": [
+                    {"id": "GB-COH-12345"},
+                ],
+            }
+        )
+        recipient.update_aggregate(
+            {
+                "currency": "GBP",
+                "amountAwarded": 10000,
+                "awardDate": "2020-10-03T00:00:00+00:00",
+                "fundingOrganization": [{"id": "GB-SECONDARY-12345"}],
+                "recipientOrganization": [
+                    {"id": "GB-COH-12345"},
+                ],
+            }
+        )
+        self.assertEqual(recipient.aggregate["funders"], 1)
+        self.assertEqual(recipient.aggregate["currencies"]["GBP"]["funders"], 1)
