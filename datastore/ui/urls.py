@@ -14,6 +14,6 @@ urlpatterns = [
         ui.views.ExploreDatagetterView.as_view(),
         name="explore-datagetter",
     ),
-    path("dashboard", ui.views.DashBoardView.as_view(), name="dashboard"),
-    path("dashboard/log/<slug:log_name>", ui.views.LogView.as_view(), name="log"),
+    path("status", ui.views.StatusView.as_view(), name="status"),
+    path("status/log/<slug:log_name>", ui.views.LogView.as_view(), name="log"),
 ]
