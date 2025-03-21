@@ -84,8 +84,8 @@ class ExploreLatestView(TemplateView):
         return context
 
 
-class DashBoardView(TemplateView):
-    template_name = "dash.html"
+class StatusView(TemplateView):
+    template_name = "status.html"
 
     @staticmethod
     def git_revision():
@@ -127,7 +127,7 @@ class DashBoardView(TemplateView):
 
         # Not critical if this fails e.g. git not installed
         try:
-            context["git_rev"] = DashBoardView.git_revision()
+            context["git_rev"] = StatusView.git_revision()
         except Exception:
             pass
 
