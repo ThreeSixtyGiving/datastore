@@ -87,20 +87,32 @@ def create_orgs_list(entity_type, output=sys.stdout):
     entity_type: publisher, recipient, funder
     output: io
     """
-    query = f"""
-        SELECT DISTINCT
-        db_{entity_type}.org_id as "id",
-        db_{entity_type}.non_primary_org_ids as "non_primary_org_ids",
-        db_{entity_type}.name as name,
-        db_{entity_type}."aggregate" as "aggregate",
-        db_{entity_type}.additional_data as "additionalData",
-        additional_data_orginfocache.data as "ftcData",
-        db_publisher.name as "publisherName",
-        db_publisher.prefix as "publisherPrefix"
-        FROM db_{entity_type}
-        LEFT OUTER JOIN additional_data_orginfocache on db_{entity_type}.org_id = additional_data_orginfocache.org_id
-        LEFT OUTER JOIN db_publisher on db_{entity_type}.org_id = db_publisher.org_id OR db_publisher.org_id = ANY(db_{entity_type}.non_primary_org_ids)
-    """
+    if entity_type == "publisher":
+        query = f"""
+            SELECT DISTINCT
+            db_{entity_type}.org_id as "id",
+            db_{entity_type}.name as name,
+            db_{entity_type}."aggregate" as "aggregate",
+            db_{entity_type}.additional_data as "additionalData",
+            additional_data_orginfocache.data as "ftcData"
+            FROM db_{entity_type}
+            LEFT OUTER JOIN additional_data_orginfocache on db_{entity_type}.org_id = additional_data_orginfocache.org_id
+        """
+    else:
+        query = f"""
+            SELECT DISTINCT
+            db_{entity_type}.org_id as "id",
+            db_{entity_type}.non_primary_org_ids as "non_primary_org_ids",
+            db_{entity_type}.name as name,
+            db_{entity_type}."aggregate" as "aggregate",
+            db_{entity_type}.additional_data as "additionalData",
+            additional_data_orginfocache.data as "ftcData",
+            db_publisher.name as "publisherName",
+            db_publisher.prefix as "publisherPrefix"
+            FROM db_{entity_type}
+            LEFT OUTER JOIN additional_data_orginfocache on db_{entity_type}.org_id = additional_data_orginfocache.org_id
+            LEFT OUTER JOIN db_publisher on db_{entity_type}.org_id = db_publisher.org_id OR db_publisher.org_id = ANY(db_{entity_type}.non_primary_org_ids)
+        """
 
     def parse_data_in_result(result, col_types):
         # work around for https://github.com/ThreeSixtyGiving/datastore/issues/125

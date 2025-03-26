@@ -34,6 +34,10 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             with open(os.path.join(tmpdir, "recipients.jl")) as recipients_fp:
                 json.loads(recipients_fp.readline().strip())
 
+            # Check the output json lines file by parsing the first line
+            with open(os.path.join(tmpdir, "publishers.jl")) as recipients_fp:
+                json.loads(recipients_fp.readline().strip())
+
             call_command("load_data_package", tmpdir, stderr=err_out)
             self.assertEqual(
                 len(err_out.getvalue()), 0, "Errors output by load command"
