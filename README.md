@@ -4,7 +4,7 @@
 
 ## Postgres setup
 
-Example:
+Example via Debian or Ubuntu packages:
 
 In this example we create a user test and password test for dev usage.
 
@@ -16,6 +16,15 @@ $ createdb -U test -W 360givingdatastore
 ```
 
 _Note: Special Postgresql extensions are used for indexes, if you don't want to have these installed in the database or the database user doesn't have permissions to install extensions then set environment variable `SKIP_SPECIAL_DB_INDEX=true` before you run migrate. In development you can also set the `DATABASE_HOST`, `DATABASE_NAME`,`DATABASE_USER` and `DATABASE_PASSWORD` environmental variables._
+
+Example via Docker:
+
+```
+docker run --name datastorepostgres  -p 5432:5432 -e POSTGRES_PASSWORD=test -e POSTGRES_USER=test -e POSTGRES_DB=360givingdatastore -d postgres # Will set it up and start it
+docker start datastorepostgres # If already set up, will start it
+docker stop datastorepostgres # Stop it running
+```
+
 
 ## Python setup
 
