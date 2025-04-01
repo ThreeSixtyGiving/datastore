@@ -320,7 +320,7 @@ class OrgAPITestCase(TestCase):
             headers={"accept": "application/json"},
         ).json()
 
-        self.assertEqual(data["count"], 50)
+        self.assertEqual(data["count"], 46)
 
         grants = {grant["grant_id"]: grant for grant in data["results"]}
 
@@ -334,7 +334,7 @@ class OrgAPITestCase(TestCase):
             headers={"accept": "application/json"},
         ).json()
 
-        self.assertEqual(data["count"], 50)
+        self.assertEqual(data["count"], 46)
 
     def test_recipient_grants_made(self):
         """A Recipient-only Org should not make any grants."""

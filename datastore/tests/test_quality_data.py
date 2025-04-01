@@ -166,3 +166,30 @@ class TestDataQualityData(TestCase):
 
         self.assertEqual(expected_publisher_aggregate, publisher.aggregate)
         self.assertEqual(expected_publisher_quality, publisher.quality)
+
+    def test_get_pc_publishers_with_recipient_ext_org(self):
+        source_file_set = db.SourceFile.objects.all().order_by("id")
+        for source_file in source_file_set:
+            grants_list = list(source_file.grant_set.values_list("data", flat=True))
+            source_file.quality, source_file.aggregate = quality_data.create(
+                grants_list
+            )
+            source_file.save()
+
+        source_file_set = db.SourceFile.objects.all()
+        source_file_stats = quality_data.SourceFilesStats(source_file_set)
+        result = source_file_stats.get_pc_publishers_with_recipient_ext_org()
+
+        expected_result = {
+            "0% - 10%": 90.0,
+            "10% - 20%": 0.0,
+            "20% - 30%": 0.0,
+            "30% - 40%": 0.0,
+            "40% - 50%": 0.0,
+            "50% - 60%": 0.0,
+            "60% - 70%": 0.0,
+            "70% - 80%": 0.0,
+            "80% - 90%": 10.0,
+            "90% - 100%": 0.0,
+        }
+        assert result == expected_result
