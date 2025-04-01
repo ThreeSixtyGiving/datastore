@@ -459,6 +459,7 @@ class SourceFilesStats(object):
             [50, 60],
             [60, 70],
             [70, 80],
+            [80, 90],
             [90, 100],
         ]
 
@@ -472,7 +473,7 @@ class SourceFilesStats(object):
 
         for range in ranges:
             ret["{}% - {}%".format(*range)] = (
-                query.filter(pc__range=(range[0], range[1]))
+                query.filter(pc__gte=range[0], pc__lt=range[1])
                 .distinct("data__publisher__prefix")
                 .count()
                 / total_publishers
