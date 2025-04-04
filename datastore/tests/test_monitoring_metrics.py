@@ -385,6 +385,9 @@ class TestMonitoringMetrics(TestCase):
         "last_download_attempt_valid",
         "last_download_attempt_error",
         "days_since_last_successful_download",
+        "last_download_attempt_download_url",
+        "last_download_attempt_access_url",
+        "last_successful_download_was_at_least_7_days_ago",
     ]
 
     def test_gather_metrics(self):

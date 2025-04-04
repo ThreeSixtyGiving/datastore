@@ -206,6 +206,10 @@ def source_file_metrics(sourcefile: SourceFile) -> SourceFileMetrics:
         last_attempt_metadata["datetime_downloaded"]
     )
 
+    days_since_last_successful_download = (
+        last_attempt_downloaded_datetime - best_downloaded_datetime
+    ).days
+
     return SourceFileMetrics(
         last_successful_download_at=best_downloaded_datetime,
         last_download_attempt_at=last_attempt_downloaded_datetime,
@@ -215,9 +219,13 @@ def source_file_metrics(sourcefile: SourceFile) -> SourceFileMetrics:
         last_download_attempt_downloaded=last_attempt_metadata["downloads"],
         last_download_attempt_valid=last_attempt_metadata.get("valid"),
         last_download_attempt_error=last_attempt_metadata.get("error", ""),
-        days_since_last_successful_download=(
-            last_attempt_downloaded_datetime - best_downloaded_datetime
-        ).days,
+        days_since_last_successful_download=days_since_last_successful_download,
+        last_download_attempt_access_url=last_attempt.data["distribution"][0].get(
+            "accessURL"
+        ),
+        last_successful_download_was_at_least_7_days_ago=bool(
+            days_since_last_successful_download >= 7
+        ),
     )
 
 

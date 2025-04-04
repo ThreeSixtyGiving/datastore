@@ -146,6 +146,9 @@ class SourceFileMetrics:
     last_download_attempt_valid: Optional[bool]
     last_download_attempt_error: str
     days_since_last_successful_download: int
+    # New metrics added later must be optional so that the serialiser can still work with older records
+    last_download_attempt_access_url: Optional[str]
+    last_successful_download_was_at_least_7_days_ago: Optional[bool]
 
 
 class SourceFileMetricsRecord(AbstractMetricsRecord):
