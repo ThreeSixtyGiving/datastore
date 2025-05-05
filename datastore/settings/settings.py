@@ -15,6 +15,7 @@ import environ
 
 from django.utils.crypto import get_random_string
 
+
 # https://docs.djangoproject.com/en/5.1/topics/logging/#logging-explanation
 LOGGING = {
     "version": 1,
@@ -34,7 +35,20 @@ LOGGING = {
 env = environ.Env(  # set default values and casting
     # TODO could use $XDG_RUNTIME_DIR ?
     DATA_RUN_PID_FILE=(str, "/var/run/user/%s/datarun.pid" % os.getuid()),
+    SENTRY_DSN=(str, ""),
 )
+
+
+# Pull sentry dsn from environment variable and setup sentry
+SENTRY_DSN = env("SENTRY_DSN")
+
+if SENTRY_DSN:
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import ignore_logger
+
+    ignore_logger("django.security.DisallowedHost")
+    sentry_sdk.init(dsn=env("SENTRY_DSN"), integrations=[DjangoIntegration()])
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
