@@ -48,3 +48,8 @@ djangorestframework-csv>=3,<4
 # As of 3.0 supports up to Django 4.2
 # Project: https://github.com/mjumbewu/django-rest-framework-csv
 # Changelog: https://github.com/mjumbewu/django-rest-framework-csv/releases
+
+sentry-sdk[django]>=2,<3
+# Use latest version
+# Project: https://github.com/getsentry/sentry-python
+# Changelog: https://github.com/getsentry/sentry-python/releases
