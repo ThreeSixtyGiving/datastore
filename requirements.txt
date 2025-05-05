@@ -32,6 +32,7 @@ certifi==2024.8.30
     # via
     #   datagetter
     #   requests
+    #   sentry-sdk
 cffi==1.17.1
     # via
     #   datagetter
@@ -52,6 +53,7 @@ django==4.2.16
     #   djangorestframework
     #   djangorestframework-dataclasses
     #   drf-spectacular
+    #   sentry-sdk
 django-environ==0.9.0
     # via -r requirements.in
 django-filter==24.3
@@ -159,13 +161,14 @@ schema==0.7.7
     # via
     #   datagetter
     #   flattentool
+sentry-sdk[django]==2.22.0
+    # via -r requirements.in
 six==1.16.0
     # via
     #   datagetter
     #   django-prettyjson
     #   jsonschema
     #   python-dateutil
-    #   rfc3339-validator
 sqlparse==0.5.2
     # via django
 standardjson==0.3.1
@@ -186,6 +189,7 @@ urllib3==2.2.3
     # via
     #   datagetter
     #   requests
+    #   sentry-sdk
 xmltodict==0.14.2
     # via
     #   datagetter
