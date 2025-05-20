@@ -12,56 +12,47 @@ if [ -e $CONFIG_FILE ]; then
   source $CONFIG_FILE
 else
   ### Start CONFIG ###
-  SOCKS5_PORT=1337
-  SSH_SERVER=example.com
   DOWNLOAD_DIR=~/latest_datagetter/
   GRANTNAV_DATA_DIR=~/grantnav_data/
   GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR=/var/www/grantnav_packages/
   DATAGETTER_THREADS=16
   export DJANGO_SETTINGS_MODULE=settings.settings_examlple
   DATASTORE=~/datastore/
+  DATAGETTER=~/datagetter/
   MAX_TOTAL_RUNS_IN_DB=31
   # Based on running this script each day and Keep a few extra for safety
   MAX_PACKAGE_AGE_DAYS=`expr $MAX_TOTAL_RUNS_IN_DB + 2`
   ### End CONFIG ###
 fi
 
-source $DATASTORE/.ve/bin/activate
 
 mkdir -p $DOWNLOAD_DIR
 mkdir -p $GRANTNAV_DATA_DIR
 mkdir -p $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR
 
 
-# Cler out old download dir contents
+# clear out old download dir contents
 rm -rf $DOWNLOAD_DIR/*
 
-if [[ $SOCKS5_PORT && $SSH_SERVER ]]; then
-  echo_stamp "Start the proxy"
-  ssh -D $SOCKS5_PORT -q -C -N $SSH_SERVER &
-  PROXY_PID=$!
-fi
-
 cd $DATASTORE
+source $DATASTORE/.ve/bin/activate
 ./datastore/manage.py set_status --what datagetter --status IN_PROGRESS
+deactivate
 
+## Datagetter - switch virtualenvs
+cd $DATAGETTER
+source $DATAGETTER/.ve/bin/activate
 echo_stamp "Running the datagetter"
-if [ $PROXY_PID ]; then
-  datagetter.py --threads $DATAGETTER_THREADS --socks5 socks5://localhost:$SOCKS5_PORT --data-dir $DOWNLOAD_DIR/data
-else
-  datagetter.py --threads $DATAGETTER_THREADS --data-dir $DOWNLOAD_DIR/data
-fi
+datagetter.py --threads $DATAGETTER_THREADS --data-dir $DOWNLOAD_DIR/data
+deactivate
+## End datagetter
 
 # Comment for quick TESTING!!
 #cp -r ~/data $DOWNLOAD_DIR/data
 
+cd $DATASTORE
+source $DATASTORE/.ve/bin/activate
 ./datastore/manage.py set_status --what datagetter --status IDLE
-
-if [ $PROXY_PID ]; then
-  echo_stamp "Shutting down proxy"
-  kill -HUP $PROXY_PID
-fi
-
 
 echo_stamp "Load the downloaded datagetter data into datastore"
 ./datastore/manage.py set_status --what datastore --status LOADING_DATA
