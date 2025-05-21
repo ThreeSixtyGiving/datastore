@@ -1,10 +1,7 @@
 import db.models as db
 
-from lib360dataquality.cove.threesixtygiving import (
-    USEFULNESS_TEST_CLASS,
-    TEST_CLASSES,
-    common_checks_360,
-)
+from lib360dataquality.cove.threesixtygiving import common_checks_360, TEST_CLASSES
+from lib360dataquality.additional_test import TestType
 from lib360dataquality.cove.schema import Schema360
 from lib360dataquality import check_field_present
 
@@ -24,7 +21,9 @@ def create(grants):
 
     # Inject some extra tests to the default set of USEFULNESS TEST CLASS
 
-    TEST_CLASSES[USEFULNESS_TEST_CLASS] = TEST_CLASSES[USEFULNESS_TEST_CLASS] + [
+    TEST_CLASSES[TestType.USEFULNESS_TEST_CLASS] = TEST_CLASSES[
+        TestType.USEFULNESS_TEST_CLASS
+    ] + [
         check_field_present.ClassificationNotPresent,
         check_field_present.BeneficiaryLocationNameNotPresent,
         check_field_present.BeneficiaryLocationCountryCodeNotPresent,
@@ -39,8 +38,8 @@ def create(grants):
             cove_results,
             tempdir,
             {"grants": grants},
-            Schema360(),
-            test_classes=[USEFULNESS_TEST_CLASS],
+            Schema360(tempdir),
+            test_classes=[TestType.USEFULNESS_TEST_CLASS],
         )
 
     # We don't quite want the result as-is from cove/lib360dataquality
@@ -55,7 +54,7 @@ def create(grants):
     quality_results = {}
 
     # Create the template
-    for available_test in TEST_CLASSES[USEFULNESS_TEST_CLASS]:
+    for available_test in TEST_CLASSES[TestType.USEFULNESS_TEST_CLASS]:
         quality_results[available_test.__name__] = {"count": 0, "fail": False}
 
     # Initialise two new tests
