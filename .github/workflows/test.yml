@@ -35,8 +35,6 @@ jobs:
     - run: ./datastore/manage.py check
 
     - run: pip install -r requirements_dev.txt
-    # FIXME manual install datagetter requirements
-    - run: pip install -r src/datagetter/requirements.txt
 
     - run: ./datastore/manage.py makemigrations --dry-run --check
     - run: ./datastore/manage.py migrate
@@ -44,8 +42,6 @@ jobs:
       env:
         DATA_RUN_PID_FILE: datarunpidfile.pid
         DJANGO_SETTINGS_MODULE: settings.settings_test
-    - name: Verify it compiles and is installed
-      run: datagetter.py --help
 
     - env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
