@@ -43,7 +43,7 @@ deactivate
 cd $DATAGETTER
 source $DATAGETTER/.ve/bin/activate
 echo_stamp "Running the datagetter"
-datagetter.py --threads $DATAGETTER_THREADS --data-dir $DOWNLOAD_DIR/data
+./datagetter.py --threads $DATAGETTER_THREADS --data-dir $DOWNLOAD_DIR/data
 deactivate
 ## End datagetter
 
