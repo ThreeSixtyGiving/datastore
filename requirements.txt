@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements.in
 #
--e git+https://github.com/ThreeSixtyGiving/dataquality.git@e97c049cdac3ac37381c96c34f57347be6c2cd83#egg=lib360dataquality
+-e git+https://github.com/ThreeSixtyGiving/dataquality.git@59a64eebc6229d282ac74b25a08f35cf26814742#egg=lib360dataquality
     # via -r requirements.in
 asgiref==3.8.1
     # via django

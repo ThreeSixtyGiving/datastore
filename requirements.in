@@ -1,6 +1,6 @@
 # Note: this project uses Python 3.8
 
--e git+https://github.com/ThreeSixtyGiving/dataquality.git@e97c049cdac3ac37381c96c34f57347be6c2cd83#egg=lib360dataquality
+-e git+https://github.com/ThreeSixtyGiving/dataquality.git@59a64eebc6229d282ac74b25a08f35cf26814742#egg=lib360dataquality
 
 Django>=4.2,<5.0
 # Use Django 4.2
