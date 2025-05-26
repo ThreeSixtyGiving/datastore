@@ -3,10 +3,10 @@ on: [push, pull_request]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     services:
       postgres:
-        image: postgres:12
+        image: postgres:16.9
         env:
           POSTGRES_USER: test
           POSTGRES_PASSWORD: test
@@ -23,7 +23,7 @@ jobs:
     - name: Setup python
       uses: actions/setup-python@v5
       with:
-        python-version: 3.8
+        python-version: 3.12
         architecture: x64
     # For generating random data
     - run: sudo apt-get install pwgen
