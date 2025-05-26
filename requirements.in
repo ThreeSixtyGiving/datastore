@@ -1,4 +1,4 @@
-# Note: this project uses Python 3.8
+# Note: this project uses Python 3.12
 
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@59a64eebc6229d282ac74b25a08f35cf26814742#egg=lib360dataquality
 
@@ -18,7 +18,9 @@ django-prettyjson==0.4.1
 # django-prettyjson is very old
 # how does it still work
 
-psycopg2>=2.8,<2.10
+#psycopg2>=2.8,<2.10
+# Use binary release instead so the server doesn't need python dev pkg installed
+psycopg2-binary>=2.8,<2.10
 # psycopg2 is in maintenance mode since the release of psycopg3
 # so don't expect any new breaking releases
 
