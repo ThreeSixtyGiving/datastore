@@ -9,8 +9,8 @@ code_lists_urls = [
     "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/grantToIndividualsReason.csv",
     "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/regrantType.csv",
     "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/locationScope.csv",
+    "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/geoCodeType.csv",
     # These codelists aren't yet processed
-    # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/geoCodeType.csv",
     # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/countryCode.csv",
     # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/currency.csv",
 ]
@@ -35,12 +35,21 @@ class CodeListSource(object):
                         r.iter_lines(decode_unicode=True), delimiter=","
                     )
                     for value in file_data:
-                        CodelistCode.objects.create(
-                            code=value["Code"],
-                            title=value["Title"],
-                            description=value["Description"],
-                            list_name=list_name,
-                        )
+                        # In https://github.com/ThreeSixtyGiving/standard/blob/main/codelists/geoCodeType.csv
+                        # we have non unique codes with differing descriptions. We have to just take the first
+                        # one we come accross to avoid an integrity error on the unique constraints.
+                        # https://github.com/ThreeSixtyGiving/standard/issues/391
+                        try:
+                            CodelistCode.objects.get(
+                                code=value["Code"], list_name=list_name
+                            )
+                        except CodelistCode.DoesNotExist:
+                            CodelistCode.objects.create(
+                                code=value["Code"],
+                                title=value["Title"],
+                                description=value["Description"],
+                                list_name=list_name,
+                            )
 
     def update_additional_data(self, grant, source_file, additional_data):
         # check All the fields in the grant data that use codelists and make additional data field versions of them
@@ -50,6 +59,9 @@ class CodeListSource(object):
         grantPurpose = []
         regrantType = ""
         locationScope = ""
+        beneficiary_geoCodeTypes = []
+        recipient_organization_geoCodeType = ""
+        funding_organization_geoCodeType = ""
 
         try:
             code = grant["toIndividualsDetails"]["primaryGrantReason"]
@@ -94,6 +106,33 @@ class CodeListSource(object):
         except (KeyError, CodelistCode.DoesNotExist):
             pass
 
+        for location in grant["beneficiaryLocation"]:
+            try:
+                code = location["geoCodeType"]
+                if code_title := CodelistCode.objects.get(
+                    code=location["geoCodeType"], list_name="geoCodeType"
+                ).title:
+                    beneficiary_geoCodeTypes.append(code_title)
+
+            except (KeyError, IndexError, CodelistCode.DoesNotExist):
+                continue
+
+        try:
+            code = grant["fundingOrganization"][0]["location"][0]["geoCodeType"]
+            funding_organization_geoCodeType = CodelistCode.objects.get(
+                code=code, list_name="geoCodeType"
+            ).title
+        except (KeyError, IndexError, CodelistCode.DoesNotExist):
+            pass
+
+        try:
+            code = grant["recipientOrganization"][0]["location"][0]["geoCodeType"]
+            recipient_organization_geoCodeType = CodelistCode.objects.get(
+                code=code, list_name="geoCodeType"
+            ).title
+        except (KeyError, IndexError, CodelistCode.DoesNotExist):
+            pass
+
         additional_data["codeListLookup"] = {
             "toIndividualsDetails": {
                 "primaryGrantReason": primaryGrantReason,
@@ -102,4 +141,9 @@ class CodeListSource(object):
             },
             "regrantType": regrantType,
             "locationScope": locationScope,
+            "geoCodeType": {
+                "beneficiaryLocations": beneficiary_geoCodeTypes,
+                "recipientOrganization0": recipient_organization_geoCodeType,
+                "fundingOrganization0": funding_organization_geoCodeType,
+            },
         }
