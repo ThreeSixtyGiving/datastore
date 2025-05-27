@@ -9,9 +9,11 @@ code_lists_urls = [
     "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/grantToIndividualsReason.csv",
     "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/regrantType.csv",
     "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/locationScope.csv",
+    "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/countryCode.csv",
     # These codelists aren't yet processed
+    # geoCodeType https://github.com/ThreeSixtyGiving/standard/issues/391
     # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/geoCodeType.csv",
-    # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/countryCode.csv",
+    # currency https://github.com/ThreeSixtyGiving/standard/issues/349
     # "https://raw.githubusercontent.com/ThreeSixtyGiving/standard/main/codelists/currency.csv",
 ]
 
@@ -50,6 +52,34 @@ class CodeListSource(object):
         grantPurpose = []
         regrantType = ""
         locationScope = ""
+
+        beneficiaryLocation_countryCode = ""
+        fundingOrg_location_countryCode = ""
+        recipientOrg_location_countryCode = ""
+
+        try:
+            code = grant["beneficiaryLocation"][0]["countryCode"]
+            beneficiaryLocation_countryCode = CodelistCode.objects.get(
+                code=code, list_name="countryCode"
+            ).title
+        except (KeyError, IndexError, CodelistCode.DoesNotExist):
+            pass
+
+        try:
+            code = grant["fundingOrganization"][0]["location"][0]["countryCode"]
+            fundingOrg_location_countryCode = CodelistCode.objects.get(
+                code=code, list_name="countryCode"
+            ).title
+        except (KeyError, IndexError, CodelistCode.DoesNotExist):
+            pass
+
+        try:
+            code = grant["recipientOrganization"][0]["location"][0]["countryCode"]
+            recipientOrg_location_countryCode = CodelistCode.objects.get(
+                code=code, list_name="countryCode"
+            ).title
+        except (KeyError, IndexError, CodelistCode.DoesNotExist):
+            pass
 
         try:
             code = grant["toIndividualsDetails"]["primaryGrantReason"]
@@ -102,4 +132,7 @@ class CodeListSource(object):
             },
             "regrantType": regrantType,
             "locationScope": locationScope,
+            "beneficiaryLocation_countryCode": beneficiaryLocation_countryCode,
+            "recipientOrg_location_countryCode": recipientOrg_location_countryCode,
+            "fundingOrg_location_countryCode": fundingOrg_location_countryCode,
         }
