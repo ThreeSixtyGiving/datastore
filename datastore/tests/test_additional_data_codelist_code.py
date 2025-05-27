@@ -10,6 +10,9 @@ class TestCodeLists(TestCase):
         source.import_codelists()
 
         grant = {
+            "recipientOrganization": [{"location": [{"countryCode": "GB"}]}],
+            "fundingOrganization": [{"location": [{"countryCode": "FR"}]}],
+            "beneficiaryLocation": [{"countryCode": "AU"}],
             "toIndividualsDetails": {
                 "primaryGrantReason": "GTIR040",
                 "grantPurpose": ["GTIP170"],
@@ -31,6 +34,9 @@ class TestCodeLists(TestCase):
                 },
                 "regrantType": "Common Regrant",
                 "locationScope": "Subnational region",
+                "beneficiaryLocation_countryCode": "Australia",
+                "fundingOrg_location_countryCode": "France",
+                "recipientOrg_location_countryCode": "United Kingdom of Great Britain and Northern Ireland",
             }
         }
 
