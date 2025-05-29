@@ -15,7 +15,7 @@ services:
     command: "/bin/sh -c '. /ve/bin/activate && python datastore/manage.py migrate && python datastore/manage.py runserver 0.0.0.0:8000'"
 
   postgres:
-    image: postgres:12
+    image: postgres:16.9
     ports:
       - "5432:5432"
     environment:

@@ -9,7 +9,7 @@ Example via Debian or Ubuntu packages:
 In this example we create a user test and password test for dev usage.
 
 ```
-$ sudo apt-get install postgresql-12 postgresql-server-dev-12
+$ sudo apt-get install postgresql-16 postgresql-server-dev-16
 $ sudo -u postgres createuser -P -e test  --interactive
 $ createdb -U test -W 360givingdatastore
 
@@ -29,7 +29,7 @@ docker stop datastorepostgres # Stop it running
 ## Python setup
 
 ```
-$ virtualenv --python=python3 ./.ve/
+$ virtualenv --python=python3.12 ./.ve/
 $ source ./.ve/bin/activate
 $ pip install -r requirements.txt
 ```
@@ -198,7 +198,7 @@ _see `manage.py test --help` for more info_
 
 # Updating requirements
 
-We target python3.8 for our requirements.
+We target python3.12 for our requirements.
 
 Use `pip-compile` provided by `pip-tools` package to process requirements .in files.
 
