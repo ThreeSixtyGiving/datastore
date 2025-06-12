@@ -89,11 +89,17 @@ class Command(BaseCommand):
                 )
 
             with Pool(options.get("threads")) as process_pool:
-                source_file_results = process_pool.map(
-                    process_source_file, process_sf_list
-                )
+                try:
+                    source_file_results = process_pool.map(
+                        process_source_file, process_sf_list
+                    )
+                except Exception as e:
+                    print(f"Error generating quality data {e}")
 
                 for source_file_result in source_file_results:
+                    if source_file_result == None:
+                        continue
+
                     sf = db.SourceFile.objects.get(pk=source_file_result["pk"])
                     sf.quality = source_file_result["quality"]
                     sf.aggregate = source_file_result["aggregate"]
