@@ -15,7 +15,7 @@ def process_source_file(source_file):
         )
         return source_file
     except Exception as e:
-        print(f"{e} Could not create source file data for: {source_file}")
+        print(f"{e} Could not create source file data for: {source_file['pk']}")
 
 
 class Command(BaseCommand):
