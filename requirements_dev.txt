@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements_dev.in
 #
--e git+https://github.com/ThreeSixtyGiving/dataquality.git@59a64eebc6229d282ac74b25a08f35cf26814742#egg=lib360dataquality
+-e git+https://github.com/ThreeSixtyGiving/dataquality.git@ab4588b6ca0466d773d3434b77fb3a897351aad8#egg=lib360dataquality
     # via -r requirements.in
 asgiref==3.8.1
     # via
