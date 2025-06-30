@@ -97,6 +97,16 @@ urlpatterns = [
         name="publisher-metrics-snapshot",
     ),
     path(
+        "v1/monitoring/snapshot/publisher-down-sourcefiles/",
+        api.monitoring.api.PublisherSourceFileDownAPIView.as_view(),
+        name="publisher-down-sourcefiles",
+    ),
+    path(
+        "v1/monitoring/snapshot/publisher-down-sourcefiles/<str:snapshot_date>/",
+        api.monitoring.api.PublisherSourceFileDownAPIView.as_view(),
+        name="publisher-down-sourcefiles",
+    ),
+    path(
         "v1/monitoring/snapshot/funder/",
         api.monitoring.api.FunderMetricsSnapshotAPIView.as_view(),
         name="funder-metrics-snapshot",
