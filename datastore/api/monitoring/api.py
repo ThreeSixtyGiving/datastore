@@ -1,8 +1,10 @@
-from typing import Type
+import logging
+from typing import Type, cast
 from datetime import datetime, date
 
 from django.utils import timezone
 from rest_framework.generics import ListAPIView
+from rest_framework.request import Request
 from rest_framework.settings import api_settings
 from rest_framework_csv.renderers import CSVRenderer
 
@@ -18,7 +20,11 @@ from monitoring.serializers import (
     PublisherMetricsRecordSerializer,
     FunderMetricsRecordSerializer,
     SourceFileMetricsRecordSerializer,
+    PublisherMetricsRecordWithDownSourceFilesSerializer,
+    PublisherMetricsRecordWithDownSourceFilesSerializerCSV,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class SnapshotAPIView(ListAPIView):
@@ -60,6 +66,49 @@ class PublisherMetricsSnapshotAPIView(SnapshotAPIView):
     serializer_class = PublisherMetricsRecordSerializer
 
     metrics_record_model = PublisherMetricsRecord
+
+
+class PublisherSourceFileDownAPIView(SnapshotAPIView):
+    """
+    This view lists only Publishers that have an unavailable source file,
+    and info relevant to the down Source files.
+    """
+
+    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (CSVRenderer,)
+
+    metrics_record_model = PublisherMetricsRecord
+
+    def get_serializer_class(self):
+        request: Request = cast(Request, self.request)
+        if request.accepted_renderer.format == "csv":
+            return PublisherMetricsRecordWithDownSourceFilesSerializerCSV
+        else:
+            return PublisherMetricsRecordWithDownSourceFilesSerializer
+
+    def get_queryset(self):
+        publisher_records = super().get_queryset()
+        down_publisher_prefixes = set()
+
+        # Theoretically this could be a single SQL query instead of a loop,
+        # but I couldn't get the obvious ways to work.
+        # This is NOT a performance critical area.
+        for pub in publisher_records.prefetch_related(
+            "snapshot__sourcefilemetricsrecord_set"
+        ):
+            if (
+                pub.snapshot.sourcefilemetricsrecord_set.filter(
+                    publisher_prefix=pub.publisher_prefix,
+                    metrics__last_successful_download_was_at_least_7_days_ago=True,
+                ).count()
+                > 0
+            ):
+                down_publisher_prefixes.add(pub.publisher_prefix)
+                logger.info(
+                    "Down publisher prefix: %s",
+                    pub.publisher_prefix,
+                )
+
+        return publisher_records.filter(publisher_prefix__in=down_publisher_prefixes)
 
 
 class FunderMetricsSnapshotAPIView(SnapshotAPIView):

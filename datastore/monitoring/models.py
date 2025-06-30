@@ -2,7 +2,7 @@ from typing import Optional, List
 from datetime import datetime, date
 from dataclasses import dataclass
 from django.db import models
-from django.db.models import OuterRef, Subquery, ForeignKey, DO_NOTHING
+from django.db.models import OuterRef, Subquery, ForeignKey, DO_NOTHING, SET_NULL
 from django.contrib.postgres.fields import ArrayField
 
 
