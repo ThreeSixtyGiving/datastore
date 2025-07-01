@@ -126,27 +126,28 @@ def list_to_csv(data: Iterable) -> str:
 class PublisherMetricsRecordWithDownSourceFilesSerializerCSV(
     PublisherMetricsRecordWithDownSourceFilesSerializer,
 ):
+    SOURCE_FILE_NESTED_CSV_FIELDS = [
+        "days_since_last_successful_download",
+        "last_download_attempt_download_url",
+        "last_download_attempt_access_url",
+    ]
+
     down_source_files = SerializerMethodField(method_name="get_down_source_files_csv")
 
-    @staticmethod
-    def get_down_source_files_csv(obj: PublisherMetricsRecord):
+    def get_down_source_files_csv(self, obj: PublisherMetricsRecord):
         down_source_files_records = obj.snapshot.sourcefilemetricsrecord_set.filter(
             publisher_prefix=obj.publisher_prefix,
-            metrics__last_successful_download_was_at_least_7_days_ago=True,
+            metrics__days_since_last_successful_download__gt=0,
         )
 
         # Nested CSV in a CSV field isn't very nice, but it works for the SalesForce integration
         data = {
-            "last_download_attempt_download_url": list_to_csv(
+            metric_name: list_to_csv(
                 down_source_files_records.values_list(
-                    "metrics__last_download_attempt_download_url", flat=True
+                    f"metrics__{metric_name}", flat=True
                 )
-            ),
-            "last_download_attempt_access_url": list_to_csv(
-                down_source_files_records.values_list(
-                    "metrics__last_download_attempt_access_url", flat=True
-                )
-            ),
+            )
+            for metric_name in self.SOURCE_FILE_NESTED_CSV_FIELDS
         }
 
         return data

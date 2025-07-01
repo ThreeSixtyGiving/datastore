@@ -1,3 +1,6 @@
+import csv
+import copy
+import io
 from datetime import timedelta, datetime, date
 import datetime as dt
 from typing import Dict, Any, List, Optional
@@ -26,6 +29,9 @@ from monitoring.models import (
     FunderMetricsRecord,
     SourceFileMetricsRecord,
     DatasetMetricsRecord,
+)
+from monitoring.serializers import (
+    PublisherMetricsRecordWithDownSourceFilesSerializerCSV,
 )
 
 from .fake_testdata import (
@@ -81,6 +87,38 @@ class TestMonitoringMetricsQueries(APITestCase):
 
     def get_funder_records(self, snapshot_date: Optional[date] = None):
         return self._get_records("funder", snapshot_date)
+
+    def get_down_publishers(self, snapshot_date: Optional[date] = None):
+        query_kwargs = {}
+        if snapshot_date is not None:
+            query_kwargs = {"snapshot_date": snapshot_date.isoformat()}
+
+        url = reverse(f"api:publisher-down-sourcefiles", kwargs=query_kwargs)
+        response = self.client.get(url, headers={"Accept": "text/csv"})
+        self.assertEqual(response.status_code, 200)
+        response_content = response.content.decode("utf-8")
+
+        def csv_row_to_list(csv_row: str) -> List[str]:
+            row_reader = csv.reader([csv_row])
+            return list(row_reader)[0]
+
+        down_publishers = {}
+        reader = csv.DictReader(io.StringIO(response_content))
+        for row in reader:
+            down_pub = copy.copy(row)
+            # Handle the nested CSV rows / list values
+            for (
+                metric_name
+            ) in (
+                PublisherMetricsRecordWithDownSourceFilesSerializerCSV.SOURCE_FILE_NESTED_CSV_FIELDS
+            ):
+                down_pub[f"down_source_files.{metric_name}"] = csv_row_to_list(
+                    down_pub[f"down_source_files.{metric_name}"]
+                )
+
+            down_publishers[down_pub["publisher_prefix"]] = down_pub
+
+        return down_publishers
 
     def test_new_publisher(self):
         # Check that:
@@ -180,6 +218,9 @@ class TestMonitoringMetricsQueries(APITestCase):
             0,
         )
 
+        # Check that the Publisher doesn't appear in Unavailable Publishers
+        self.assertNotIn(test_publisher.prefix, self.get_down_publishers().keys())
+
         # Fake two days of sourcefile downtime
         # Run two GetterRuns (as they tend to be about 24 hours apart, but can be slightly less,
         # so it can still be less than 1 full day difference after just one)
@@ -213,6 +254,17 @@ class TestMonitoringMetricsQueries(APITestCase):
                 "days_since_last_successful_download"
             ],
             1,
+        )
+
+        # Check that the Publisher does now appear in Unavailable Publishers
+        # along with the relevant SourceFile download URL
+        down_publishers = self.get_down_publishers()
+        self.assertIn(test_publisher.prefix, down_publishers.keys())
+        self.assertIn(
+            test_sourcefile.data["distribution"][0]["downloadURL"],
+            down_publishers[test_publisher.prefix][
+                "down_source_files.last_download_attempt_download_url"
+            ],
         )
 
         # Fake bringing the sourcefile back up
