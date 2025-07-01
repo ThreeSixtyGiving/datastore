@@ -98,7 +98,7 @@ class PublisherSourceFileDownAPIView(SnapshotAPIView):
             if (
                 pub.snapshot.sourcefilemetricsrecord_set.filter(
                     publisher_prefix=pub.publisher_prefix,
-                    metrics__last_successful_download_was_at_least_7_days_ago=True,
+                    metrics__days_since_last_successful_download__gte=1,
                 ).count()
                 > 0
             ):
