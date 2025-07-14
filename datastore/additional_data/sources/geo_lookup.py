@@ -135,7 +135,8 @@ class GeoLookupSource(object):
                         area["sourceCode"] = location.get("geoCode")
                         additional_data["locationLookup"].append(area)
 
-        lsoa = additional_data.get("recipientOrganizationLocation", {}).get("lsoa11")
+        # recipientOrganizationLocation comes from nspl
+        lsoa = additional_data.get("recipientOrganizationLocation", {}).get("lsoa21")
         if lsoa:
             area = self.get_area_by_code(lsoa)
             if area:

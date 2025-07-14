@@ -135,7 +135,7 @@ class TestAdditionalDataGeoLookup(TestCase):
             {"geoCode": self.EXISTING_AREA}
         ]
         additional_data = {
-            "recipientOrganizationLocation": {"lsoa11": self.EXISTING_AREA}
+            "recipientOrganizationLocation": {"lsoa21": self.EXISTING_AREA}
         }
 
         geo = GeoLookupSource()
@@ -177,7 +177,7 @@ class TestAdditionalDataGeoLookup(TestCase):
         del grant.data["beneficiaryLocation"]
 
         additional_data = {
-            "recipientOrganizationLocation": {"lsoa11": self.EXISTING_AREA}
+            "recipientOrganizationLocation": {"lsoa21": self.EXISTING_AREA}
         }
         geo = GeoLookupSource()
         geo.update_additional_data(grant.data, grant.source_file.data, additional_data)
