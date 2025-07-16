@@ -4,6 +4,7 @@ from typing import Iterable
 from datetime import datetime
 from typing import Dict, Any
 
+from django.db.models import QuerySet
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 from rest_framework_dataclasses.serializers import DataclassSerializer
@@ -99,20 +100,43 @@ class PublisherMetricsRecordWithDownSourceFilesSerializer(serializers.ModelSeria
 
     class Meta:
         model = PublisherMetricsRecord
-        fields = ["timestamp", "publisher_prefix", "metrics", "down_source_files"]
+        fields = [
+            "timestamp",
+            "publisher_prefix",
+            "metrics",
+            "down_source_files",
+            "has_sourcefile_where_last_successful_download_was_at_least_7_days_ago",
+        ]
 
     metrics = PublisherMetricsSerializer()
     down_source_files = SerializerMethodField(method_name="get_down_source_files_json")
+    has_sourcefile_where_last_successful_download_was_at_least_7_days_ago = (
+        SerializerMethodField()
+    )
 
-    @staticmethod
-    def get_down_source_files_json(obj: PublisherMetricsRecord):
-        down_source_files_records = obj.snapshot.sourcefilemetricsrecord_set.filter(
+    @classmethod
+    def _get_down_source_files(
+        self, obj: PublisherMetricsRecord
+    ) -> QuerySet[SourceFileMetricsRecord]:
+        return obj.snapshot.sourcefilemetricsrecord_set.filter(
             publisher_prefix=obj.publisher_prefix,
-            metrics__last_successful_download_was_at_least_7_days_ago=True,
+            metrics__days_since_last_successful_download__gt=0,
         )
+
+    @classmethod
+    def get_down_source_files_json(cls, obj: PublisherMetricsRecord):
         return SourceFileMetricsRecordSerializer(
-            down_source_files_records, many=True
+            cls._get_down_source_files(obj), many=True
         ).data
+
+    @classmethod
+    def get_has_sourcefile_where_last_successful_download_was_at_least_7_days_ago(
+        cls, obj: PublisherMetricsRecord
+    ) -> bool:
+        for sf in cls._get_down_source_files(obj):
+            if sf.metrics.get("days_since_last_successful_download", 0) >= 7:
+                return True
+        return False
 
 
 def list_to_csv(data: Iterable) -> str:
@@ -127,18 +151,22 @@ class PublisherMetricsRecordWithDownSourceFilesSerializerCSV(
     PublisherMetricsRecordWithDownSourceFilesSerializer,
 ):
     SOURCE_FILE_NESTED_CSV_FIELDS = [
-        "days_since_last_successful_download",
+        "last_successful_download_at",
+        "last_download_attempt_at",
         "last_download_attempt_download_url",
+        "last_download_attempt_downloaded",
+        "last_download_attempt_valid",
+        "last_download_attempt_error",
+        "days_since_last_successful_download",
         "last_download_attempt_access_url",
+        "last_successful_download_was_at_least_7_days_ago",
     ]
 
     down_source_files = SerializerMethodField(method_name="get_down_source_files_csv")
 
-    def get_down_source_files_csv(self, obj: PublisherMetricsRecord):
-        down_source_files_records = obj.snapshot.sourcefilemetricsrecord_set.filter(
-            publisher_prefix=obj.publisher_prefix,
-            metrics__days_since_last_successful_download__gt=0,
-        )
+    @classmethod
+    def get_down_source_files_csv(cls, obj: PublisherMetricsRecord):
+        down_source_files_records = cls._get_down_source_files(obj)
 
         # Nested CSV in a CSV field isn't very nice, but it works for the SalesForce integration
         data = {
@@ -147,7 +175,7 @@ class PublisherMetricsRecordWithDownSourceFilesSerializerCSV(
                     f"metrics__{metric_name}", flat=True
                 )
             )
-            for metric_name in self.SOURCE_FILE_NESTED_CSV_FIELDS
+            for metric_name in cls.SOURCE_FILE_NESTED_CSV_FIELDS
         }
 
         return data
