@@ -93,7 +93,7 @@ class TestMonitoringMetricsQueries(APITestCase):
         if snapshot_date is not None:
             query_kwargs = {"snapshot_date": snapshot_date.isoformat()}
 
-        url = reverse(f"api:publisher-down-sourcefiles", kwargs=query_kwargs)
+        url = reverse("api:publisher-down-sourcefiles", kwargs=query_kwargs)
         response = self.client.get(url, headers={"Accept": "text/csv"})
         self.assertEqual(response.status_code, 200)
         response_content = response.content.decode("utf-8")
