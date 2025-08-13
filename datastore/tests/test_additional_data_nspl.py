@@ -1,4 +1,5 @@
 import json
+from pathlib import PurePath
 
 import requests_mock
 from django.test import TestCase
@@ -7,6 +8,9 @@ from additional_data.models import NSPL
 from additional_data.sources.geocode_names import GeoCodeNamesSource
 from additional_data.sources.nspl import NSPLSource
 from db.models import Grant
+
+
+TEST_FILES_DIR = PurePath(__file__).parent.joinpath("files")
 
 
 class TestAdditionalDataNSPL(TestCase):
@@ -18,7 +22,7 @@ class TestAdditionalDataNSPL(TestCase):
 
         with requests_mock.Mocker() as m:
             # Import NSPL data.
-            with open("./datastore/tests/files/nspl_with_data.zip", "rb") as infile:
+            with open(TEST_FILES_DIR.joinpath("nspl_with_data.zip"), "rb") as infile:
                 # NSPL url returns a zipfile. We are replacing the zipfile by mocking it.
                 m.get("{}".format(nspl.NSPL_URL), body=infile)
                 nspl.import_nspl()
@@ -81,7 +85,7 @@ class TestAdditionalDataNSPL(TestCase):
         nspl = NSPLSource()
 
         with requests_mock.Mocker() as m:
-            with open("./datastore/tests/files/nspl_with_no_data.zip", "rb") as infile:
+            with open(TEST_FILES_DIR.joinpath("nspl_with_no_data.zip"), "rb") as infile:
                 # NSPL url returns a zipfile. We are replacing the zipfile by mocking it.
                 m.get("{}".format(nspl.NSPL_URL), body=infile)
                 nspl.import_nspl()
@@ -93,7 +97,7 @@ class TestAdditionalDataNSPL(TestCase):
         nspl = NSPLSource()
 
         with requests_mock.Mocker() as m:
-            with open("./datastore/tests/files/nspl_with_data.zip", "rb") as infile:
+            with open(TEST_FILES_DIR.joinpath("nspl_with_data.zip"), "rb") as infile:
                 # NSPL url returns a zipfile. We are replacing the zipfile by mocking it.
                 m.get("{}".format(nspl.NSPL_URL), body=infile)
                 nspl.import_nspl()
@@ -103,7 +107,7 @@ class TestAdditionalDataNSPL(TestCase):
                 )
 
                 with open(
-                    "./datastore/tests/files/nspl_with_data_bis.zip", "rb"
+                    TEST_FILES_DIR.joinpath("nspl_with_data_bis.zip"), "rb"
                 ) as infile:
                     # NSPL url returns a zipfile. We are replacing the zipfile by mocking it.
                     m.get("{}".format(nspl.NSPL_URL), body=infile)
@@ -116,7 +120,7 @@ class TestAdditionalDataNSPL(TestCase):
                     self.assertTrue(NSPL.objects.filter(postcode="CT11AA").first())
 
     def save_nspl_mock_data(self):
-        with open("./datastore/tests/files/nspl_postcode.json") as infile:
+        with open(TEST_FILES_DIR.joinpath("nspl_postcode.json")) as infile:
             json_object = json.load(infile)
             for record in json_object:
                 postcode = "".join(record["pcd"].split()).upper()
@@ -151,7 +155,7 @@ class TestAdditionalDataNSPL(TestCase):
         code_names = GeoCodeNamesSource()
         with requests_mock.Mocker() as m:
             with open(
-                "./datastore/tests/files/code_names_with_data.zip", "rb"
+                TEST_FILES_DIR.joinpath("code_names_with_data.zip"), "rb"
             ) as infile:
                 # Change History Data url returns a zipfile. We are replacing the zipfile by mocking it.
                 m.get("{}".format(code_names.CHD_URL), body=infile)
