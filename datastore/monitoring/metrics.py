@@ -158,9 +158,21 @@ def gather_publisher_metrics(
 
 
 def funder_metrics(funder: Funder) -> FunderMetrics:
+
+    total_gbp = 0
+    try:
+        total_gbp += funder.aggregate["currencies"]["GBP"]["recipient_org"]["total"]
+    except KeyError:
+        pass
+
+    try:
+        total_gbp += funder.aggregate["currencies"]["GBP"]["recipient_ind"]["total"]
+    except KeyError:
+        pass
+
     return FunderMetrics(
         total_grants=funder.aggregate.get("grants"),
-        total_gbp=funder.aggregate["currencies"].get("GBP", {}).get("total"),
+        total_gbp=total_gbp,
         latest_award_date=funder.aggregate.get("maxAwardDate"),
         earliest_award_date=funder.aggregate.get("minAwardDate"),
     )
