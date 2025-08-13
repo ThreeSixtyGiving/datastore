@@ -2,18 +2,13 @@ import datetime
 
 from django.urls import reverse_lazy
 from django.test import TestCase
-from django.core.management import call_command
-
 
 current_year = datetime.date.today().year
 
 
 class DashBoardAPITests(TestCase):
     maxDiff = None
-
-    @classmethod
-    def setUpTestData(cls):
-        call_command("loaddata", "test_data.json")
+    fixtures = ["test_data.json"]
 
     def test_dashboard_api_overview_grants(self):
         expected_data = {
