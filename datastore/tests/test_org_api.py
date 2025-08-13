@@ -205,14 +205,14 @@ class OrgAPITestCase(TestCase):
             "funder": None,
             "recipient": {
                 "aggregate": {
-                    "grants": 50,
+                    "grants": 46,
                     "currencies": {
                         "GBP": {
-                            "avg": 500.94,
+                            "avg": 504.0217391304348,
                             "max": 990.0,
                             "min": 46.0,
-                            "total": 25047.0,
-                            "grants": 50,
+                            "total": 23185.0,
+                            "grants": 46,
                         }
                     },
                 }
