@@ -219,6 +219,8 @@ class SourceFile(models.Model):
 def new_default_entity_aggregate_data():
     return {
         "grants": 0,
+        "grants_ind": 0,
+        "grants_org": 0,
         "minAwardDate": None,
         "maxAwardDate": None,
         "currencies": {},
@@ -242,7 +244,6 @@ class Entity(models.Model):
     # Allowed to be null or blank for progressive building of the record
     name = models.TextField(null=True, blank=True)
 
-    # Max award amount, avg award amount, currencies, ... i.e. everything from jsonl
     aggregate = JSONField(default=new_default_entity_aggregate_data)
     additional_data = JSONField(default=new_default_entity_additional_data)
 
@@ -271,15 +272,32 @@ class Entity(models.Model):
         ## Aggregate data
         # {
         #  "grants": 0,
+        #  "grants_ind": 0,
+        #  "grants_org": 0,
         #  "minAwardDate": yyyy-mm-dd,
         #  "maxAwardDate": yyyy-mm-dd,
         #  "currencies": {
-        #       "GBP": { "grants": 0, "total": 0, "avg": 0, min: 0, max: 0 } },
-        #        ...
+        #       "recipient_org": {
+        #         "GBP": { "grants": 0, "total": 0, "min": 0, "max": 0, "avg":0 },
+        #         ...
+        #       },
+        #       "recipient_ind": {
+        #         "GBP": { "grants": 0, "total": 0, "min": 0, "max": 0, "avg":0 },
+        #         ...
+        #       }
+        #  },
         # },
 
+        C = "currencies"
         amount = grant["amountAwarded"]
         currency = grant["currency"]
+
+        if grant.get("recipientIndividual"):
+            recipient_type = "recipient_ind"
+            self.aggregate["grants_ind"] += 1
+        else:
+            recipient_type = "recipient_org"
+            self.aggregate["grants_org"] += 1
 
         try:
             award_date = datetime.date.fromisoformat(grant["awardDate"][:10])
@@ -303,52 +321,42 @@ class Entity(models.Model):
         else:
             self.aggregate["maxAwardDate"] = award_date.isoformat()
 
-        c = "currencies"
+        # In the chain self.aggregate[C][currency][recipient_type]
+        # Any combination of currency and recipient may not have been initialised
+        # as a dict so we have to check first.
+        if self.aggregate[C].get(currency) == None:
+            self.aggregate[C][currency] = {}
 
-        try:
-            self.aggregate[c][currency]["total"] += amount
-        except KeyError:
-            # Initialise the currency
-            self.aggregate[c][currency] = {
+        # This is the first grant to create a currency and recipient_type
+        # All values can be intialised to this particular grant.
+        if self.aggregate[C][currency].get(recipient_type) == None:
+            self.aggregate[C][currency][recipient_type] = {
                 "total": amount,
-                "avg": amount,
                 "min": amount,
                 "max": amount,
-                "grants": 0,
+                "avg": amount,
+                "grants": 1,
             }
+        else:
+            # Otherwise add to the existing aggregate data
 
-        self.aggregate[c][currency]["avg"] = (
-            self.aggregate["currencies"][currency]["total"] / self.aggregate["grants"]
-        )
+            self.aggregate[C][currency][recipient_type]["grants"] += 1
+            self.aggregate[C][currency][recipient_type]["total"] += amount
 
-        self.aggregate[c][currency]["grants"] += 1
+            # Important that the avg is calculated _after_ the total number
+            # of grants for the currency has been accumulated.
+            # NOTE: avg currency amount to be deprecated
+            # https://github.com/ThreeSixtyGiving/datastore/issues/292
+            self.aggregate[C][currency][recipient_type]["avg"] = (
+                self.aggregate[C][currency][recipient_type]["total"]
+                / self.aggregate[C][currency][recipient_type]["grants"]
+            )
 
-        if self.aggregate[c][currency]["max"] < amount:
-            self.aggregate[c][currency]["max"] = amount
+            if self.aggregate[C][currency][recipient_type]["max"] < amount:
+                self.aggregate[C][currency][recipient_type]["max"] = amount
 
-        if self.aggregate[c][currency]["min"] > amount:
-            self.aggregate[c][currency]["min"] = amount
-
-        # Grants to individuals stats
-
-        if grant.get("recipientIndividual"):
-            # Only look at GBP for now
-            try:
-                self.aggregate["individual_recipients"]["grants"] += 1
-                self.aggregate["individual_recipients"]["total"] += amount
-            except KeyError:
-                self.aggregate["individual_recipients"] = {
-                    "grants": 1,
-                    "total": amount,
-                    "min": amount,
-                    "max": amount,
-                }
-
-            if self.aggregate["individual_recipients"]["max"] < amount:
-                self.aggregate["individual_recipients"]["max"] = amount
-
-            if self.aggregate["individual_recipients"]["min"] > amount:
-                self.aggregate["individual_recipients"]["min"] = amount
+            if self.aggregate[C][currency][recipient_type]["min"] > amount:
+                self.aggregate[C][currency][recipient_type]["min"] = amount
 
 
 class Publisher(Entity):
