@@ -1,6 +1,5 @@
 import datetime
 
-from django.core.management import call_command
 from django.test import TestCase
 from django.urls import reverse_lazy
 
@@ -9,10 +8,7 @@ current_year = datetime.date.today().year
 
 class OrgAPITestCase(TestCase):
     maxDiff = None
-
-    @classmethod
-    def setUpTestData(cls):
-        call_command("loaddata", "test_data.json")
+    fixtures = ["test_data.json"]
 
     # Examples Orgs and Grants plucked from the test dataset
     funder_org_id = "GB-example-b"
