@@ -316,7 +316,7 @@ class OrgAPITestCase(TestCase):
             headers={"accept": "application/json"},
         ).json()
 
-        self.assertEqual(data["count"], 46)
+        self.assertEqual(data["count"], 46, f"API responded {data}")
 
         grants = {grant["grant_id"]: grant for grant in data["results"]}
 
@@ -329,7 +329,6 @@ class OrgAPITestCase(TestCase):
             f"/api/v1/org/{self.recipient_nonprimary_org_id}/grants_received/",
             headers={"accept": "application/json"},
         ).json()
-
         self.assertEqual(data["count"], 46)
 
     def test_recipient_grants_made(self):
