@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Dict, Any
 
 from rest_framework import serializers
 from rest_framework_dataclasses.serializers import DataclassSerializer
@@ -20,10 +21,19 @@ class DateTimeFieldSerialiser(serializers.DateTimeField):
         return value.isoformat()
 
 
+class BaseMetricsSerializer(DataclassSerializer):
+    def to_internal_value(self, data: Dict[str, Any]):
+        """The parent MetricsRecord needs a JSON-like value."""
+        dataclass_value = super().to_internal_value(data)
+        # re-serialise the dataclass back again
+        json_value = self.__class__(dataclass_value)
+        return json_value.data
+
+
 # Dataset
 
 
-class DatasetMetricsSerializer(DataclassSerializer):
+class DatasetMetricsSerializer(BaseMetricsSerializer):
     class Meta:
         dataclass = DatasetMetrics
 
@@ -39,7 +49,7 @@ class DatasetMetricsRecordSerializer(serializers.ModelSerializer):
 # Publisher
 
 
-class PublisherMetricsSerializer(DataclassSerializer):
+class PublisherMetricsSerializer(BaseMetricsSerializer):
     class Meta:
         dataclass = PublisherMetrics
 
@@ -55,7 +65,7 @@ class PublisherMetricsRecordSerializer(serializers.ModelSerializer):
 # Funder
 
 
-class FunderMetricsSerializer(DataclassSerializer):
+class FunderMetricsSerializer(BaseMetricsSerializer):
     class Meta:
         dataclass = FunderMetrics
 
@@ -63,7 +73,7 @@ class FunderMetricsSerializer(DataclassSerializer):
 class FunderMetricsRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = FunderMetricsRecord
-        fields = ["timestamp", "funder_org_id", "metrics"]
+        fields = ["timestamp", "funder_org_id", "funder_non_primary_org_ids", "metrics"]
 
     metrics = FunderMetricsSerializer()
 
@@ -71,9 +81,13 @@ class FunderMetricsRecordSerializer(serializers.ModelSerializer):
 # SourceFile
 
 
-class SourceFileMetricsSerializer(DataclassSerializer):
+class SourceFileMetricsSerializer(BaseMetricsSerializer):
     class Meta:
         dataclass = SourceFileMetrics
+
+    last_download_attempt_error = serializers.CharField(
+        allow_blank=True, allow_null=True
+    )
 
 
 class SourceFileMetricsRecordSerializer(serializers.ModelSerializer):

@@ -113,7 +113,7 @@ class PublisherMetricsRecord(AbstractMetricsRecord):
 @dataclass
 class FunderMetrics:
     total_grants: int
-    total_gbp: float
+    total_gbp: Optional[float]  # May be None for non-UK funders with no GBP grants
     latest_award_date: date
     earliest_award_date: date
 
@@ -122,7 +122,7 @@ class FunderMetricsRecord(AbstractMetricsRecord):
     identifier_fields = ["funder_org_id"]
 
     funder_org_id = models.TextField()
-    funder_non_primary_org_ids = ArrayField(models.TextField())
+    funder_non_primary_org_ids = ArrayField(models.TextField(), blank=True)
     metrics = models.JSONField()
 
     class Meta:

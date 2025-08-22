@@ -261,3 +261,59 @@ class CustomMgmtCommandsTest(TransactionTestCase):
             0,
             f"Errors output by command: {err_out.getvalue()}",
         )
+
+    def test_monitoring_import_export(self):
+        from monitoring.metrics import gather_metrics
+        from monitoring.models import (
+            MonitoringSnapshot,
+            FunderMetricsRecord,
+            PublisherMetricsRecord,
+            SourceFileMetricsRecord,
+            DatasetMetricsRecord,
+        )
+
+        gather_metrics()
+
+        # Get all record data for later comparison (except the primary keys, which can change)
+        def _frozen_records():
+            return tuple(
+                [
+                    list(_model.objects.all().defer("id"))
+                    for _model in [
+                        MonitoringSnapshot,
+                        FunderMetricsRecord,
+                        PublisherMetricsRecord,
+                        SourceFileMetricsRecord,
+                        DatasetMetricsRecord,
+                    ]
+                ]
+            )
+
+        pre_records = _frozen_records()
+
+        with TemporaryDirectory() as tmpdir:
+            # Export all records
+            call_command(
+                "import_export_monitoring_data",
+                "--export-records-to-dir",
+                tmpdir,
+            )
+
+            # Delete all records from db
+            MonitoringSnapshot.objects.all().delete()
+
+            # Re load the snapshots
+            call_command(
+                "import_export_monitoring_data",
+                "--import-records-from-dir",
+                tmpdir,
+            )
+
+        post_records = _frozen_records()
+
+        # TODO: Figure out how to actually compare equality of the records before and after
+        # Maybe implement __hash__ on the records + metrics dataclasses, compare equality with a multi-set?
+        self.assertSetEqual(
+            set(r.timestamp for r in pre_records[0]),
+            set(r.timestamp for r in post_records[0]),
+        )
