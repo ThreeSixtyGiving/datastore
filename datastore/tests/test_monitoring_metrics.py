@@ -90,7 +90,7 @@ class TestMonitoringMetricsQueries(APITestCase):
 
     def get_down_publishers(self, snapshot_date: Optional[date] = None):
         query_kwargs = {}
-        if snapshot_date is not None:
+        if snapshot_date:
             query_kwargs = {"snapshot_date": snapshot_date.isoformat()}
 
         url = reverse("api:publisher-down-sourcefiles", kwargs=query_kwargs)
