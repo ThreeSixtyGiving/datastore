@@ -1,11 +1,14 @@
 import csv
 import json
+import logging
 from typing import List, Tuple, Optional
 from django.conf import settings
 
 import requests
 
 from additional_data.models import OrgInfoCache
+
+logger = logging.getLogger(__name__)
 
 # Tuple of (CSV URL, org type)
 # See OrgInfoCache model for possible org types
@@ -191,6 +194,10 @@ class FindThatCharitySource(object):
             if settings.FTC_HEADER:
                 ftc_header = settings.FTC_HEADER.split(":")
                 http_headers[ftc_header[0].strip()] = ftc_header[1].strip()
+            else:
+                logger.warning(
+                    "FTC_HEADER not set, note that FTC/OrgInfoCache data will be limited."
+                )
 
             with requests.get(
                 path,
