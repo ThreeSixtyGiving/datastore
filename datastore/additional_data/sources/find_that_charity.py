@@ -1,6 +1,7 @@
 import csv
 import json
 from typing import List, Tuple, Optional
+from django.conf import settings
 
 import requests
 
@@ -186,10 +187,15 @@ class FindThatCharitySource(object):
             raise self.OrgTypeNotKnownError
 
         if "http" in path:
+            http_headers = {"User-Agent": "360Giving Datastore"}
+            if settings.FTC_HEADER:
+                ftc_header = settings.FTC_HEADER.split(":")
+                http_headers[ftc_header[0].strip()] = ftc_header[1].strip()
+
             with requests.get(
                 path,
                 stream=True,
-                headers={"User-Agent": "360Giving Datastore"},
+                headers=http_headers,
             ) as r:
                 file_data = csv.DictReader(
                     r.iter_lines(decode_unicode=True), delimiter=","
