@@ -226,3 +226,6 @@ DATA_RUN_LOG = "data_run.log"
 
 # https://docs.djangoproject.com/en/4.0/releases/3.2/#customizing-type-of-auto-created-primary-keys
 DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
+# Header used to access FTC API endpoints
+FTC_HEADER = ""
