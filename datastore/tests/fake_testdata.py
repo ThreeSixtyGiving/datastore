@@ -25,21 +25,33 @@ logger = logging.getLogger(__name__)
 
 
 @contextmanager
-def fake_getter_run(fake: faker.Faker, timestamp: Optional[datetime] = None):
+def fake_getter_run(
+    fake: faker.Faker,
+    timestamp: Optional[datetime] = None,
+    timestamp_dt: Optional[timedelta] = None,
+) -> GetterRun:
     """
     Context manager that creates a GetterRun 1 day after the last one, or at a
     random past date if there are no prior GetterRuns.
     Create Publishers, SourceFiles, Grants etc. inside the with block,
     the Latest & entities data will be updated at the end of the with block.
+
+    Optionally provide timestamp to define the timestamp of the getterrun,
+    or timestamp_dt as a timedelta since the last getterrun.
     """
     if timestamp is None:
         try:
             last_getter_run = GetterRun.latest()
-            timestamp = datetime.combine(
-                last_getter_run.datetime.date() + timedelta(days=1),
-                time(hour=0, minute=15),
-                timezone.utc,
-            )
+            if timestamp_dt:
+                timestamp = last_getter_run.datetime + timestamp_dt
+            else:
+                # If neither timestamp nor timestamp_dt are provided, set the timestamp
+                # to quarter past midnight the following day.
+                timestamp = datetime.combine(
+                    last_getter_run.datetime.date() + timedelta(days=1),
+                    time(hour=0, minute=15),
+                    timezone.utc,
+                )
         except GetterRun.DoesNotExist:
             # Start with a past date at least 30 days ago
             timestamp = datetime.combine(

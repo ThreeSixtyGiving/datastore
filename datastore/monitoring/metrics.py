@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, List
 
 from django.db import transaction
@@ -202,8 +202,11 @@ def gather_funders_metrics(snapshot: MonitoringSnapshot) -> List[FunderMetricsRe
 
 # SourceFile
 
+FUZZY_DAY_LEEWAY_HOURS = 4
+
 
 def source_file_metrics(sourcefile: SourceFile) -> SourceFileMetrics:
+    # Note that "best" refers to the last successful download attempt
     best_metadata = sourcefile.data["datagetter_metadata"]
     last_attempt = GetterRun.latest().sourcefile_set.get(
         data__identifier=sourcefile.data["identifier"]
@@ -221,6 +224,15 @@ def source_file_metrics(sourcefile: SourceFile) -> SourceFileMetrics:
     days_since_last_successful_download = (
         last_attempt_downloaded_datetime - best_downloaded_datetime
     ).days
+
+    # Allow a few hours leeway to create a more human definition of "days", e.g. more than 20 hours
+    # ago counts as being "one day" ago
+    # Implemented as: "Would a new day be counted within the next 4 hours?" => count a day now
+    if (
+        (last_attempt_downloaded_datetime - best_downloaded_datetime)
+        + timedelta(hours=FUZZY_DAY_LEEWAY_HOURS)
+    ).days > days_since_last_successful_download:
+        days_since_last_successful_download += 1
 
     return SourceFileMetrics(
         last_successful_download_at=best_downloaded_datetime,
