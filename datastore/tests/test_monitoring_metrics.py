@@ -292,6 +292,91 @@ class TestMonitoringMetricsQueries(APITestCase):
             0,
         )
 
+    def test_fuzzy_day_counting(self):
+        """
+        Test that a day is counted even when getter runs are not strictly
+        24 hours apart, but would roughly meet a human definition of "one day" passing.
+        """
+        fake = faker.Faker()
+
+        funding_org = fake_grant_org(fake)
+        recipient_org = fake_grant_org(fake)
+
+        # First GetterRun
+        with fake_getter_run(fake) as getter_run_1:
+            test_publisher = fake_publisher(fake, getter_run_1)
+            test_sourcefile = fake_sourcefile(
+                fake, test_publisher, valid=True, downloads=True
+            )
+            test_sourcefile_identifier = test_sourcefile.data["identifier"]
+            fake_grant(
+                fake,
+                sourcefile=test_sourcefile,
+                funder=funding_org,
+                recipient=recipient_org,
+            )
+
+        # Check that the SourceFile is up
+        self.assertEqual(
+            self.get_sourcefile_record(test_sourcefile_identifier)["metrics"][
+                "days_since_last_successful_download"
+            ],
+            0,
+        )
+
+        # Fake a second getter run, where the getter runs are a bit less than a full 24 hours apart
+        with fake_getter_run(fake, timestamp_dt=timedelta(hours=21)) as getter_run_2:
+            copy_publisher(fake, test_publisher, getter_run_2)
+            copy_sourcefile(
+                fake,
+                test_sourcefile,
+                getter_run_2,
+                downloads=False,
+                valid=False,
+                copy_grants=False,
+            )
+
+        # Fake a third getter run, but later the same day - it shouldn't count as another day passing
+        with fake_getter_run(fake, timestamp_dt=timedelta(hours=12)) as getter_run_3:
+            copy_publisher(fake, test_publisher, getter_run_3)
+            copy_sourcefile(
+                fake,
+                test_sourcefile,
+                getter_run_3,
+                downloads=False,
+                valid=False,
+                copy_grants=False,
+            )
+
+        gr1_sf_metrics = SourceFileMetricsRecord.objects.get(
+            publisher_prefix=test_publisher.prefix,
+            sourcefile_identifier=test_sourcefile.data["identifier"],
+            timestamp=getter_run_1.datetime,
+        )
+        gr2_sf_metrics = SourceFileMetricsRecord.objects.get(
+            publisher_prefix=test_publisher.prefix,
+            sourcefile_identifier=test_sourcefile.data["identifier"],
+            timestamp=getter_run_2.datetime,
+        )
+        gr3_sf_metrics = SourceFileMetricsRecord.objects.get(
+            publisher_prefix=test_publisher.prefix,
+            sourcefile_identifier=test_sourcefile.data["identifier"],
+            timestamp=getter_run_3.datetime,
+        )
+
+        # Check that fuzzy day counting works
+        # A little less than 24 hours between GR1 & GR2 counts as "one day"
+        # but the significantly less than 24 hours between GR2 & GR3 doesn't
+        self.assertEqual(
+            gr1_sf_metrics.metrics["days_since_last_successful_download"] + 1,
+            gr2_sf_metrics.metrics["days_since_last_successful_download"],
+        )
+
+        self.assertEqual(
+            gr2_sf_metrics.metrics["days_since_last_successful_download"],
+            gr3_sf_metrics.metrics["days_since_last_successful_download"],
+        )
+
     def test_remove_funder(self):
         fake = faker.Faker()
 
