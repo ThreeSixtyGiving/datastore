@@ -68,6 +68,23 @@ class AdditionalDataRecipientLocation(object):
         except (IndexError, KeyError):
             pass
 
+        beneficiaryLocation_countryCode = ""
+        recipientOrg_location_countryCode = ""
+
+        try:
+            beneficiaryLocation_countryCode = grant["beneficiaryLocation"][0][
+                "countryCode"
+            ]
+        except (KeyError, IndexError):
+            pass
+
+        try:
+            recipientOrg_location_countryCode = grant["recipientOrganization"][0][
+                "location"
+            ][0]["countryCode"]
+        except (KeyError, IndexError):
+            pass
+
         # This is used for text searching in GrantNav
         additional_data["recipientLocation"] = " ".join(
             [
@@ -77,5 +94,13 @@ class AdditionalDataRecipientLocation(object):
                 additional_data.get("recipientWardNameGeoCode", ""),
                 additional_data.get("recipientRegionName", ""),
                 additional_data.get("recipientCountryName", ""),
+                additional_data.get("codeListLookup", {}).get(
+                    "beneficiaryLocation_countryCode", ""
+                ),
+                additional_data.get("codeListLookup", {}).get(
+                    "recipientOrg_location_countryCode", ""
+                ),
+                beneficiaryLocation_countryCode,
+                recipientOrg_location_countryCode,
             ]
         )
