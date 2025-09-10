@@ -40,7 +40,7 @@ coveralls==3.3.1
     # via -r requirements_dev.in
 defusedxml==0.7.1
     # via odfpy
-django==4.2.21
+django==4.2.24
     # via
     #   -r requirements.in
     #   django-cors-headers

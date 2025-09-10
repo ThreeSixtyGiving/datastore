@@ -24,7 +24,7 @@ charset-normalizer==3.4.2
     # via requests
 defusedxml==0.7.1
     # via odfpy
-django==4.2.21
+django==4.2.24
     # via
     #   -r requirements.in
     #   django-filter
