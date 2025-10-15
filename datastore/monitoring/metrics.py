@@ -87,9 +87,7 @@ def dataset_metrics(latest: Latest) -> DatasetMetrics:
         total_grants=sf_agg["total_grants"],
         total_grants_to_individuals=gr_agg["total_grants_to_individuals"],
         total_amount_awarded_gbp=sf_agg["total_gbp"],
-        total_publishers=Publisher.objects.filter(
-            getter_run=GetterRun.latest()
-        ).count(),
+        total_publishers=Publisher.objects.all().count(),
         total_funders=Funder.objects.count(),
         total_recipient_organisations=Recipient.objects.count(),
         total_recipient_individuals=gr_agg["total_recipient_individuals"],
@@ -133,7 +131,7 @@ def gather_publisher_metrics(
     snapshot: MonitoringSnapshot,
 ) -> List[PublisherMetricsRecord]:
     records = list()
-    for publisher in Publisher.objects.filter(getter_run=GetterRun.latest()):
+    for publisher in Publisher.objects.order_by().all():
         try:
             records.append(
                 PublisherMetricsRecord(
@@ -149,7 +147,7 @@ def gather_publisher_metrics(
             logger.error(
                 "Exception while creating metrics record for Publisher %s: %s",
                 publisher.name,
-                e,
+                str(e),
             )
     return PublisherMetricsRecord.objects.bulk_create(records)
 

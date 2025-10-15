@@ -150,8 +150,6 @@ class GetterRun(models.Model):
             sourcefile.grant_set.all().delete()
             sourcefile.delete()
 
-        self.publisher_set.all().delete()
-
     def archive_run(self):
         """Archive the run and delete grant data"""
         self.grant_set.all().delete()
@@ -191,9 +189,7 @@ class SourceFile(models.Model):
 
     def get_publisher(self):
         """returns the Publisher object for this source file"""
-        return Publisher.objects.get(
-            getter_run=self.getter_run, prefix=self.data["publisher"]["prefix"]
-        )
+        return Publisher.objects.get(prefix=self.data["publisher"]["prefix"])
 
     def save(self, *args, **kwargs):
         try:
@@ -364,8 +360,7 @@ class Publisher(Entity):
     quality = JSONField(null=True)
 
     # Convenience fields
-    prefix = models.CharField(max_length=300)
-    getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
+    prefix = models.CharField(max_length=300, unique=True)
 
     def get_latest_sourcefiles(self):
         return Latest.objects.get(series=Latest.CURRENT).sourcefile_set.filter(
@@ -382,10 +377,9 @@ class Publisher(Entity):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return "%s (datagetter %s)" % (self.name, str(self.getter_run.datetime))
+        return "%s (%s)" % (self.name, self.prefix)
 
     class Meta:
-        unique_together = ("getter_run", "prefix")
         ordering = ["prefix"]
         indexes = [Index(fields=["org_id", "name"])]
 
@@ -421,7 +415,6 @@ class Grant(models.Model):
     data = JSONField(verbose_name="Grant data")
 
     getter_run = models.ForeignKey(GetterRun, on_delete=models.CASCADE)
-    publisher = models.ForeignKey(Publisher, on_delete=models.DO_NOTHING)
     source_file = models.ForeignKey(SourceFile, on_delete=models.DO_NOTHING)
     # Convenience shortcut to latest->grants
     latest = models.ManyToManyField(Latest)
@@ -468,19 +461,18 @@ class Grant(models.Model):
     def from_data(
         data: Dict[str, Any],
         getter_run: GetterRun,
-        publisher: Publisher,
         source_file: SourceFile,
         additional_data: Dict[str, Any],
     ):
         """Make a Grant instance from JSON/dict data and fill out the denormalised convenience fields."""
+
         return Grant(
             grant_id=data["id"],
             data=data,
             getter_run=getter_run,
-            publisher=publisher,
             source_file=source_file,
             additional_data=additional_data,
-            publisher_org_id=publisher.org_id,
+            publisher_org_id=source_file.data["publisher"].get("org_id", "unknown"),
             recipient_org_ids=[
                 org["id"]
                 # recipientOrganization isn't present in grants to individuals

@@ -153,7 +153,7 @@ class TestDataQualityData(TestCase):
                 str(year): (5 if year == 2019 else 0)
                 for year in range(current_year, current_year - 10, -1)
             },
-            "orgIdTypes": {},
+            "orgIdTypes": {"COH": 4},
             "awardedThisYear": 0,
             "awardedLastThreeMonths": 0,
         }

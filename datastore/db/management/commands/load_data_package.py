@@ -23,16 +23,6 @@ class Command(LoadDatagetterDataCommand):
         getter_run = db.GetterRun.objects.create()
 
         for ob in dataset:
-            prefix = ob["publisher"]["prefix"]
-            publisher, c = db.Publisher.objects.get_or_create(
-                getter_run=getter_run,
-                prefix=prefix,
-                data=ob["publisher"],
-                org_id=ob["publisher"].get("org_id", "unknown"),
-                name=ob["publisher"]["name"],
-                source=db.Entity.PUBLISHER,
-            )
-
             source_file = db.SourceFile.objects.create(data=ob, getter_run=getter_run)
 
             grant_data = self.load_grant_data(ob["datagetter_metadata"]["json"])
@@ -49,7 +39,6 @@ class Command(LoadDatagetterDataCommand):
                     grant_bulk_insert.append(
                         db.Grant.from_data(
                             source_file=source_file,
-                            publisher=publisher,
                             data=grant,
                             additional_data=additional_data,
                             getter_run=getter_run,
