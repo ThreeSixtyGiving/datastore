@@ -1,12 +1,13 @@
+import sys
+import json
+
+from datetime import datetime
 from django.core.management.base import BaseCommand, CommandError
 
 import db.models as db
 
 from django.db import connection, transaction
 from django.db.backends.postgresql.introspection import DatabaseIntrospection
-
-import sys
-import json
 
 from additional_data.sources.find_that_charity import non_primary_org_ids_lookup_maps
 
@@ -15,26 +16,73 @@ data_types_reverse.update({1009: "ArrayField"})
 
 
 @transaction.atomic
-def update_entities():
-    grants = db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.values_list(
-        "data", flat=True
+def update_entities(publishers_only: bool = False):
+
+    # Delete old publishers from previous latest
+    print("Removing old publisher data")
+    db.Publisher.objects.all().delete()
+
+    # If multiple sourcefiles contain publisher info, then choose the sourcefile from
+    # the most recent getterrun.
+    #
+    # dict of Publisher prefix -> (GetterRun.datetime, Publisher obj)
+    publishers_bulk: dict[str, tuple[datetime, db.Publisher]] = {}
+
+    print("Analysing latest best source files for publishers")
+
+    sourcefiles = db.SourceFile.objects.filter(
+        latest=db.Latest.objects.get(series=db.Latest.CURRENT)
     )
 
-    # Delete old entities from previous latest
-    print("Removing old entity data")
-    db.Recipient.objects.all().delete()
-    db.Funder.objects.all().delete()
+    # Create publishers
+    for sourcefile in sourcefiles:
+        sf_data = sourcefile.data
+        publisher_prefix = sf_data["publisher"]["prefix"]
+        if (
+            publisher_prefix not in publishers_bulk
+            or sourcefile.getter_run.datetime > publishers_bulk[publisher_prefix][0]
+        ):
+            publisher = db.Publisher(
+                prefix=publisher_prefix,
+                data=sf_data["publisher"],
+                org_id=sf_data["publisher"].get("org_id", "unknown"),
+                name=sf_data["publisher"]["name"],
+                source=db.Entity.PUBLISHER,
+            )
+            publishers_bulk[publisher_prefix] = (
+                sourcefile.getter_run.datetime,
+                publisher,
+            )
+
+    print(f"Creating {len(publishers_bulk)} publisher entities")
+    db.Publisher.objects.bulk_create(
+        [p[1] for p in publishers_bulk.values()], batch_size=100000
+    )
+
+    if publishers_only:
+        return
 
     recipient_orgs_bulk = {}
     funder_orgs_bulk = {}
+
     (
         non_primary_to_primary_org_ids_lookup,
         primary_to_non_primary_org_ids_lookup,
     ) = non_primary_org_ids_lookup_maps()
 
+    # Delete old entities from previous latest
+    print("Removing old recipient & funder data")
+    db.Recipient.objects.all().delete()
+    db.Funder.objects.all().delete()
+
     print("Analysing latest best grant data for entities")
 
+    grants = db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.values_list(
+        "data", flat=True
+    )
+
     for grant in grants:
+        # Create recipient orgs
         for recipient in grant.get("recipientOrganization", []):
             # If the org-id provided is a non-primary org-id return the primary
             # otherwise return the specified org-id
@@ -76,9 +124,9 @@ def update_entities():
             funder_ob.source = db.Entity.GRANT
             funder_ob.update_aggregate(grant)
 
-    print("Creating recipient org entities")
+    print(f"Creating {len(recipient_orgs_bulk)} recipient org entities")
     db.Recipient.objects.bulk_create(recipient_orgs_bulk.values(), batch_size=100000)
-    print("Creating funder org entities")
+    print(f"Creating {len(funder_orgs_bulk)} funder org entities")
     db.Funder.objects.bulk_create(funder_orgs_bulk.values(), batch_size=100000)
 
 
@@ -142,9 +190,17 @@ class Command(BaseCommand):
             help="Update the entities data for latest best grant data",
         )
 
+        parser.add_argument(
+            "--update-publishers-only",
+            action="store_true",
+            dest="update_publishers_only",
+        )
+
     def handle(self, *args, **options):
         if options.get("update_entities"):
-            update_entities()
+            update_entities(
+                publishers_only=options.get("update_publishers_only", False)
+            )
             return
 
         if options.get("entity_type"):

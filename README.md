@@ -196,6 +196,14 @@ $ manage.py test tests.test_additional_data_tsgorgtype
 
 _see `manage.py test --help` for more info_
 
+### Updating the test data fixture
+
+Note that the OrgInfoCache entries for the test funders/recipients also needs to be included in the test data fixture.
+
+```shell
+./manage.py dumpdata --output db/fixtures/test_data.json db additional_data.OrgInfoCache
+```
+
 # Updating requirements
 
 We target python3.12 for our requirements.
