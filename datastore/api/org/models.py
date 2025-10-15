@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 from django.db.models.query import QuerySet, Q
 
 import db.models as db
+from db.models import Publisher
 
 
 @dataclass
@@ -62,9 +63,7 @@ class Organisation:
 
         if publisher_queryset is None:
             # Empty order_by to cancel default sort
-            publisher_queryset = db.Publisher.objects.order_by().filter(
-                getter_run__in=db.GetterRun.objects.in_use()
-            )
+            publisher_queryset = db.Publisher.objects.order_by()
 
         id_query = Q(org_id=org_id) | Q(non_primary_org_ids__contains=[org_id])
 
@@ -102,9 +101,7 @@ class Organisation:
 
         if publisher_queryset is None:
             # Empty order_by to cancel default sort
-            publisher_queryset = db.Publisher.objects.order_by().filter(
-                getter_run__in=db.GetterRun.objects.in_use()
-            )
+            publisher_queryset = db.Publisher.objects.order_by().all()
 
         name = None
         primary_org_id = org_id
@@ -150,13 +147,11 @@ class Organisation:
 
         # is org a Publisher?
         try:
-            publisher = publisher_queryset.filter(org_id=org_id).order_by(
-                "-getter_run__datetime"
-            )[0]
+            publisher = publisher_queryset.get(org_id=org_id)
             name = publisher.name
             # Publishers take precedence over Funders / Recipients when it comes to primary vs non-primary ID priority
             primary_org_id = publisher.org_id
-        except IndexError:
+        except Publisher.DoesNotExist:
             publisher = None
 
         if funder is None and recipient is None and publisher is None:

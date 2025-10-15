@@ -138,16 +138,6 @@ class Command(BaseCommand):
         getter_run = db.GetterRun.objects.create()
 
         for ob in dataset:
-            prefix = ob["publisher"]["prefix"]
-            publisher, c = db.Publisher.objects.get_or_create(
-                getter_run=getter_run,
-                prefix=prefix,
-                data=ob["publisher"],
-                org_id=ob["publisher"].get("org_id", "unknown"),
-                name=ob["publisher"]["name"],
-                source=db.Entity.PUBLISHER,
-            )
-
             source_file = db.SourceFile.objects.create(data=ob, getter_run=getter_run)
 
             try:
@@ -176,7 +166,6 @@ class Command(BaseCommand):
                         grant_bulk_insert.append(
                             db.Grant.from_data(
                                 source_file=source_file,
-                                publisher=publisher,
                                 data=grant,
                                 additional_data=additional_data,
                                 getter_run=getter_run,
@@ -215,10 +204,10 @@ class Command(BaseCommand):
         print("Updating Latest", file=self.stdout)
         db.Latest.update()
 
+        # Update entities data for publisher, funders and recipients
+        call_command("manage_entities_data", "--update")
         print("Updating quality data", file=self.stdout)
         call_command("rewrite_quality_data", "latest")
-        # Update entities data for funders and recipients
-        call_command("manage_entities_data", "--update")
 
         # Clear all cached objects - The latest data as well as new data has been added
         cache.clear()

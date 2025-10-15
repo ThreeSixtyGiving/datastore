@@ -2,7 +2,8 @@
 # These functions can be used to generate on-the-fly test data for
 # tests that require more fine control or testing mutations e.g. Entities data
 from datetime import timedelta, datetime, timezone, time
-from typing import TypedDict, Optional
+from django.db import transaction
+from typing import TypedDict, Optional, Generator
 from contextlib import contextmanager
 
 import logging
@@ -10,13 +11,13 @@ import faker
 import django.utils.timezone
 
 from db.models import (
-    Publisher,
     SourceFile,
     GetterRun,
     Grant,
     Latest,
 )
 from db.management.commands.manage_entities_data import update_entities
+from data_quality.management.commands.rewrite_quality_data import rewrite_quality_data
 from monitoring.metrics import (
     gather_metrics,
 )
@@ -24,12 +25,13 @@ from monitoring.metrics import (
 logger = logging.getLogger(__name__)
 
 
+@transaction.atomic
 @contextmanager
 def fake_getter_run(
     fake: faker.Faker,
     timestamp: Optional[datetime] = None,
     timestamp_dt: Optional[timedelta] = None,
-) -> GetterRun:
+) -> Generator[GetterRun, None, None]:
     """
     Context manager that creates a GetterRun 1 day after the last one, or at a
     random past date if there are no prior GetterRuns.
@@ -61,7 +63,7 @@ def fake_getter_run(
             )
 
     getter_run = GetterRun.objects.create(datetime=timestamp)
-    logger.info(f"Created Fake GetterRun @ {getter_run.datetime}")
+    logger.info(f"Created Fake GetterRun {getter_run.id} @ {getter_run.datetime}")
 
     if getter_run.datetime > datetime.now(tz=timezone.utc):
         # Some tests break if you use future dates
@@ -70,96 +72,40 @@ def fake_getter_run(
     yield getter_run
 
     # Update entities, metrics data etc after each GetterRun
-    # TODO: Update Publisher aggregate?
-    # TODO: Update Quality data? is that even possible or desirable for fake Grants?
     Latest.update()
     update_entities()
+    # Race conditions seem to happen when running tests if threads are enabled
+    rewrite_quality_data("latest", publisher_only=True, threads=0)
     gather_metrics()
 
 
-def fake_publisher(fake: faker.Faker, getter_run: GetterRun) -> Publisher:
-    publisher_aggregate = {
-        "total": {
-            "GBP": 2852197.0,
-            "grants": 118,
-            "funders": 1,
-            "publishers": 1,
-            "recipientIndividuals": 0,
-            "recipientOrganisations": 82,
-        },
-        "csvFiles": 100,
-        "odsFiles": 0,
-        "jsonFiles": 0,
-        "xlsxFiles": 0,
-        "awardYears": {
-            "2015": 0,
-            "2016": 0,
-            "2017": 0,
-            "2018": 1,
-            "2019": 12,
-            "2020": 12,
-            "2021": 21,
-            "2022": 21,
-            "2023": 29,
-            "2024": 22,
-        },
-        "orgIdTypes": {
-            "SC": 46760,
-            "CHC": 305478,
-            "COH": 197806,
-            "EDU": 10601,
-            "EIN": 1070,
-            "LAE": 4454,
-            "NHS": 1876,
-            "NIC": 6790,
-            "org": 1393,
-            "UKPRN": 65188,
-        },
-        "awardedThisYear": 100,
-        "awardedLastThreeMonths": 100,
+class FakePublisherInfo(TypedDict):
+    name: str
+    prefix: str
+    org_id: str
+    logo: str
+    website: str
+    last_published: str
+
+
+def fake_publisher_info(fake: faker.Faker) -> FakePublisherInfo:
+    publisher_prefix = f"360GX-{fake.slug()}"
+    publisher_info: FakePublisherInfo = {
+        "name": fake.company(),
+        "prefix": publisher_prefix,
+        "logo": fake.image_url(),
+        "org_id": f"XE-EXAMPLE-{publisher_prefix}",
+        "website": fake.url(),
+        "last_published": "2019-11-29",
     }
 
-    publisher_quality = {
-        "hasGrantDuration": 100,
-        "has50pcExternalOrgId": 100,
-        "hasGrantClassification": 0,
-        "hasGrantProgrammeTitle": 0,
-        "hasRecipientOrgLocations": 100,
-        "hasBeneficiaryLocationName": 100,
-        "hasBeneficiaryLocationGeoCode": 0,
-        "hasRecipientOrgCompanyOrCharityNumber": 100,
-    }
-
-    publisher_prefix = fake.slug()
-    publisher = Publisher.objects.create(
-        org_id=f"XE-EXAMPLE-{publisher_prefix}",
-        data={
-            "name": fake.company(),
-            "prefix": publisher_prefix,
-        },
-        aggregate=publisher_aggregate,
-        quality=publisher_quality,
-        getter_run=getter_run,
-    )
-
-    return publisher
-
-
-def copy_publisher(
-    fake: faker.Faker, publisher: Publisher, new_getter_run: GetterRun
-) -> Publisher:
-    return Publisher.objects.create(
-        org_id=publisher.org_id,
-        data=publisher.data,
-        aggregate=publisher.aggregate,
-        quality=publisher.quality,
-        getter_run=new_getter_run,
-    )
+    return publisher_info
 
 
 def fake_sourcefile(
     fake: faker.Faker,
-    publisher: Publisher,
+    getter_run: GetterRun,
+    publisher_info: FakePublisherInfo,
     valid: bool = True,
     downloads: bool = True,
 ) -> SourceFile:
@@ -172,14 +118,7 @@ def fake_sourcefile(
         "issued": f"{sf_data_year}-06-05",
         "license": "http://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
         "modified": "2024-02-02T14:43:01.000+0000",
-        "publisher": {
-            "logo": fake.image_url(),
-            "name": publisher.name,
-            "org_id": publisher.org_id,
-            "prefix": publisher.prefix,
-            "website": fake.url(),
-            "last_published": "2019-11-29",
-        },
+        "publisher": publisher_info,
         "identifier": fake.uuid4(),
         "description": "",
         "distribution": [
@@ -199,8 +138,7 @@ def fake_sourcefile(
             "acceptable_license": True,
             # "datetime_downloaded": "2024-12-01T00:02:41+00:00",
             "datetime_downloaded": (
-                publisher.getter_run.datetime
-                + timedelta(minutes=fake.random_int(1, 60))
+                getter_run.datetime + timedelta(minutes=fake.random_int(1, 60))
             ).isoformat(),
         },
     }
@@ -341,7 +279,7 @@ def fake_sourcefile(
 
     sourcefile = SourceFile.objects.create(
         data=sf_data,
-        getter_run=publisher.getter_run,
+        getter_run=getter_run,
         quality=sf_quality,
         aggregate=sf_aggregate,
     )
@@ -432,7 +370,6 @@ def fake_grant(
     grant = Grant.from_data(
         data=grant_data,
         getter_run=sourcefile.getter_run,
-        publisher=sourcefile.get_publisher(),
         source_file=sourcefile,
         additional_data={},
     )
@@ -449,7 +386,6 @@ def copy_grant(
     new_grant = Grant.from_data(
         data=grant.data,
         getter_run=new_getter_run,
-        publisher=new_sourcefile.get_publisher(),
         source_file=new_sourcefile,
         additional_data=grant.additional_data,
     )
