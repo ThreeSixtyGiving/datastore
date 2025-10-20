@@ -137,9 +137,12 @@ class Command(BaseCommand):
 
         getter_run = db.GetterRun.objects.create()
 
+        # Clear out any previous datagetter run publishers
+        db.Publisher.objects.all().delete()
+
         for ob in dataset:
             prefix = ob["publisher"]["prefix"]
-            publisher, c = db.Publisher.objects.get_or_create(
+            publisher = db.Publisher.objects.create(
                 getter_run=getter_run,
                 prefix=prefix,
                 data=ob["publisher"],
