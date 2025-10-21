@@ -142,7 +142,7 @@ class Command(BaseCommand):
 
         for ob in dataset:
             prefix = ob["publisher"]["prefix"]
-            publisher = db.Publisher.objects.create(
+            publisher, p_created = db.Publisher.objects.get_or_create(
                 getter_run=getter_run,
                 prefix=prefix,
                 data=ob["publisher"],
