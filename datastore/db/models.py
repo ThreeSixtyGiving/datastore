@@ -252,6 +252,7 @@ class Entity(models.Model):
     PUBLISHER = "PUBLISHER"
     SOURCES_CHOICES = [(GRANT, "Grant"), (PUBLISHER, "Publisher")]
     source = models.TextField(choices=SOURCES_CHOICES)
+    non_primary_org_ids = ArrayField(models.TextField(), default=list)
 
     def __str__(self):
         return "%s %s)" % (self.org_id, self.name)
@@ -400,8 +401,6 @@ class Recipient(Entity):
             Index(fields=["org_id", "name"]),
         ]
 
-    non_primary_org_ids = ArrayField(models.TextField())
-
 
 class Funder(Entity):
     class Meta:
@@ -412,8 +411,6 @@ class Funder(Entity):
             GinIndex(fields=["non_primary_org_ids"]),
             Index(fields=["org_id", "name"]),
         ]
-
-    non_primary_org_ids = ArrayField(models.TextField())
 
 
 class Grant(models.Model):
