@@ -153,8 +153,12 @@
 
       <div id="status-area" style="height: 100px; overflow: auto;" class="border mb-2 p-1 bg-white">
       </div>
-      <button class="btn btn-sm btn-danger" id="run-datagetter-btn">Run Datagetter process</button>
-      <button class="btn btn-sm btn-secondary" id="abort-datagetter-btn">Abort Datagetter process</button>
+
+      <div class="d-flex">
+        <button class="btn btn-sm btn-danger mr-1" id="run-datagetter-btn">Run Datagetter process</button>
+        <button class="btn btn-sm btn-secondary mr-1" id="abort-datagetter-btn">Abort Datagetter process</button>
+        <input type="text" class="form-control form-control-sm w-auto" id="name-input" placeholder="Enter your name">
+      </div>
 
     </div>
   </div>
@@ -197,7 +201,16 @@
     setInterval(updateStatus, 5000);
 
     $("#run-datagetter-btn").click(function(){
-      $.getJSON(triggerDatagetterUrl, function(data){
+
+      // Get the value of who initialised a data pipeline run
+      const name = $("#name-input").val().trim();
+
+      if (!name) {
+        alert("Please enter your name before running the Datagetter process.");
+        return;
+      }
+
+      $.getJSON(triggerDatagetterUrl, { name: name }, function(data){
         alert("Response: " + data.error + " Process ID: "+ data.pid);
         console.log(data);
       });
