@@ -13,6 +13,7 @@ import db.models as db
 
 logger = logging.getLogger(__name__)
 
+
 class StatusView(View):
     def get(self, *args, **kwargs):
         ret = {
