@@ -1,13 +1,17 @@
+import logging
 import os
 import signal
 import subprocess
 
+from datetime import datetime
 from django.conf import settings
 from django.http.response import JsonResponse
 from django.views.generic import View
 
 import db.models as db
 
+
+logger = logging.getLogger(__name__)
 
 class StatusView(View):
     def get(self, *args, **kwargs):
@@ -19,7 +23,9 @@ class StatusView(View):
 
 
 class TriggerDataGetter(View):
-    def get(self, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
+        user_name = request.GET.get("name", "Unknown user")
+
         AbortDataGetter.abort()
 
         with open(settings.DATA_RUN_PID_FILE, "w+") as pidf:
@@ -27,6 +33,13 @@ class TriggerDataGetter(View):
                 ["bash", settings.DATA_RUN_SCRIPT], start_new_session=True
             )
             pidf.write(str(process.pid))
+
+        # Log the pipeline start
+        log_path = getattr(settings, "DATA_RUN_LOG", "data_run.log")
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        with open(log_path, "a") as log_file:
+            log_file.write(f"{timestamp} — Pipeline started by: {user_name}\n")
 
         return JsonResponse({"error": "OK", "pid": process.pid})
 
