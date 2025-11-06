@@ -367,6 +367,26 @@ class Publisher(Entity):
             data__publisher__prefix=self.prefix
         )
 
+    @classmethod
+    def get_most_recent(cls, org_id: str, queryset=None) -> "Publisher":
+        if not queryset:
+            queryset = Publisher.objects.all().order_by()
+        publishers = queryset.filter(org_id=org_id)
+        if len(publishers) == 1:
+            return publishers[0]
+        elif len(publishers) == 0:
+            raise cls.DoesNotExist
+        else:
+            # Find the publisher with the most recently fetched sourcefile
+            def _get_dt(p: Publisher) -> datetime.datetime:
+                return (
+                    p.get_latest_sourcefiles()
+                    .order_by("getter_run__datetime")[0]
+                    .getter_run.datetime
+                )
+
+            return sorted(list(publishers), key=_get_dt)[-1]
+
     #  Update the convenience fields
     def save(self, *args, **kwargs):
         if not self.name:

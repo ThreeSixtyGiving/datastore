@@ -147,7 +147,9 @@ class Organisation:
 
         # is org a Publisher?
         try:
-            publisher = publisher_queryset.get(org_id=org_id)
+            publisher = Publisher.get_most_recent(
+                org_id=org_id, queryset=publisher_queryset
+            )
             name = publisher.name
             # Publishers take precedence over Funders / Recipients when it comes to primary vs non-primary ID priority
             primary_org_id = publisher.org_id

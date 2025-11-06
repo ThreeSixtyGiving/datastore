@@ -35,6 +35,8 @@ def update_entities(publishers_only: bool = False):
     )
 
     # Create publishers
+    # TODO: Sort publishers by most recent getter run
+    #       because previous getterruns might have out-of-date registry info attached
     for sourcefile in sourcefiles:
         sf_data = sourcefile.data
         publisher_prefix = sf_data["publisher"]["prefix"]
