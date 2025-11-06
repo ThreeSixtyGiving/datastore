@@ -147,7 +147,7 @@ def gather_publisher_metrics(
             logger.error(
                 "Exception while creating metrics record for Publisher %s: %s",
                 publisher.name,
-                str(e),
+                e,
             )
     return PublisherMetricsRecord.objects.bulk_create(records)
 
