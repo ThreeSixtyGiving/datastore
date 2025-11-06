@@ -1,3 +1,4 @@
+from typing import Optional, Literal
 from django.core.management.base import BaseCommand
 from django.core.cache import cache
 from django.db import connection
@@ -54,41 +55,63 @@ class Command(BaseCommand):
             "--threads",
             type=int,
             default=8,
-            help="Number of threads to use for processing quality data",
+            help="Number of threads to use for processing quality data. Set to 0 to disable threading.",
         )
 
     def handle(self, *args, **options):
-        if "latest" in options["getter_run"]:
-            source_files = db.Latest.objects.get(
-                series=db.Latest.CURRENT
-            ).sourcefile_set.all()
+        getter_run: str = options["getter_run"]
+        publisher_only: bool = options["publisher_only"]
+        sourcefile_only: bool = options["sourcefile_only"]
+        publisher_prefix: str | None = options.get("publisher")
+        threads: int = options["threads"]
+
+        rewrite_quality_data(
+            getter_run=getter_run,
+            publisher_only=publisher_only,
+            sourcefile_only=sourcefile_only,
+            publisher_prefix=publisher_prefix,
+            threads=threads,
+        )
+
+
+def rewrite_quality_data(
+    getter_run: str | Literal["latest"] = "latest",
+    publisher_only: bool = False,
+    sourcefile_only: bool = False,
+    publisher_prefix: Optional[str] = None,
+    threads: int = 0,
+):
+    if getter_run == "latest":
+        source_files = db.Latest.objects.get(
+            series=db.Latest.CURRENT
+        ).sourcefile_set.all()
+    else:
+        source_files = db.SourceFile.objects.filter(getter_run=getter_run)
+
+    if publisher_prefix:
+        source_files = source_files.filter(data__publisher__prefix=publisher_prefix)
+
+    publisher_objs_for_update = []
+    sourcefile_objs_for_update = []
+
+    if not publisher_only:
+        print("Processing sourcefile quality data")
+        process_sf_list = []
+        for source_file in source_files:
+            process_sf_list.append(
+                {
+                    "pk": source_file.pk,
+                    "grants": list(
+                        source_file.grant_set.values_list("data", flat=True)
+                    ),
+                }
+            )
+
+        if not threads:
+            for sf_ in process_sf_list:
+                process_source_file(sf_)
         else:
-            source_files = db.SourceFile.objects.filter(
-                getter_run=options["getter_run"]
-            )
-
-        if options.get("publisher"):
-            source_files = source_files.filter(
-                data__publisher__prefix=options["publisher"]
-            )
-
-        publisher_objs_for_update = []
-        sourcefile_objs_for_update = []
-
-        if not options["publisher_only"]:
-            print("Processing sourcefile data")
-            process_sf_list = []
-            for source_file in source_files:
-                process_sf_list.append(
-                    {
-                        "pk": source_file.pk,
-                        "grants": list(
-                            source_file.grant_set.values_list("data", flat=True)
-                        ),
-                    }
-                )
-
-            with Pool(options.get("threads")) as process_pool:
+            with Pool(threads) as process_pool:
                 try:
                     source_file_results = process_pool.map(
                         process_source_file, process_sf_list
@@ -96,55 +119,55 @@ class Command(BaseCommand):
                 except Exception as e:
                     print(f"Error generating quality data {e}")
 
-                for source_file_result in source_file_results:
-                    if source_file_result == None:
-                        continue
+        for source_file_result in source_file_results:
+            if source_file_result is None:
+                continue
 
-                    sf = db.SourceFile.objects.get(pk=source_file_result["pk"])
-                    sf.quality = source_file_result["quality"]
-                    sf.aggregate = source_file_result["aggregate"]
-                    sourcefile_objs_for_update.append(sf)
+            sf = db.SourceFile.objects.get(pk=source_file_result["pk"])
+            sf.quality = source_file_result["quality"]
+            sf.aggregate = source_file_result["aggregate"]
+            sourcefile_objs_for_update.append(sf)
 
-            db.SourceFile.objects.bulk_update(
-                sourcefile_objs_for_update, ["quality", "aggregate"], batch_size=10000
-            )
+        db.SourceFile.objects.bulk_update(
+            sourcefile_objs_for_update, ["quality", "aggregate"], batch_size=10000
+        )
 
-        def process_publishers(source_file):
-            """Updates the publisher data with aggregates and quality data relating to their source files"""
+    def process_publishers(source_file_: db.SourceFile):
+        """Updates the publisher data with aggregates and quality data relating to their source files"""
+        publisher = db.Publisher.objects.get(
+            prefix=source_file_.data["publisher"]["prefix"]
+        )
+        print(f"Processing Publisher Quality for {publisher.prefix}")
 
-            # We want to store the quality and aggregate data against the latest version of the publisher
-            # object rather than the version from the getter_run that this source file came from
-            # This is so that when we serialise the latest publishers we get the latest aggregate and
-            # quality data regardless of when the source file entered the system.
-            publisher = db.Publisher.objects.get(
-                getter_run=db.GetterRun.latest(),
-                prefix=source_file.data["publisher"]["prefix"],
-            )
+        try:
+            (
+                publisher.quality,
+                publisher.aggregate,
+            ) = quality_data.create_publisher_stats(publisher)
+            publisher_objs_for_update.append(publisher)
+        except Exception as e:
+            print("Could not create publisher quality data for %s" % str(publisher))
+            print(e)
+        if threads > 0:
+            connection.close()  # ????
 
-            print(publisher)
-
-            try:
-                (
-                    publisher.quality,
-                    publisher.aggregate,
-                ) = quality_data.create_publisher_stats(publisher)
-                publisher_objs_for_update.append(publisher)
-            except Exception as e:
-                print("Could not create publisher quality data for %s" % str(publisher))
-                print(e)
-            connection.close()
-
-        if not options["sourcefile_only"]:
-            print("Processing publisher data")
-            with dummy.Pool(4) as process_pool:
+    if not sourcefile_only:
+        print(
+            f"Processing publisher quality data ({source_files.distinct('data__publisher__prefix').count()})"
+        )
+        if not threads:
+            for sf_ in source_files.distinct("data__publisher__prefix"):
+                process_publishers(sf_)
+        else:
+            with dummy.Pool(threads) as process_pool:
                 process_pool.starmap(
                     process_publishers,
                     zip(source_files.distinct("data__publisher__prefix")),
                 )
 
-            db.Publisher.objects.bulk_update(
-                publisher_objs_for_update, ["quality", "aggregate"], batch_size=10000
-            )
+        db.Publisher.objects.bulk_update(
+            publisher_objs_for_update, ["quality", "aggregate"], batch_size=10000
+        )
 
-        # Clear all caches - data has changed
-        cache.clear()
+    # Clear all caches - data has changed
+    cache.clear()

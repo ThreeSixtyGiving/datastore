@@ -17,7 +17,7 @@ class DashBoardAPITests(TestCase):
                     "grants": 50,
                     "GBP": 25047.0,
                     "publishers": 10,
-                    "recipientOrganisations": 1,
+                    "recipientOrganisations": 2,
                     "recipientIndividuals": 0,
                     "funders": 1,
                 },
@@ -29,7 +29,7 @@ class DashBoardAPITests(TestCase):
                     str(year): (50 if year == 2019 else 0)
                     for year in range(current_year, current_year - 10, -1)
                 },
-                "orgIdTypes": {},
+                "orgIdTypes": {"COH": 4},
                 "awardedThisYear": 0,
                 "awardedLastThreeMonths": 0,
             },
@@ -41,7 +41,7 @@ class DashBoardAPITests(TestCase):
                 "hasGrantClassification": 0,
                 "hasBeneficiaryLocationGeoCode": 100,
                 "hasRecipientOrgCompanyOrCharityNumber": 0,
-                "has50pcExternalOrgId": 100,
+                "has50pcExternalOrgId": 96,
                 "hasRecipientIndividualsCodelists": 100,
             },
         }
@@ -57,7 +57,7 @@ class DashBoardAPITests(TestCase):
                     "grants": 50,
                     "GBP": 25047.0,
                     "publishers": 10,
-                    "recipientOrganisations": 1,
+                    "recipientOrganisations": 2,
                     "recipientIndividuals": 0,
                     "funders": 1,
                 },
@@ -72,7 +72,7 @@ class DashBoardAPITests(TestCase):
                     for year in range(current_year, current_year - 10, -1)
                 },
                 "recipientsExternalOrgId": {
-                    "0% - 10%": 100.0,
+                    "0% - 10%": 90.0,
                     "10% - 20%": 0.0,
                     "20% - 30%": 0.0,
                     "30% - 40%": 0.0,
@@ -80,7 +80,7 @@ class DashBoardAPITests(TestCase):
                     "50% - 60%": 0.0,
                     "60% - 70%": 0.0,
                     "70% - 80%": 0.0,
-                    "80% - 90%": 0.0,
+                    "80% - 90%": 10.0,
                     "90% - 100%": 0.0,
                 },
             },
@@ -92,7 +92,7 @@ class DashBoardAPITests(TestCase):
                 "hasGrantClassification": 0,
                 "hasBeneficiaryLocationGeoCode": 100,
                 "hasRecipientOrgCompanyOrCharityNumber": 0,
-                "has50pcExternalOrgId": 0,
+                "has50pcExternalOrgId": 10,
                 "hasRecipientIndividualsCodelists": 0,
             },
         }

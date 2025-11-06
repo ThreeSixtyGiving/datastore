@@ -36,11 +36,10 @@ from monitoring.serializers import (
 
 from .fake_testdata import (
     fake_getter_run,
-    fake_publisher,
+    fake_publisher_info,
     fake_sourcefile,
     fake_grant,
     copy_sourcefile,
-    copy_publisher,
     copy_grant,
     fake_grant_org,
 )
@@ -132,10 +131,14 @@ class TestMonitoringMetricsQueries(APITestCase):
         # Check that we start with no metrics snapshots
         self.assertEqual(PublisherMetricsRecord.objects.count(), 0)
 
+        publisher_info_1 = fake_publisher_info(fake)
+        publisher_info_2 = fake_publisher_info(fake)
+
         # Create first test GetterRun & Metrics
         with fake_getter_run(fake) as getter_run_1:
-            publisher_1 = fake_publisher(fake, getter_run=getter_run_1)
-            sourcefile_1 = fake_sourcefile(fake, publisher=publisher_1)
+            sourcefile_1 = fake_sourcefile(
+                fake, getter_run_1, publisher_info=publisher_info_1
+            )
             fake_grant(
                 fake,
                 sourcefile=sourcefile_1,
@@ -149,7 +152,6 @@ class TestMonitoringMetricsQueries(APITestCase):
 
         # Create second GetterRun, with old + new Publishers
         with fake_getter_run(fake) as getter_run_2:
-            copy_publisher(fake, publisher=publisher_1, new_getter_run=getter_run_2)
             copy_sourcefile(
                 fake,
                 sourcefile=sourcefile_1,
@@ -157,8 +159,7 @@ class TestMonitoringMetricsQueries(APITestCase):
                 copy_grants=True,
             )
 
-            publisher_2 = fake_publisher(fake, getter_run_2)
-            sourcefile_2 = fake_sourcefile(fake, publisher_2)
+            sourcefile_2 = fake_sourcefile(fake, getter_run_2, publisher_info_2)
             fake_grant(
                 fake,
                 sourcefile=sourcefile_2,
@@ -186,6 +187,7 @@ class TestMonitoringMetricsQueries(APITestCase):
 
         funding_org = fake_grant_org(fake)
         recipient_org = fake_grant_org(fake)
+        test_publisher = fake_publisher_info(fake)
 
         # Check that we start with no metrics snapshots
         self.assertEqual(PublisherMetricsRecord.objects.count(), 0)
@@ -193,9 +195,8 @@ class TestMonitoringMetricsQueries(APITestCase):
 
         # First GetterRun
         with fake_getter_run(fake) as getter_run_1:
-            test_publisher = fake_publisher(fake, getter_run_1)
             test_sourcefile = fake_sourcefile(
-                fake, test_publisher, valid=True, downloads=True
+                fake, getter_run_1, test_publisher, valid=True, downloads=True
             )
             test_sourcefile_identifier = test_sourcefile.data["identifier"]
             test_grant = fake_grant(
@@ -219,14 +220,13 @@ class TestMonitoringMetricsQueries(APITestCase):
         )
 
         # Check that the Publisher doesn't appear in Unavailable Publishers
-        self.assertNotIn(test_publisher.prefix, self.get_down_publishers().keys())
+        self.assertNotIn(test_publisher["prefix"], self.get_down_publishers().keys())
 
         # Fake two days of sourcefile downtime
         # Run two GetterRuns (as they tend to be about 24 hours apart, but can be slightly less,
         # so it can still be less than 1 full day difference after just one)
 
         with fake_getter_run(fake) as getter_run_2:
-            copy_publisher(fake, test_publisher, getter_run_2)
             copy_sourcefile(
                 fake,
                 test_sourcefile,
@@ -237,7 +237,6 @@ class TestMonitoringMetricsQueries(APITestCase):
             )
 
         with fake_getter_run(fake) as getter_run_3:
-            copy_publisher(fake, test_publisher, getter_run_3)
             copy_sourcefile(
                 fake,
                 test_sourcefile,
@@ -259,17 +258,16 @@ class TestMonitoringMetricsQueries(APITestCase):
         # Check that the Publisher does now appear in Unavailable Publishers
         # along with the relevant SourceFile download URL
         down_publishers = self.get_down_publishers()
-        self.assertIn(test_publisher.prefix, down_publishers.keys())
+        self.assertIn(test_publisher["prefix"], down_publishers.keys())
         self.assertIn(
             test_sourcefile.data["distribution"][0]["downloadURL"],
-            down_publishers[test_publisher.prefix][
+            down_publishers[test_publisher["prefix"]][
                 "down_source_files.last_download_attempt_download_url"
             ],
         )
 
         # Fake bringing the sourcefile back up
         with fake_getter_run(fake) as getter_run_4:
-            copy_publisher(fake, test_publisher, getter_run_4)
             test_sourcefile_4 = copy_sourcefile(
                 fake,
                 sourcefile=test_sourcefile,
@@ -301,12 +299,12 @@ class TestMonitoringMetricsQueries(APITestCase):
 
         funding_org = fake_grant_org(fake)
         recipient_org = fake_grant_org(fake)
+        test_publisher = fake_publisher_info(fake)
 
         # First GetterRun
         with fake_getter_run(fake) as getter_run_1:
-            test_publisher = fake_publisher(fake, getter_run_1)
             test_sourcefile = fake_sourcefile(
-                fake, test_publisher, valid=True, downloads=True
+                fake, getter_run_1, test_publisher, valid=True, downloads=True
             )
             test_sourcefile_identifier = test_sourcefile.data["identifier"]
             fake_grant(
@@ -326,7 +324,6 @@ class TestMonitoringMetricsQueries(APITestCase):
 
         # Fake a second getter run, where the getter runs are a bit less than a full 24 hours apart
         with fake_getter_run(fake, timestamp_dt=timedelta(hours=21)) as getter_run_2:
-            copy_publisher(fake, test_publisher, getter_run_2)
             copy_sourcefile(
                 fake,
                 test_sourcefile,
@@ -338,7 +335,6 @@ class TestMonitoringMetricsQueries(APITestCase):
 
         # Fake a third getter run, but later the same day - it shouldn't count as another day passing
         with fake_getter_run(fake, timestamp_dt=timedelta(hours=12)) as getter_run_3:
-            copy_publisher(fake, test_publisher, getter_run_3)
             copy_sourcefile(
                 fake,
                 test_sourcefile,
@@ -349,17 +345,17 @@ class TestMonitoringMetricsQueries(APITestCase):
             )
 
         gr1_sf_metrics = SourceFileMetricsRecord.objects.get(
-            publisher_prefix=test_publisher.prefix,
+            publisher_prefix=test_publisher["prefix"],
             sourcefile_identifier=test_sourcefile.data["identifier"],
             timestamp=getter_run_1.datetime,
         )
         gr2_sf_metrics = SourceFileMetricsRecord.objects.get(
-            publisher_prefix=test_publisher.prefix,
+            publisher_prefix=test_publisher["prefix"],
             sourcefile_identifier=test_sourcefile.data["identifier"],
             timestamp=getter_run_2.datetime,
         )
         gr3_sf_metrics = SourceFileMetricsRecord.objects.get(
-            publisher_prefix=test_publisher.prefix,
+            publisher_prefix=test_publisher["prefix"],
             sourcefile_identifier=test_sourcefile.data["identifier"],
             timestamp=getter_run_3.datetime,
         )
@@ -383,11 +379,13 @@ class TestMonitoringMetricsQueries(APITestCase):
         funder_a = fake_grant_org(fake)
         funder_b = fake_grant_org(fake)
         recipient = fake_grant_org(fake)
+        test_publisher = fake_publisher_info(fake)
 
         # Create getter run containing two funders
         with fake_getter_run(fake) as getter_run_1:
-            test_publisher = fake_publisher(fake, getter_run_1)
-            test_sourcefile = fake_sourcefile(fake, publisher=test_publisher)
+            test_sourcefile = fake_sourcefile(
+                fake, getter_run_1, publisher_info=test_publisher
+            )
             test_grant_a = fake_grant(
                 fake, sourcefile=test_sourcefile, funder=funder_a, recipient=recipient
             )
@@ -410,7 +408,6 @@ class TestMonitoringMetricsQueries(APITestCase):
 
         # Create second getter run, removing a publisher
         with fake_getter_run(fake) as getter_run_2:
-            copy_publisher(fake, test_publisher, getter_run_2)
             test_sourcefile_2 = copy_sourcefile(
                 fake, test_sourcefile, getter_run_2, copy_grants=False
             )
@@ -453,6 +450,7 @@ class TestMonitoringMetricsQueries(APITestCase):
 
         funder = fake_grant_org(fake)
         recipient = fake_grant_org(fake)
+        test_publisher = fake_publisher_info(fake)
 
         # Random datetime at least 30 days ago
         getter_run_1_datetime = fake.date_time(
@@ -464,8 +462,9 @@ class TestMonitoringMetricsQueries(APITestCase):
             getter_run_1_datetime = getter_run_1_datetime.replace(hour=19)
 
         with fake_getter_run(fake, timestamp=getter_run_1_datetime) as getter_run_1:
-            test_publisher = fake_publisher(fake, getter_run_1)
-            test_sourcefile = fake_sourcefile(fake, publisher=test_publisher)
+            test_sourcefile = fake_sourcefile(
+                fake, getter_run_1, publisher_info=test_publisher
+            )
             fake_grant(
                 fake,
                 sourcefile=test_sourcefile,
@@ -477,7 +476,6 @@ class TestMonitoringMetricsQueries(APITestCase):
         with fake_getter_run(
             fake, timestamp=getter_run_1.datetime + timedelta(hours=4)
         ) as getter_run_2:
-            copy_publisher(fake, test_publisher, getter_run_2)
             test_sourcefile_2 = copy_sourcefile(
                 fake, test_sourcefile, getter_run_2, copy_grants=False
             )

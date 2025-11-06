@@ -64,21 +64,22 @@ class GrantTest(TestCase):
 
         # Mock relations to create a test Grant
         grant_gr = db.GetterRun()
-        grant_pub = db.Publisher(
-            org_id="XI-EXAMPLE-EXAMPLE",
-            name="example",
-            aggregate={},
-            additional_data={},
-            data={},
-            prefix="example",
+        grant_sf = db.SourceFile(
+            data={
+                "publisher": dict(
+                    org_id="XI-EXAMPLE-EXAMPLE",
+                    name="example",
+                    prefix="example",
+                )
+            },
             getter_run=grant_gr,
+            quality={},
+            aggregate={},
         )
-        grant_sf = db.SourceFile(data={}, getter_run=grant_gr, quality={}, aggregate={})
 
         grant = db.Grant.from_data(
             data=data,
             getter_run=grant_gr,
-            publisher=grant_pub,
             source_file=grant_sf,
             additional_data={},
         )

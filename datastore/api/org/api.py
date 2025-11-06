@@ -25,7 +25,6 @@ class OrganisationListView(generics.ListAPIView):
         return (
             # Empty order_by to cancel default sort
             db.Publisher.objects.order_by()
-            .filter(getter_run__in=db.GetterRun.objects.in_use())
             .values(*fields)
             .union(db.Funder.objects.all().values(*fields))
             .union(db.Recipient.objects.all().values(*fields))
@@ -77,9 +76,7 @@ class OrganisationDetailView(generics.RetrieveAPIView):
         recipient_queryset = self.filter_queryset(db.Recipient.objects.all())
         publisher_queryset = self.filter_queryset(
             # Empty order_by to cancel default sort
-            db.Publisher.objects.order_by().filter(
-                getter_run__in=db.GetterRun.objects.in_use()
-            )
+            db.Publisher.objects.order_by().all()
         )
 
         try:
