@@ -108,8 +108,8 @@ def rewrite_quality_data(
             )
 
         if not threads:
-            for sf_ in process_sf_list:
-                process_source_file(sf_)
+            for sf in process_sf_list:
+                process_source_file(sf)
         else:
             with Pool(threads) as process_pool:
                 try:

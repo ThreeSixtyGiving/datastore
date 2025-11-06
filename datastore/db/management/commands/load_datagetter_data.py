@@ -205,6 +205,8 @@ class Command(BaseCommand):
         db.Latest.update()
 
         # Update entities data for publisher, funders and recipients
+        # Note the order is important, as Publishers are first created by `manage_entities_data`, and then the Publisher
+        # quality data is updated by `rewrite_quality_data`.
         call_command("manage_entities_data", "--update")
         print("Updating quality data", file=self.stdout)
         call_command("rewrite_quality_data", "latest")
