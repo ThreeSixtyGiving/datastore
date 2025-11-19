@@ -39,8 +39,12 @@ class TriggerDataGetter(View):
         log_path = getattr(settings, "DATA_RUN_LOG", "data_run.log")
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        with open(log_path, "a") as log_file:
-            log_file.write(f"{timestamp} — Pipeline started by: {user_name}\n")
+        try:
+            with open(log_path, "a") as log_file:
+                log_file.write(f"{timestamp} — Pipeline started by: {user_name}\n")
+        except Exception as e:
+            print(f"Could not write to log file '{log_path}': {e}")
+            pass
 
         return JsonResponse({"error": "OK", "pid": process.pid})
 
