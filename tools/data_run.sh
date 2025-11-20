@@ -84,6 +84,10 @@ NEW_PACKAGE_NAME=data_$(date +%F).tar.gz
 echo_stamp "Compressing package into tar gz"
 cd $GRANTNAV_DATA_DIR
 tar -czf $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/$NEW_PACKAGE_NAME data
+
+# Ensure the file is readable by all
+chmod +r $GRANTNAV_DATA_PACKAGE_DOWNLOAD_DIR/$NEW_PACKAGE_NAME
+
 # go back to original dir
 cd $DATASTORE
 
