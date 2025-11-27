@@ -18,6 +18,7 @@ from monitoring.models import (
     FunderMetricsRecord,
     SourceFileMetrics,
     SourceFileMetricsRecord,
+    ChangedRecord,
 )
 
 
@@ -144,7 +145,7 @@ def list_to_csv(data: Iterable) -> str:
     f = io.StringIO()
     writer = csv.writer(f, quoting=csv.QUOTE_ALL)
     writer.writerow(data)
-    return f.getvalue()
+    return f.getvalue().strip()
 
 
 class PublisherMetricsRecordWithDownSourceFilesSerializerCSV(
@@ -195,3 +196,26 @@ class FunderMetricsRecordSerializer(serializers.ModelSerializer):
         fields = ["timestamp", "funder_org_id", "funder_non_primary_org_ids", "metrics"]
 
     metrics = FunderMetricsSerializer()
+
+
+class ChangedFunderMetricsRecordJSONSerializer(DataclassSerializer):
+    class Meta:
+        dataclass = ChangedRecord
+
+    start_record = FunderMetricsRecordSerializer()
+    end_record = FunderMetricsRecordSerializer()
+
+
+class ChangedFunderMetricsRecordCSVSerializer(ChangedFunderMetricsRecordJSONSerializer):
+    NESTED_CSV_FIELDS = [
+        "changed_metrics",
+    ]
+
+    def to_representation(self, changed_record: ChangedRecord):
+        data = super().to_representation(changed_record)
+
+        # Nested CSV in a CSV field isn't very nice, but it works for the SalesForce integration
+        for field_name in self.NESTED_CSV_FIELDS:
+            data[field_name] = list_to_csv(data[field_name])
+
+        return data

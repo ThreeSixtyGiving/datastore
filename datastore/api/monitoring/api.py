@@ -22,6 +22,8 @@ from monitoring.serializers import (
     SourceFileMetricsRecordSerializer,
     PublisherMetricsRecordWithDownSourceFilesSerializer,
     PublisherMetricsRecordWithDownSourceFilesSerializerCSV,
+    ChangedFunderMetricsRecordJSONSerializer,
+    ChangedFunderMetricsRecordCSVSerializer,
 )
 
 logger = logging.getLogger(__name__)
@@ -123,3 +125,30 @@ class SourceFileMetricsSnapshotAPIView(SnapshotAPIView):
     serializer_class = SourceFileMetricsRecordSerializer
 
     metrics_record_model = SourceFileMetricsRecord
+
+
+class ChangedFunderMetricsRecordAPIView(ListAPIView):
+    renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (CSVRenderer,)
+
+    def get_serializer_class(self):
+        request: Request = cast(Request, self.request)
+        if request.accepted_renderer.format == "csv":
+            return ChangedFunderMetricsRecordCSVSerializer
+        else:
+            return ChangedFunderMetricsRecordJSONSerializer
+
+    def get_queryset(self):
+        start_date = date.fromisoformat(self.kwargs.get("start_date"))
+        end_date = date.fromisoformat(self.kwargs.get("end_date"))
+
+        start_dt = datetime.combine(
+            start_date, datetime.max.time(), tzinfo=timezone.get_current_timezone()
+        )
+        end_dt = datetime.combine(
+            end_date,
+            datetime.max.time(),
+            tzinfo=timezone.get_current_timezone(),
+        )
+
+        records = FunderMetricsRecord.get_records_with_changes_between(start_dt, end_dt)
+        return records
