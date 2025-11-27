@@ -10,6 +10,7 @@ from django.db.models.functions import Cast
 
 from db.models import Funder, GetterRun, SourceFile, Publisher, Latest, Recipient
 from monitoring.models import (
+    FUZZY_DAY_LEEWAY_HOURS,
     PublisherMetricsRecord,
     FunderMetricsRecord,
     SourceFileMetricsRecord,
@@ -199,8 +200,6 @@ def gather_funders_metrics(snapshot: MonitoringSnapshot) -> List[FunderMetricsRe
 
 
 # SourceFile
-
-FUZZY_DAY_LEEWAY_HOURS = 4
 
 
 def source_file_metrics(sourcefile: SourceFile) -> SourceFileMetrics:

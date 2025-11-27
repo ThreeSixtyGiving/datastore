@@ -126,6 +126,11 @@ urlpatterns = [
         api.monitoring.api.SourceFileMetricsSnapshotAPIView.as_view(),
         name="source-file-metrics-snapshot",
     ),
+    path(
+        "v1/monitoring/changes/funder/<str:start_date>/<str:end_date>/",
+        api.monitoring.api.ChangedFunderMetricsRecordAPIView.as_view(),
+        name="changed-funders",
+    ),
     # Schema UI
     path(
         "v1/schema/",

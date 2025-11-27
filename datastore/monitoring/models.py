@@ -1,15 +1,33 @@
-from typing import Optional, List
-from datetime import datetime, date
+import logging
+from typing import Optional, List, Any
+from datetime import datetime, date, UTC, timedelta
 from dataclasses import dataclass
+
 from django.db import models
-from django.db.models import OuterRef, Subquery, ForeignKey, DO_NOTHING
+from django.db.models import OuterRef, Subquery, ForeignKey, DO_NOTHING, QuerySet
 from django.contrib.postgres.fields import ArrayField
+
+logger = logging.getLogger(__name__)
+
+# The number of hours leeway when performing "within 1 days" calculations
+# e.g. 24 hours + 4 hours leeway counts as "within the same day"
+FUZZY_DAY_LEEWAY_HOURS = 4
 
 
 class MonitoringSnapshot(models.Model):
     id = models.BigAutoField(primary_key=True)
     timestamp = models.DateTimeField()
     latest_getter_run_id = models.BigIntegerField()
+
+
+@dataclass
+class ChangedRecord:
+    # At least one of start_record and/or end_record must be set
+    start_record: Optional["AbstractMetricsRecord"]
+    end_record: Optional["AbstractMetricsRecord"]
+    changed_metrics: list[str]
+    record_is_new: bool
+    record_was_removed: bool
 
 
 class AbstractMetricsRecord(models.Model):
@@ -19,16 +37,132 @@ class AbstractMetricsRecord(models.Model):
     snapshot = models.ForeignKey(MonitoringSnapshot, on_delete=models.CASCADE)
     # timestamp is a copy of snapshot.timestamp for easier / more efficient queries
     timestamp = models.DateTimeField()
+    metrics = models.JSONField()
 
-    identifier_fields: List[str]  # override in subclasses
+    # override in subclasses
+    identifier_fields: List[str]
+    track_changes_to_metrics: List[str]
+
+    def get_ident(self):
+        return tuple([self.__dict__[k] for k in self.identifier_fields])
 
     @classmethod
-    def get_records_at(cls, at: datetime):
+    def get_record_by_ident(cls, qs, ident):
+        assert len(cls.identifier_fields) == len(ident)
+        query = {k: v for k, v in zip(cls.identifier_fields, ident)}
+        return qs.get(**query)
+
+    @classmethod
+    def get_records_with_changes_between(
+        cls, from_: datetime, to: Optional[datetime]
+    ) -> list[ChangedRecord]:
+        if to is None:
+            to = datetime.now(UTC)
+
+        # Find "start records" within 24 hours of the beginning of the comparison time
+        # (Idea: Find the latest Snapshot and use that instead of searching by records individually?)
+        # Find "end records" any time between the start time and the end of the end time
+        start_records = cls.get_records_at(
+            from_, from_=from_ - timedelta(hours=24 + FUZZY_DAY_LEEWAY_HOURS)
+        )
+        end_records = cls.get_records_at(to, from_=from_)
+
+        return cls.get_records_with_changes_between_qs(start_records, end_records)
+
+    @classmethod
+    def get_records_with_changes_between_qs(
+        cls,
+        start_records_qs: QuerySet["AbstractMetricsRecord"],
+        end_records_qs: QuerySet["AbstractMetricsRecord"],
+    ) -> list[ChangedRecord]:
+        start_records = {r.get_ident(): r for r in start_records_qs}
+        end_records = {r.get_ident(): r for r in end_records_qs}
+
+        start_idents = set(start_records.keys())
+        end_idents = set(end_records.keys())
+
+        # Find the identifiers present at both start/end vs not
+        common_idents = start_idents & end_idents  # set intersection
+
+        changed_records: dict[Any, ChangedRecord] = dict()
+
+        def add_metric_change(record_ident: Any, metric_name: str):
+            if record_ident not in changed_records:
+                changed_records[record_ident] = ChangedRecord(
+                    start_record=start_records[record_ident],
+                    end_record=end_records[record_ident],
+                    changed_metrics=list(),
+                    record_is_new=False,
+                    record_was_removed=False,
+                )
+
+            changed_record = changed_records[record_ident]
+            changed_record.changed_metrics.append(metric_name)
+
+        # Adding or removing a record identifier (e.g. Funder org id) should be tracked as a change
+        for ident in end_idents - common_idents:  # Added
+            changed_records[ident] = ChangedRecord(
+                start_record=None,
+                end_record=end_records[ident],
+                changed_metrics=list(),
+                record_is_new=True,
+                record_was_removed=False,
+            )
+
+        for ident in start_idents - common_idents:  # Dropped/Removed
+            changed_records[ident] = ChangedRecord(
+                start_record=start_records[ident],
+                end_record=None,
+                changed_metrics=list(),
+                record_is_new=False,
+                record_was_removed=True,
+            )
+
+        # Find common records with differences in any tracked metrics
+        for ident in common_idents:
+            start_metrics = start_records[ident].metrics
+            end_metrics = end_records[ident].metrics
+
+            for metric_name in cls.track_changes_to_metrics:
+                # Adding or removing the metric should be tracked as a change
+                if metric_name in start_metrics and metric_name not in end_metrics:
+                    add_metric_change(ident, metric_name)
+
+                elif metric_name not in start_metrics and metric_name in end_metrics:
+                    add_metric_change(ident, metric_name)
+
+                # Check if value has changed
+                elif metric_name in start_metrics and metric_name in end_metrics:
+                    # for floating point numbers, check if they're within 0.1 to handle rounding during calculations
+                    if (
+                        type(start_metrics[metric_name]) is float
+                        or type(end_metrics[metric_name]) is float
+                    ):
+                        if (
+                            abs(
+                                float(start_metrics[metric_name])
+                                - float(end_metrics[metric_name])
+                            )
+                            > 0.1
+                        ):
+                            add_metric_change(ident, metric_name)
+
+                    # compare non-floats
+                    elif start_metrics[metric_name] != end_metrics[metric_name]:
+                        add_metric_change(ident, metric_name)
+
+        return list(changed_records.values())
+
+    @classmethod
+    def get_records_at(cls, at: datetime, from_: Optional[datetime] = None):
         """
         Return the single most recent record for each unique identifier before
         the given timestamp.
         """
         filtered_queryset = cls.objects.filter(timestamp__lte=at)
+
+        if from_ is not None:
+            filtered_queryset = filtered_queryset.filter(timestamp__gt=from_)
 
         # This query returns the single most recent record for each unique identifier
         # (e.g. Publisher IDs, Funder org-ids, SourceFile identifiers).
@@ -81,8 +215,6 @@ class DatasetMetrics:
 class DatasetMetricsRecord(AbstractMetricsRecord):
     identifier_fields = ["timestamp"]
 
-    metrics = models.JSONField()
-
 
 @dataclass
 class PublisherMetrics:
@@ -97,7 +229,6 @@ class PublisherMetricsRecord(AbstractMetricsRecord):
     identifier_fields = ["publisher_prefix"]
 
     publisher_prefix = models.TextField()
-    metrics = models.JSONField()
 
     class Meta:
         indexes = [
@@ -120,10 +251,15 @@ class FunderMetrics:
 
 class FunderMetricsRecord(AbstractMetricsRecord):
     identifier_fields = ["funder_org_id"]
+    track_changes_to_metrics = [
+        "total_grants",
+        "total_gbp",
+        "latest_award_date",
+        "earliest_award_date",
+    ]
 
     funder_org_id = models.TextField()
     funder_non_primary_org_ids = ArrayField(models.TextField(), blank=True)
-    metrics = models.JSONField()
 
     class Meta:
         indexes = [
@@ -157,7 +293,6 @@ class SourceFileMetricsRecord(AbstractMetricsRecord):
     publisher_prefix = models.TextField()
     sourcefile_identifier = models.TextField()
     sourcefile_url = models.TextField()
-    metrics = models.JSONField()
 
     class Meta:
         indexes = [

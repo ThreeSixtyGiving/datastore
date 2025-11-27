@@ -56,6 +56,8 @@ class TestMonitoringMetricsQueries(APITestCase):
     # * Get the latest values for a day where there are multiple GetterRuns for the same day
     # * A sourcefile goes down, increasing the timestamp difference, and comes back up again
 
+    # Helper methods to get records
+
     def _get_records(
         self, what: str, snapshot_date: Optional[date] = None
     ) -> List[Dict[str, Any]]:
@@ -118,6 +120,15 @@ class TestMonitoringMetricsQueries(APITestCase):
             down_publishers[down_pub["publisher_prefix"]] = down_pub
 
         return down_publishers
+
+    def get_funder_change_records(self, from_: date, to_: date):
+        url = reverse(
+            "api:changed-funders",
+            kwargs={"start_date": from_.isoformat(), "end_date": to_.isoformat()},
+        )
+        return self.client.get(url).json()
+
+    # Test methods
 
     def test_new_publisher(self):
         # Check that:
@@ -441,6 +452,101 @@ class TestMonitoringMetricsQueries(APITestCase):
             else:
                 # This should not happen, there should only be two records
                 self.assertTrue(False)
+
+    def test_funder_change_detection(self):
+        fake = faker.Faker()
+
+        funder_a = fake_grant_org(fake)
+        funder_b = fake_grant_org(fake)
+        recipient = fake_grant_org(fake)
+        test_publisher = fake_publisher_info(fake)
+
+        # Create getter run containing one funder
+        with fake_getter_run(fake) as getter_run_1:
+            sourcefile_a = fake_sourcefile(
+                fake, getter_run_1, publisher_info=test_publisher
+            )
+            fake_grant(
+                fake, sourcefile=sourcefile_a, funder=funder_a, recipient=recipient
+            )
+
+        # Extra getter run to ensure 2 days have passed before starting the tests
+        with fake_getter_run(fake) as getter_run_2:
+            copy_sourcefile(fake, sourcefile_a, getter_run_2, copy_grants=True)
+
+        # Check that there is one Funder
+        self.assertEqual(Funder.objects.count(), 1)
+
+        ## Test that no change records are detected when nothing has changed
+        self.assertEqual(
+            len(
+                self.get_funder_change_records(
+                    from_=getter_run_1.datetime.date(), to_=getter_run_2.datetime.date()
+                )
+            ),
+            0,
+        )
+
+        ## Test adding a new funder
+        with fake_getter_run(fake) as getter_run_3:
+            copy_sourcefile(fake, sourcefile_a, getter_run_3, copy_grants=True)
+            sourcefile_b = fake_sourcefile(
+                fake, getter_run_3, publisher_info=test_publisher
+            )
+            fake_grant(fake, sourcefile_b, funder_b, recipient=recipient)
+
+        funder_change_records = self.get_funder_change_records(
+            from_=getter_run_2.datetime.date(), to_=getter_run_3.datetime.date()
+        )
+        self.assertEqual(len(funder_change_records), 1)
+        self.assertEqual(
+            funder_change_records[0]["end_record"]["funder_org_id"], funder_b["id"]
+        )
+        self.assertIsNone(funder_change_records[0]["start_record"])
+        self.assertTrue(funder_change_records[0]["record_is_new"])
+        self.assertFalse(funder_change_records[0]["record_was_removed"])
+
+        ## Test removing a funder
+        with fake_getter_run(fake) as getter_run_4:
+            # don't copy sourcefile_a => dropped funder A
+            copy_sourcefile(fake, sourcefile_b, getter_run_4, copy_grants=True)
+
+        funder_change_records = self.get_funder_change_records(
+            from_=getter_run_3.datetime.date(), to_=getter_run_4.datetime.date()
+        )
+        self.assertEqual(len(funder_change_records), 1)
+        self.assertEqual(
+            funder_change_records[0]["start_record"]["funder_org_id"], funder_a["id"]
+        )
+        self.assertIsNone(funder_change_records[0]["end_record"])
+        self.assertFalse(funder_change_records[0]["record_is_new"])
+        self.assertTrue(funder_change_records[0]["record_was_removed"])
+
+        ## Test changing a couple of a funder's metrics
+        with fake_getter_run(fake) as getter_run_5:
+            sourcefile_b_5 = copy_sourcefile(
+                fake, sourcefile_b, getter_run_5, copy_grants=True
+            )
+            # Add another grant to change funder's total_grants and total_gbp
+            fake_grant(fake, sourcefile_b_5, funder_b, recipient)
+
+        funder_change_records = self.get_funder_change_records(
+            from_=getter_run_4.datetime.date(), to_=getter_run_5.datetime.date()
+        )
+        self.assertEqual(len(funder_change_records), 1)
+        self.assertEqual(
+            funder_change_records[0]["start_record"]["funder_org_id"], funder_b["id"]
+        )
+        self.assertEqual(
+            funder_change_records[0]["start_record"]["metrics"]["total_grants"], 1
+        )
+        self.assertEqual(
+            funder_change_records[0]["end_record"]["metrics"]["total_grants"], 2
+        )
+        self.assertIn("total_grants", funder_change_records[0]["changed_metrics"])
+        self.assertIn("total_gbp", funder_change_records[0]["changed_metrics"])
+        self.assertFalse(funder_change_records[0]["record_is_new"])
+        self.assertFalse(funder_change_records[0]["record_was_removed"])
 
     def test_multiple_getterruns_in_one_day(self):
         """
