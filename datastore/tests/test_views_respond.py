@@ -42,6 +42,13 @@ class UrlsTests(LiveServerTestCase):
             url = reverse_lazy(path_name, args=("360g-Ahtahs5vaj",))
         elif ":log_name>" in path.pattern.describe():
             url = reverse_lazy(path_name, kwargs={"log_name": "data_run"})
+        elif (
+            ":start_date>" in path.pattern.describe()
+            and ":end_date>" in path.pattern.describe()
+        ):
+            url = reverse_lazy(
+                path_name, kwargs={"start_date": "2025-11-01", "end_date": "2025-11-02"}
+            )
         else:
             url = reverse_lazy(path_name)
 
