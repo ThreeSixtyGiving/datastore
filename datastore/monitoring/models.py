@@ -1,11 +1,11 @@
 import logging
-from typing import Optional, List, Any
-from datetime import datetime, date, UTC, timedelta
 from dataclasses import dataclass
+from datetime import datetime, date, UTC, timedelta
+from typing import Optional, List, Any
 
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.db.models import OuterRef, Subquery, ForeignKey, DO_NOTHING, QuerySet
-from django.contrib.postgres.fields import ArrayField
 
 logger = logging.getLogger(__name__)
 
@@ -39,17 +39,19 @@ class AbstractMetricsRecord(models.Model):
     timestamp = models.DateTimeField()
     metrics = models.JSONField()
 
-    # override in subclasses
-    identifier_fields: List[str]
-    track_changes_to_metrics: List[str]
+    # Override in subclasses:
+    # The (combination of) fields which uniquely identify a record e.g. funder org id
+    IDENTIFIER_FIELDS: List[str]
+    # The metrics for which changes should be detected
+    TRACKED_METRICS: List[str]
 
     def get_ident(self):
-        return tuple([self.__dict__[k] for k in self.identifier_fields])
+        return tuple([self.__dict__[k] for k in self.IDENTIFIER_FIELDS])
 
     @classmethod
     def get_record_by_ident(cls, qs, ident):
-        assert len(cls.identifier_fields) == len(ident)
-        query = {k: v for k, v in zip(cls.identifier_fields, ident)}
+        assert len(cls.IDENTIFIER_FIELDS) == len(ident)
+        query = {k: v for k, v in zip(cls.IDENTIFIER_FIELDS, ident)}
         return qs.get(**query)
 
     @classmethod
@@ -84,9 +86,18 @@ class AbstractMetricsRecord(models.Model):
         # Find the identifiers present at both start/end vs not
         common_idents = start_idents & end_idents  # set intersection
 
+        # This dict is managed by the three helper functions below
         changed_records: dict[Any, ChangedRecord] = dict()
 
-        def add_metric_change(record_ident: Any, metric_name: str):
+        # Helper functions for the change-detection algorithm below
+        def track_changed_metric(
+            record_ident: Any,
+            changed_metric_name: str,
+        ):
+            """
+            Create or update an existing ChangedRecord to track that the given metric has changed.
+            """
+            # Check if this record ident already has a ChangedRecord entry, if not => create one
             if record_ident not in changed_records:
                 changed_records[record_ident] = ChangedRecord(
                     start_record=start_records[record_ident],
@@ -96,12 +107,12 @@ class AbstractMetricsRecord(models.Model):
                     record_was_removed=False,
                 )
 
+            # Update the ChangedRecord to include the new metric
             changed_record = changed_records[record_ident]
-            changed_record.changed_metrics.append(metric_name)
+            changed_record.changed_metrics.append(changed_metric_name)
 
-        # Adding or removing a record identifier (e.g. Funder org id) should be tracked as a change
-        for ident in end_idents - common_idents:  # Added
-            changed_records[ident] = ChangedRecord(
+        def track_new_record(record_ident: Any):
+            changed_records[record_ident] = ChangedRecord(
                 start_record=None,
                 end_record=end_records[ident],
                 changed_metrics=list(),
@@ -109,8 +120,8 @@ class AbstractMetricsRecord(models.Model):
                 record_was_removed=False,
             )
 
-        for ident in start_idents - common_idents:  # Dropped/Removed
-            changed_records[ident] = ChangedRecord(
+        def track_removed_record(record_ident: Any):
+            changed_records[record_ident] = ChangedRecord(
                 start_record=start_records[ident],
                 end_record=None,
                 changed_metrics=list(),
@@ -118,38 +129,54 @@ class AbstractMetricsRecord(models.Model):
                 record_was_removed=True,
             )
 
+        # Helper function to decide if there is a change between two metric values
+        def metric_values_are_equal(
+            metric_value_start: Any, metric_value_end: Any
+        ) -> bool:
+            # for floating point numbers, check if they're within 0.1 to handle rounding during calculations
+            # See: https://docs.python.org/3/tutorial/floatingpoint.html
+            # 0.1 is chosen as the floating point numbers we're dealing with here are currencies e.g. GBP, EUR, USD
+            # and 0.1 (i.e. 10 pence) seems a reasonably small amount that shouldn't trigger "a change in the value
+            # of grants was noticed". This is a subjective choice, feel free to change it if issues arise.
+            if type(metric_value_start) is float or type(metric_value_end) is float:
+                return abs(float(metric_value_start) - float(metric_value_end)) < 0.1
+
+            # compare non-floats
+            else:
+                return metric_value_start == metric_value_end
+
+        # Change detection algorithm:
+
+        # Create a ChangedRecord for every new record
+        # i.e. a record that's present at the end_date but not at the start_date
+        for ident in end_idents - common_idents:
+            track_new_record(ident)
+
+        # Create a ChangedRecord for every removed record
+        # i.e. a record that's present at the start_date but not at the end_date
+        for ident in start_idents - common_idents:
+            track_removed_record(ident)
+
         # Find common records with differences in any tracked metrics
         for ident in common_idents:
             start_metrics = start_records[ident].metrics
             end_metrics = end_records[ident].metrics
 
-            for metric_name in cls.track_changes_to_metrics:
+            for metric_name in cls.TRACKED_METRICS:
                 # Adding or removing the metric should be tracked as a change
                 if metric_name in start_metrics and metric_name not in end_metrics:
-                    add_metric_change(ident, metric_name)
+                    track_changed_metric(ident, changed_metric_name=metric_name)
 
                 elif metric_name not in start_metrics and metric_name in end_metrics:
-                    add_metric_change(ident, metric_name)
+                    track_changed_metric(ident, changed_metric_name=metric_name)
 
                 # Check if value has changed
+                # If so, track the name of the metric that changed
                 elif metric_name in start_metrics and metric_name in end_metrics:
-                    # for floating point numbers, check if they're within 0.1 to handle rounding during calculations
-                    if (
-                        type(start_metrics[metric_name]) is float
-                        or type(end_metrics[metric_name]) is float
+                    if not metric_values_are_equal(
+                        start_metrics[metric_name], end_metrics[metric_name]
                     ):
-                        if (
-                            abs(
-                                float(start_metrics[metric_name])
-                                - float(end_metrics[metric_name])
-                            )
-                            > 0.1
-                        ):
-                            add_metric_change(ident, metric_name)
-
-                    # compare non-floats
-                    elif start_metrics[metric_name] != end_metrics[metric_name]:
-                        add_metric_change(ident, metric_name)
+                        track_changed_metric(ident, changed_metric_name=metric_name)
 
         return list(changed_records.values())
 
@@ -158,6 +185,11 @@ class AbstractMetricsRecord(models.Model):
         """
         Return the single most recent record for each unique identifier before
         the given timestamp.
+        Note that by default this function will search all historical records
+        to find one record for every unique identifier ever found in 360 data,
+        not just the most recent snapshot before the `at` datetime.
+        To prevent this behaviour, specify the `from_` datetime to place an
+        earliest bound on when records should be searched from.
         """
         filtered_queryset = cls.objects.filter(timestamp__lte=at)
 
@@ -172,8 +204,8 @@ class AbstractMetricsRecord(models.Model):
         latest_record_pks = (
             # First find all the unique identifiers that exist
             # `filtered_queryset` is all past records up until the snapshot date.
-            filtered_queryset.values(*cls.identifier_fields)
-            .distinct(*cls.identifier_fields)
+            filtered_queryset.values(*cls.IDENTIFIER_FIELDS)
+            .distinct(*cls.IDENTIFIER_FIELDS)
             # At this point the query is just a list of unique identifiers.
             # Then for each unique identifier, find the record with the most recent timestamp.
             .annotate(
@@ -181,7 +213,7 @@ class AbstractMetricsRecord(models.Model):
                     filtered_queryset.filter(
                         # Using OuterRef to enable the inner subquery to filter
                         # on the identifier fields in the outer query.
-                        **{idf: OuterRef(idf) for idf in cls.identifier_fields}
+                        **{idf: OuterRef(idf) for idf in cls.IDENTIFIER_FIELDS}
                     )
                     # Get the primary key id of the one most recent record.
                     # Note: Using [:1] to return a QuerySet of length one
@@ -213,7 +245,9 @@ class DatasetMetrics:
 
 
 class DatasetMetricsRecord(AbstractMetricsRecord):
-    identifier_fields = ["timestamp"]
+    # A Dataset (i.e. the result of a pipeline run) has no unique identifier
+    # other than the datetime at which it was created.
+    IDENTIFIER_FIELDS = ["timestamp"]
 
 
 @dataclass
@@ -226,7 +260,7 @@ class PublisherMetrics:
 
 
 class PublisherMetricsRecord(AbstractMetricsRecord):
-    identifier_fields = ["publisher_prefix"]
+    IDENTIFIER_FIELDS = ["publisher_prefix"]
 
     publisher_prefix = models.TextField()
 
@@ -250,8 +284,8 @@ class FunderMetrics:
 
 
 class FunderMetricsRecord(AbstractMetricsRecord):
-    identifier_fields = ["funder_org_id"]
-    track_changes_to_metrics = [
+    IDENTIFIER_FIELDS = ["funder_org_id"]
+    TRACKED_METRICS = [
         "total_grants",
         "total_gbp",
         "latest_award_date",
@@ -288,7 +322,7 @@ class SourceFileMetrics:
 
 
 class SourceFileMetricsRecord(AbstractMetricsRecord):
-    identifier_fields = ["publisher_prefix", "sourcefile_identifier"]
+    IDENTIFIER_FIELDS = ["publisher_prefix", "sourcefile_identifier"]
 
     publisher_prefix = models.TextField()
     sourcefile_identifier = models.TextField()

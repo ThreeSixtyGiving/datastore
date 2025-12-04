@@ -140,6 +140,9 @@ class PublisherMetricsRecordWithDownSourceFilesSerializer(serializers.ModelSeria
         return False
 
 
+# This list_to_csv function exists to enable nested CSV lists of items within a single field of a parent CSV document.
+# Doing this is not best practice, but due to the limitations in integrating data with Google Sheets, Zapier and
+# SalesForce, this is the agreed upon (with Team 360) way of exporting nested lists in monitoring data.
 def list_to_csv(data: Iterable) -> str:
     """Render a list as a single row of quoted CSV"""
     f = io.StringIO()

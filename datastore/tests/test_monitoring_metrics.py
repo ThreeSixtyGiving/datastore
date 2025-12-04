@@ -456,6 +456,15 @@ class TestMonitoringMetricsQueries(APITestCase):
     def test_funder_change_detection(self):
         fake = faker.Faker()
 
+        # This test simulates five days of pipeline runs, changing the funders and checking that the changes
+        # are reflected by the change monitoring endpoints.
+        #
+        # Day 1 creates the base case: 1 funder with 1 grant
+        # Day 2 is identical to Day 1, check that no changes are output
+        # Day 3 adds a second funder, checks that a new funder change is output
+        # Day 4 removes a funder, checks that a removed funder change is output
+        # Day 5 adds a second grant to the funder, checks that the change to total_grants and total_gbp are output
+
         funder_a = fake_grant_org(fake)
         funder_b = fake_grant_org(fake)
         recipient = fake_grant_org(fake)
