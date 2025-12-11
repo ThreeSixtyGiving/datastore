@@ -25,8 +25,8 @@ from monitoring.metrics import (
 logger = logging.getLogger(__name__)
 
 
-@transaction.atomic
 @contextmanager
+@transaction.atomic
 def fake_getter_run(
     fake: faker.Faker,
     timestamp: Optional[datetime] = None,
@@ -75,7 +75,7 @@ def fake_getter_run(
     Latest.update()
     update_entities()
     # Race conditions seem to happen when running tests if threads are enabled
-    rewrite_quality_data("latest", publisher_only=True, threads=0)
+    rewrite_quality_data("latest", threads=0)
     gather_metrics()
 
 
@@ -143,145 +143,11 @@ def fake_sourcefile(
         },
     }
 
-    sf_quality = {
-        "TitleLength": {"fail": False, "count": 0},
-        "NoDataSource": {
-            "fail": True,
-            "count": 39,
-            "heading": '100% of grants do not have <span class="highlight-background-text">Data Source</span> information',
-            "percentage": 1.0,
-        },
-        "NoLastModified": {
-            "fail": True,
-            "count": 39,
-            "heading": '100% of grants do not have <span class="highlight-background-text">Last Modified</span> information',
-            "percentage": 1.0,
-        },
-        "NoGrantProgramme": {
-            "fail": True,
-            "count": 39,
-            "heading": '100% of grants do not contain any <span class="highlight-background-text">Grant Programme</span> fields',
-            "percentage": 1.0,
-        },
-        "FundingOrg360GPrefix": {"fail": False, "count": 0},
-        "TitleDescriptionSame": {"fail": False, "count": 0},
-        "NoBeneficiaryLocation": {"fail": False, "count": 0},
-        "IncompleteRecipientOrg": {
-            "fail": True,
-            "count": 39,
-            "heading": "100% of recipient organisation grants do not have recipient organisation location information",
-            "percentage": 1.0,
-        },
-        "RecipientOrg360GPrefix": {
-            "fail": False,
-            "count": 22,
-            "heading": "56% of recipient organisation grants have a <span class=\"highlight-background-text\">Recipient Org:Identifier</span> that starts '360G-'",
-            "percentage": 0.5641025641025641,
-        },
-        "ClassificationNotPresent": {
-            "fail": True,
-            "count": 39,
-            "heading": "100% of grants do not contain classifications/0/title field",
-            "percentage": 1.0,
-        },
-        "PlannedDurationNotPresent": {
-            "fail": True,
-            "count": 39,
-            "heading": "100% of grants do not contain plannedDates/0/duration or (plannedDates/startDate and plannedDates/endDate) field",
-            "percentage": 1.0,
-        },
-        "RecipientOrgPrefixExternal": {
-            "fail": False,
-            "count": 17,
-            "heading": "Recipient Orgs with external org identifier",
-            "percentage": 0.4358974358974359,
-        },
-        "GrantProgrammeTitleNotPresent": {
-            "fail": True,
-            "count": 39,
-            "heading": "100% of grants do not contain grantProgramme/0/title field",
-            "percentage": 1.0,
-        },
-        "IndividualsCodeListsNotPresent": {"fail": False, "count": 0},
-        "RecipientOrgPrefix50pcExternal": {
-            "fail": True,
-            "count": 8.5,
-            "percentage": 0.4358974358974359,
-        },
-        "BeneficiaryLocationNameNotPresent": {"fail": False, "count": 0},
-        "NoRecipientOrgCompanyCharityNumber": {"fail": False, "count": 0},
-        "BeneficiaryLocationGeoCodeNotPresent": {"fail": False, "count": 0},
-        "BeneficiaryLocationCountryCodeNotPresent": {
-            "fail": True,
-            "count": 39,
-            "heading": "100% of grants do not contain beneficiaryLocation/0/countryCode field",
-            "percentage": 1.0,
-        },
-    }
-
-    sf_aggregate = {
-        "count": 39,
-        "funders": ["GB-LAE-OXO"],
-        "currencies": {
-            "GBP": {
-                "count": 39,
-                "max_amount": 190000,
-                "min_amount": 1000,
-                "total_amount": 782531,
-                "currency_symbol": "&pound;",
-            }
-        },
-        "award_years": {"2018": 39},
-        "max_award_date": "2018-04-19",
-        "min_award_date": "2018-02-13",
-        "recipient_org_types": {"CHC": 15, "COH": 2},
-        "recipient_individuals": 0,
-        "recipient_organisations": [
-            "360G-CHC-1032845",
-            "360G-CHC-1049343",
-            "360G-CHC-1055305",
-            "360G-CHC-1055914",
-            "360G-CHC-1063068",
-            "360G-CHC-1084256",
-            "360G-CHC-1123488",
-            "360G-CHC-1140556",
-            "360G-CHC-1150626",
-            "360G-CHC-1160320",
-            "360G-CHC-1161597",
-            "360G-CHC-1173191",
-            "360G-CHC-270852",
-            "360G-CHC-274222",
-            "360G-CHC-299903",
-            "360G-CHC-313035",
-            "360G-CHC-5138370",
-            "360G-CHC-6835605",
-            "360G-CHC-900039",
-            "360G-OxfordCC-Cutteslowe-Seniors",
-            "360G-OxfordCC-Oxford-International-Links",
-            "360G-OxfordCC-Wood-Farm-Youth-Centre",
-            "GB-CHC-1041014",
-            "GB-CHC-1070805",
-            "GB-CHC-1079495",
-            "GB-CHC-1092265",
-            "GB-CHC-1107094",
-            "GB-CHC-1108612",
-            "GB-CHC-1108679",
-            "GB-CHC-1137129",
-            "GB-CHC-1144821",
-            "GB-CHC-1154860",
-            "GB-CHC-1172048",
-            "GB-CHC-273172",
-            "GB-CHC-299533",
-            "GB-COH-03591512",
-            "GB-COH-09605591",
-        ],
-    }
-
     sourcefile = SourceFile.objects.create(
         data=sf_data,
         getter_run=getter_run,
-        quality=sf_quality,
-        aggregate=sf_aggregate,
+        quality={},
+        aggregate={},
     )
     return sourcefile
 
@@ -342,6 +208,7 @@ def fake_grant(
     funder: GrantOrganisation,
     recipient: GrantOrganisation,
     amount_awarded: Optional[int] = None,
+    currency: str = "GBP",
 ) -> Grant:
     grant_id = f"{sourcefile.data['publisher']['prefix']}-{fake.uuid4()}"
     grant_award_date = fake.past_date(tzinfo=timezone.utc).isoformat()
@@ -353,7 +220,7 @@ def fake_grant(
             "Decision Notes": fake.sentence(),
             "Project Detail": fake.paragraph(),
         },
-        "currency": "GBP",
+        "currency": currency,
         "awardDate": grant_award_date,
         "dataSource": fake.url(),
         "description": fake.paragraph(),
