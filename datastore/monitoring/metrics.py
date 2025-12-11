@@ -73,6 +73,8 @@ def dataset_metrics(latest: Latest) -> DatasetMetrics:
         # In postgresql JSONB values must be cast before aggregate functions
         total_grants=Sum(Cast("aggregate__count", BigIntegerField())),
         total_gbp=Sum(Cast("aggregate__currencies__GBP__total_amount", FloatField())),
+        total_eur=Sum(Cast("aggregate__currencies__EUR__total_amount", FloatField())),
+        total_usd=Sum(Cast("aggregate__currencies__USD__total_amount", FloatField())),
     )
 
     gr_agg = grants.aggregate(
@@ -88,6 +90,8 @@ def dataset_metrics(latest: Latest) -> DatasetMetrics:
         total_grants=sf_agg["total_grants"],
         total_grants_to_individuals=gr_agg["total_grants_to_individuals"],
         total_amount_awarded_gbp=sf_agg["total_gbp"],
+        total_amount_awarded_eur=sf_agg["total_eur"],
+        total_amount_awarded_usd=sf_agg["total_usd"],
         total_publishers=Publisher.objects.all().count(),
         total_funders=Funder.objects.count(),
         total_recipient_organisations=Recipient.objects.count(),
@@ -118,6 +122,8 @@ def publisher_metrics(publisher: Publisher) -> PublisherMetrics:
     return PublisherMetrics(
         total_grants=publisher.aggregate["total"].get("grants", None),
         total_gbp=publisher.aggregate["total"].get("GBP", None),
+        total_eur=publisher.aggregate["total"].get("EUR", None),
+        total_usd=publisher.aggregate["total"].get("USD", None),
         total_funders=publisher.aggregate["total"].get("funders", None),
         total_recipient_individuals=publisher.aggregate["total"].get(
             "recipientIndividuals", None
@@ -158,20 +164,34 @@ def gather_publisher_metrics(
 
 def funder_metrics(funder: Funder) -> FunderMetrics:
 
-    total_gbp = 0
-    try:
-        total_gbp += funder.aggregate["currencies"]["GBP"]["recipient_org"]["total"]
-    except KeyError:
-        pass
+    totals = {
+        "GBP": 0,
+        "EUR": 0,
+        "USD": 0,
+    }
 
-    try:
-        total_gbp += funder.aggregate["currencies"]["GBP"]["recipient_ind"]["total"]
-    except KeyError:
-        pass
+    for currency in totals.keys():
+        try:
+            # Handle Grants to Organisations
+            totals[currency] += funder.aggregate["currencies"][currency][
+                "recipient_org"
+            ]["total"]
+        except KeyError:
+            pass
+
+        try:
+            # Handle Grants to Individuals
+            totals[currency] += funder.aggregate["currencies"][currency][
+                "recipient_ind"
+            ]["total"]
+        except KeyError:
+            pass
 
     return FunderMetrics(
         total_grants=funder.aggregate.get("grants"),
-        total_gbp=total_gbp,
+        total_gbp=totals["GBP"],
+        total_eur=totals["EUR"],
+        total_usd=totals["USD"],
         latest_award_date=funder.aggregate.get("maxAwardDate"),
         earliest_award_date=funder.aggregate.get("minAwardDate"),
     )

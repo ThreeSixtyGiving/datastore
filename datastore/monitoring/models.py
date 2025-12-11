@@ -237,7 +237,10 @@ class DatasetMetrics:
 
     total_grants: int
     total_grants_to_individuals: int
+    # FIXME: Currency amounts should be floats
     total_amount_awarded_gbp: int
+    total_amount_awarded_eur: Optional[float]
+    total_amount_awarded_usd: Optional[float]
     total_publishers: int
     total_funders: int
     total_recipient_individuals: int
@@ -253,7 +256,9 @@ class DatasetMetricsRecord(AbstractMetricsRecord):
 @dataclass
 class PublisherMetrics:
     total_grants: int
-    total_gbp: float
+    total_gbp: Optional[float]  # May be None for non-UK funders with no GBP grants
+    total_eur: Optional[float]
+    total_usd: Optional[float]
     total_funders: int
     total_recipient_individuals: int
     total_recipient_organisations: int
@@ -279,6 +284,8 @@ class PublisherMetricsRecord(AbstractMetricsRecord):
 class FunderMetrics:
     total_grants: int
     total_gbp: Optional[float]  # May be None for non-UK funders with no GBP grants
+    total_eur: Optional[float]
+    total_usd: Optional[float]
     latest_award_date: date
     earliest_award_date: date
 
@@ -288,6 +295,8 @@ class FunderMetricsRecord(AbstractMetricsRecord):
     TRACKED_METRICS = [
         "total_grants",
         "total_gbp",
+        "total_eur",
+        "total_usd",
         "latest_award_date",
         "earliest_award_date",
     ]
