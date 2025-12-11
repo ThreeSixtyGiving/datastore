@@ -16,6 +16,8 @@ class DashBoardAPITests(TestCase):
                 "total": {
                     "grants": 50,
                     "GBP": 25047.0,
+                    "EUR": 0,
+                    "USD": 0,
                     "publishers": 10,
                     "recipientOrganisations": 2,
                     "recipientIndividuals": 0,
@@ -56,6 +58,8 @@ class DashBoardAPITests(TestCase):
                 "total": {
                     "grants": 50,
                     "GBP": 25047.0,
+                    "EUR": 0,
+                    "USD": 0,
                     "publishers": 10,
                     "recipientOrganisations": 2,
                     "recipientIndividuals": 0,

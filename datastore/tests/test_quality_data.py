@@ -140,6 +140,8 @@ class TestDataQualityData(TestCase):
             "total": {
                 "grants": 5,
                 "GBP": 3041.0,
+                "EUR": 0,
+                "USD": 0,
                 "publishers": 1,
                 "recipientOrganisations": 1,
                 "recipientIndividuals": 0,
