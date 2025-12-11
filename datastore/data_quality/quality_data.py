@@ -232,20 +232,27 @@ class SourceFilesStats(object):
         ).aggregate(Sum("total"))["total__sum"]
 
     def get_total_gbp(self):
+        return self.get_total_currency("GBP")
+
+    def get_total_currency(self, currency):
+        """Returns the sum of the amounts of the publisher's grants in the given currency."""
         try:
-            total_gbp = float(
+            total = float(
                 self.source_file_set.annotate(
                     total=RawSQL(
-                        "((aggregate->'currencies'->'GBP'->>%s)::float)",
-                        ("total_amount",),
+                        "((aggregate->'currencies'->%s->>%s)::float)",
+                        (
+                            currency,
+                            "total_amount",
+                        ),
                     )
                 ).aggregate(Sum("total"))["total__sum"]
             )
         except TypeError:
-            # Happens if the source file has no GBP
-            total_gbp = 0
+            # Happens if the source file has no grants of the currency
+            total = 0
 
-        return total_gbp
+        return total
 
     def get_total_publishers(self):
         return self.source_file_set.distinct("data__publisher__prefix").count()
@@ -573,6 +580,8 @@ def generate_stats(mode, source_file_set):
             "total": {
                 "grants": source_files_stats.get_total_grants(),
                 "GBP": source_files_stats.get_total_gbp(),
+                "EUR": source_files_stats.get_total_currency("EUR"),
+                "USD": source_files_stats.get_total_currency("USD"),
                 "publishers": source_files_stats.get_total_publishers(),
                 "recipientOrganisations": source_files_stats.get_total_recipient_organisations(),
                 "recipientIndividuals": source_files_stats.get_total_recipient_individuals(),

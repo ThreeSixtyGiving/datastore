@@ -29,6 +29,7 @@ from monitoring.models import (
     FunderMetricsRecord,
     SourceFileMetricsRecord,
     DatasetMetricsRecord,
+    MonitoringSnapshot,
 )
 from monitoring.serializers import (
     PublisherMetricsRecordWithDownSourceFilesSerializerCSV,
@@ -608,6 +609,36 @@ class TestMonitoringMetricsQueries(APITestCase):
         )
         self.assertEqual(len(funder_records), 1)
         self.assertEqual(funder_records[0]["metrics"]["total_gbp"], 200)
+
+    def test_non_gbp_currencies(self):
+        fake = faker.Faker()
+
+        funder = fake_grant_org(fake)
+        recipient = fake_grant_org(fake)
+        test_publisher = fake_publisher_info(fake)
+
+        # Create a publisher with a couple of non-GBP grants
+        with fake_getter_run(fake) as getter_run_1:
+            sourcefile = fake_sourcefile(fake, getter_run_1, test_publisher)
+            fake_grant(fake, sourcefile, funder, recipient, currency="EUR")
+            fake_grant(fake, sourcefile, funder, recipient, currency="USD")
+
+        # Check that non-GBP amounts are reflected in monitoring metrics
+        # and that GBP totals should be zero given there are no GBP grants
+        dataset_metrics = DatasetMetricsRecord.objects.all()[0]
+        self.assertFalse(dataset_metrics.metrics.get("total_amount_awarded_gbp"))
+        self.assertGreater(dataset_metrics.metrics["total_amount_awarded_eur"], 0)
+        self.assertGreater(dataset_metrics.metrics["total_amount_awarded_usd"], 0)
+
+        publisher_metrics = PublisherMetricsRecord.objects.all()[0]
+        self.assertFalse(publisher_metrics.metrics.get("total_gbp"))
+        self.assertGreater(publisher_metrics.metrics["total_eur"], 0)
+        self.assertGreater(publisher_metrics.metrics["total_usd"], 0)
+
+        funder_metrics = FunderMetricsRecord.objects.all()[0]
+        self.assertFalse(funder_metrics.metrics.get("total_gbp"))
+        self.assertGreater(funder_metrics.metrics["total_eur"], 0)
+        self.assertGreater(funder_metrics.metrics["total_usd"], 0)
 
 
 class TestMonitoringMetrics(TestCase):
