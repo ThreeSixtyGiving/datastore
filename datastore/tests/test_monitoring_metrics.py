@@ -29,7 +29,6 @@ from monitoring.models import (
     FunderMetricsRecord,
     SourceFileMetricsRecord,
     DatasetMetricsRecord,
-    MonitoringSnapshot,
 )
 from monitoring.serializers import (
     PublisherMetricsRecordWithDownSourceFilesSerializerCSV,
