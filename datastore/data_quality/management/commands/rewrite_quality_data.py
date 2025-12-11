@@ -107,30 +107,32 @@ def rewrite_quality_data(
                 }
             )
 
-        if not threads:
-            for sf in process_sf_list:
-                process_source_file(sf)
-        else:
-            with Pool(threads) as process_pool:
-                try:
+        try:
+            if not threads:
+                source_file_results = [
+                    process_source_file(sf) for sf in process_sf_list
+                ]
+
+            else:
+                with Pool(threads) as process_pool:
                     source_file_results = process_pool.map(
                         process_source_file, process_sf_list
                     )
-                except Exception as e:
-                    print(f"Error generating quality data {e}")
 
-        for source_file_result in source_file_results:
-            if source_file_result is None:
-                continue
+            for source_file_result in source_file_results:
+                if source_file_result is None:
+                    continue
 
-            sf = db.SourceFile.objects.get(pk=source_file_result["pk"])
-            sf.quality = source_file_result["quality"]
-            sf.aggregate = source_file_result["aggregate"]
-            sourcefile_objs_for_update.append(sf)
+                sf = db.SourceFile.objects.get(pk=source_file_result["pk"])
+                sf.quality = source_file_result["quality"]
+                sf.aggregate = source_file_result["aggregate"]
+                sourcefile_objs_for_update.append(sf)
 
-        db.SourceFile.objects.bulk_update(
-            sourcefile_objs_for_update, ["quality", "aggregate"], batch_size=10000
-        )
+            db.SourceFile.objects.bulk_update(
+                sourcefile_objs_for_update, ["quality", "aggregate"], batch_size=10000
+            )
+        except Exception as e:
+            print(f"Error generating quality data {e}")
 
     def process_publishers(source_file_: db.SourceFile):
         """Updates the publisher data with aggregates and quality data relating to their source files"""
