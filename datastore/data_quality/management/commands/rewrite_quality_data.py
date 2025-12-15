@@ -54,7 +54,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--threads",
             type=int,
-            default=8,
+            default=3,
             help="Number of threads to use for processing quality data. Set to 0 to disable threading.",
         )
 
