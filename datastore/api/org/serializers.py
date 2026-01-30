@@ -178,7 +178,7 @@ class OrganisationPublisherSerializer(serializers.ModelSerializer):
 
 class OrganisationListSerializer(serializers.Serializer):
     self = serializers.SerializerMethodField()
-    org_id = serializers.CharField(max_length=200)
+    org_id = serializers.CharField(max_length=2000)
     name = serializers.CharField(allow_blank=True, required=False)
 
     @extend_schema_field(OpenApiTypes.URI)

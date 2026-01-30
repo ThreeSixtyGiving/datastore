@@ -75,12 +75,12 @@ class OrgInfoCache(models.Model):
     # These fields are all allowed to be empty on create method and then updated
     # automatically when save() is called.
     # Convenience fields
-    org_id = models.CharField(max_length=200, unique=True)
+    org_id = models.CharField(max_length=2000, unique=True)
 
     # organisations can have multiple org_ids for example if they're comprised of a charity and
     # a limited company.
     org_ids = ArrayField(
-        models.CharField(max_length=100, blank=True),
+        models.CharField(max_length=2000, blank=True),
         blank=True,
         null=True,
         db_index=True,

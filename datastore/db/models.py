@@ -235,7 +235,7 @@ class Entity(models.Model):
     class Meta:
         abstract = True
 
-    org_id = models.CharField(max_length=200)  # Primary Org ID, Unique
+    org_id = models.CharField(max_length=2000)  # Primary Org ID, Unique
 
     # Allowed to be null or blank for progressive building of the record
     name = models.TextField(null=True, blank=True)
