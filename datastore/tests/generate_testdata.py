@@ -4,10 +4,9 @@ import copy
 import json
 import os
 import random
-import subprocess
+import string
 
-# Generates some test data for loading into the data store
-# requires pwgen binary
+# Generates some test data for loading into the data store.
 
 # For debug
 # import pprint
@@ -92,9 +91,7 @@ def generate_data(output_dir="test-data"):
 
     words_needed = PUBLISHERS * PUBLISHERS * 3 + PUBLISHERS * GRANTS_PER_PUBLISHER * 2
 
-    output = subprocess.check_output(["pwgen", "10", "%s" % words_needed])
-
-    words = output.decode("utf-8").split("\n")
+    words = ["".join(random.choices(string.ascii_letters + string.digits, k=10)) for _ in range(words_needed)]
 
     for i in range(0, PUBLISHERS):
         data_item = copy.deepcopy(publisher_template)
