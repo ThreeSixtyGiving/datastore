@@ -217,6 +217,7 @@ def new_default_entity_aggregate_data():
         "grants": 0,
         "grants_ind": 0,
         "grants_org": 0,
+        "funders": 0,
         "minAwardDate": None,
         "maxAwardDate": None,
         "currencies": {},
@@ -270,6 +271,7 @@ class Entity(models.Model):
         #  "grants": 0,
         #  "grants_ind": 0,
         #  "grants_org": 0,
+        #  "funders": 0,
         #  "minAwardDate": yyyy-mm-dd,
         #  "maxAwardDate": yyyy-mm-dd,
         #  "currencies": {
@@ -385,6 +387,10 @@ class Publisher(Entity):
 
 
 class Recipient(Entity):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._funding_organisation_ids = set()
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=["org_id"], name="recipient_unique_org_id")
@@ -396,6 +402,12 @@ class Recipient(Entity):
 
     non_primary_org_ids = ArrayField(models.TextField())
 
+    def update_aggregate(self, grant):
+        super().update_aggregate(grant)
+        for funder in grant["fundingOrganization"]:
+            if "id" in funder:
+                self._funding_organisation_ids.add(funder["id"])
+        self.aggregate["funders"] = len(self._funding_organisation_ids)
 
 class Funder(Entity):
     class Meta:
