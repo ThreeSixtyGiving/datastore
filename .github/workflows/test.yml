@@ -43,6 +43,7 @@ jobs:
         DATA_RUN_PID_FILE: datarunpidfile.pid
         DJANGO_SETTINGS_MODULE: settings.settings_test
 
-    - env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: coveralls --service=github
+    - uses: coverallsapp/github-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        fail-on-error: false
