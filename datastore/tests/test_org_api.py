@@ -55,6 +55,8 @@ class OrgAPITestCase(TestCase):
             "funder": {
                 "aggregate": {
                     "grants": 50,
+                    "earliest_grant_date": "2019-10-03",
+                    "latest_grant_date": "2019-10-03",
                     "currencies": {
                         "GBP": {
                             "avg": 500.94,
@@ -206,6 +208,8 @@ class OrgAPITestCase(TestCase):
             "recipient": {
                 "aggregate": {
                     "grants": 46,
+                    "earliest_grant_date": "2019-10-03",
+                    "latest_grant_date": "2019-10-03",
                     "currencies": {
                         "GBP": {
                             "avg": 504.0217391304348,
