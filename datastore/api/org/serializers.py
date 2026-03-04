@@ -39,7 +39,16 @@ class OrganisationAggregateCurrencySerializer(serializers.Serializer):
 class OrganisationAggregateSerializer(serializers.Serializer):
     grants = serializers.IntegerField()
 
+    earliest_grant_date = serializers.SerializerMethodField()
+    latest_grant_date = serializers.SerializerMethodField()
+
     currencies = serializers.SerializerMethodField()
+
+    def get_earliest_grant_date(self, aggregate):
+        return aggregate.get("minAwardDate")
+
+    def get_latest_grant_date(self, aggregate):
+        return aggregate.get("maxAwardDate")
 
     # NOTE: This field will be deprecated in future version in favour of
     # the direct representation from the entitiy model's aggregate data.
