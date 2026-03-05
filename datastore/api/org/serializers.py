@@ -5,6 +5,7 @@ from django.templatetags.static import static
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from rest_framework_dataclasses.serializers import DataclassSerializer
+from typing import Optional
 
 import db.models as db
 from api.org import models
@@ -44,10 +45,10 @@ class OrganisationAggregateSerializer(serializers.Serializer):
 
     currencies = serializers.SerializerMethodField()
 
-    def get_earliest_grant_date(self, aggregate):
+    def get_earliest_grant_date(self, aggregate) -> Optional[str]:
         return aggregate.get("minAwardDate")
 
-    def get_latest_grant_date(self, aggregate):
+    def get_latest_grant_date(self, aggregate) -> Optional[str]:
         return aggregate.get("maxAwardDate")
 
     # NOTE: This field will be deprecated in future version in favour of
