@@ -26,6 +26,11 @@ FTC_SOURCES: List[Tuple[str, Optional[str]]] = [
     ("https://findthatcharity.uk/orgid/source/lani.csv", OrgInfoCache.LANI),
     ("https://findthatcharity.uk/orgid/source/las.csv", OrgInfoCache.LAS),
     ("https://findthatcharity.uk/orgid/source/pla.csv", OrgInfoCache.PLA),
+    ("https://findthatcharity.uk/orgid/source/coe.csv", OrgInfoCache.COE),
+    (
+        "https://findthatcharity.uk/orgid/source/officeforstudents.csv",
+        OrgInfoCache.OFFICEFORSTUDENTS,
+    ),
     (
         "https://findthatcharity.uk/orgid/source/nhsods-epraccur.csv",
         OrgInfoCache.NHSODS_EPRACCUR,
