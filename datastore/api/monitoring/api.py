@@ -138,6 +138,13 @@ class ChangedFunderMetricsRecordAPIView(ListAPIView):
             return ChangedFunderMetricsRecordJSONSerializer
 
     def get_queryset(self):
+
+        # The default server timezone is UTC (as set in settings) so the following
+        # calculations will all be done in UTC by default.  This causes problems
+        # during BST.  To fix this manually set the timezone to Europe/London so
+        # that calculations will pick up GMT/BST differences.
+        timezone.activate("Europe/London")
+
         start_date = date.fromisoformat(self.kwargs.get("start_date"))
         end_date = date.fromisoformat(self.kwargs.get("end_date"))
 
