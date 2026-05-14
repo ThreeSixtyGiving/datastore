@@ -66,6 +66,11 @@ urlpatterns = [
         name="organisation-grants-received",
     ),
     path(
+        "v1/org/funder/",
+        api.org.api.FunderListView.as_view(),
+        name="funder-list",
+    ),
+    path(
         "v1/org/<path:org_id>/",
         api.org.api.OrganisationDetailView.as_view(),
         name="organisation-detail",

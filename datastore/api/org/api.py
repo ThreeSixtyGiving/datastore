@@ -31,6 +31,17 @@ class OrganisationListView(generics.ListAPIView):
         )
 
 
+class FunderListView(generics.ListAPIView):
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "public-api-org-list"
+    serializer_class = serializers.OrganisationListSerializer
+    pagination_class = OrganisationsPagination
+
+    def get_queryset(self):
+        fields = ["org_id", "name"]
+        return db.Funder.objects.order_by().values(*fields)
+
+
 class OrganisationDetailView(generics.RetrieveAPIView):
     """
     Get details about the given organisation.
