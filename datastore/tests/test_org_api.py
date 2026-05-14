@@ -460,3 +460,28 @@ class OrgAPITestCase(TestCase):
         )
 
         self.assertEqual(response.status_code, 404)
+
+    #
+    # Funder List
+    #
+
+    def test_funder_list(self):
+        """Check that the given Funder Org is in the Funder List"""
+
+        data = self.client.get(
+            "/api/v1/org/funder/",
+            headers={"accept": "application/json"},
+        ).json()
+
+        self.assertGreaterEqual(data["count"], 1)
+
+        expected_entry = {
+            "org_id": self.funder_org_id,
+            "name": self.funder_org_name,
+            "self": "http://testserver"
+            + reverse_lazy(
+                "api:organisation-detail", kwargs={"org_id": self.funder_org_id}
+            ),
+        }
+
+        self.assertIn(expected_entry, data["results"])
