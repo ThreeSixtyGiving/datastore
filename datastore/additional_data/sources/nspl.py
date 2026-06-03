@@ -24,6 +24,10 @@ class NSPLSource(object):
     #  Search for the most recent "National Statistics Postcode Lookup 2021 Cencus"
     #  https://geoportal.statistics.gov.uk/search?collection=Dataset&q=National%20Statistics%20Postcode%20Lookup%20-%202021%20Census&sort=-modified&source=office%20for%20national%20statistics&tags=national%20statistics%20postcode%20lookup%2C2021_cencus&type=csv%20collection
     NSPL_URL = "https://www.arcgis.com/sharing/rest/content/items/204e40244d4d4903ba1861d492f47d29/data"
+    ADDITIONAL_DATA_KEY = "recipientOrganizationLocation"
+    LICENCE = (
+        "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+    )
 
     def __init__(self):
         self._nspl_cache = {}
@@ -204,3 +208,5 @@ class NSPLSource(object):
                     self.update_location_data_code_names(location_data)
                     additional_data["recipientOrganizationLocation"] = location_data
                     break
+
+        additional_data[f"{self.ADDITIONAL_DATA_KEY}_LICENCE"] = self.LICENCE

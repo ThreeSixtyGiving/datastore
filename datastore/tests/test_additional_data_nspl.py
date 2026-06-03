@@ -200,7 +200,8 @@ class TestAdditionalDataNSPL(TestCase):
         nspl.update_additional_data(grant.data, grant.source_file.data, additional_data)
 
         self.assertNotIn("recipientOrganizationLocation", additional_data)
-        self.assertEqual(len(additional_data), 0)
+        self.assertEqual(len(additional_data), 1)
+        self.assertIn("recipientOrganizationLocation_LICENCE", additional_data)
 
     def test_nspl_update_additional_data_without_postcode(self):
         self.save_nspl_mock_data()
@@ -214,7 +215,8 @@ class TestAdditionalDataNSPL(TestCase):
         nspl.update_additional_data(grant.data, grant.source_file.data, additional_data)
 
         self.assertNotIn("recipientOrganizationLocation", additional_data)
-        self.assertEqual(len(additional_data), 0)
+        self.assertEqual(len(additional_data), 1)
+        self.assertIn("recipientOrganizationLocation_LICENCE", additional_data)
 
     def test_nspl_update_additional_data_breaks_after_updating(self):
         # Once we have one recipient org location, the loop should break.

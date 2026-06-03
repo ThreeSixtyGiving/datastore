@@ -74,6 +74,9 @@ class FindThatCharitySource(object):
     FindThatCharity (FTC) organisation info data sources"""
 
     ADDITIONAL_DATA_KEY = "recipientOrgInfos"
+    LICENCE = (
+        "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+    )
 
     def __init__(self, *args, **kwargs):
         # A basic internal memory cache to avoid hitting the db on duplicate
@@ -83,6 +86,8 @@ class FindThatCharitySource(object):
         self._cache = {}
 
     def update_additional_data(self, grant, source_file, additional_data):
+        additional_data[f"{self.ADDITIONAL_DATA_KEY}_LICENCE"] = self.LICENCE
+
         # We can't do anything if this grant doesn't have a recipientOrganization
         if not grant.get("recipientOrganization"):
             return
