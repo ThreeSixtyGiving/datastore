@@ -13,6 +13,11 @@ class GeoLookupSource(object):
     """Imports geographical lookups from https://github.com/drkane/geo-lookups/
     These allow for looking up from lower-level geography like Ward to a standard local authority, region, etc"""
 
+    ADDITIONAL_DATA_KEY = "locationLookup"
+    LICENCE = (
+        "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
+    )
+
     # Source URLS
     SOURCE_URLS = {
         "lsoa": {
@@ -143,3 +148,5 @@ class GeoLookupSource(object):
                 area["source"] = "recipientOrganizationPostcode"
                 area["sourceCode"] = lsoa
                 additional_data["locationLookup"].append(area)
+
+        additional_data[f"{self.ADDITIONAL_DATA_KEY}_LICENCE"] = self.LICENCE

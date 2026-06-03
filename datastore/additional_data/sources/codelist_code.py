@@ -23,6 +23,9 @@ class CodeListSource(object):
     responsible for field: codeListLookup
     """
 
+    ADDITIONAL_DATA_KEY = "codeListLookup"
+    LICENCE = "https://creativecommons.org/licenses/by/4.0/"
+
     def import_codelists(self):
         with transaction.atomic():
             CodelistCode.objects.all().delete()
@@ -136,3 +139,5 @@ class CodeListSource(object):
             "recipientOrg_location_countryCode": recipientOrg_location_countryCode,
             "fundingOrg_location_countryCode": fundingOrg_location_countryCode,
         }
+
+        additional_data[f"{self.ADDITIONAL_DATA_KEY}_LICENCE"] = self.LICENCE
