@@ -86,8 +86,6 @@ class FindThatCharitySource(object):
         self._cache = {}
 
     def update_additional_data(self, grant, source_file, additional_data):
-        additional_data[f"{self.ADDITIONAL_DATA_KEY}_LICENCE"] = self.LICENCE
-
         # We can't do anything if this grant doesn't have a recipientOrganization
         if not grant.get("recipientOrganization"):
             return

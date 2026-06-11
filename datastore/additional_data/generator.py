@@ -48,9 +48,21 @@ class AdditionalDataGenerator(object):
 
         for additional_data_source in additional_data_sources:
             try:
-                getattr(self, additional_data_source).update_additional_data(
-                    grant, source_file, additional_data
-                )
+                source_instance = getattr(self, additional_data_source)
+                if additional_data_source == "grant_metadata":
+                    # Build sources dict excluding grant_metadata itself
+                    sources_dict = {
+                        key: getattr(self, key)
+                        for key in additional_data_sources
+                        if key != "grant_metadata"
+                    }
+                    source_instance.update_additional_data(
+                        grant, source_file, additional_data, sources=sources_dict
+                    )
+                else:
+                    source_instance.update_additional_data(
+                        grant, source_file, additional_data
+                    )
             except AttributeError:
                 raise Exception(
                     f"Data source {additional_data_source} is not a known additional data source."

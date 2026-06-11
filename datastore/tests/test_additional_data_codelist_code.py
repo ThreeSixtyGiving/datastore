@@ -37,8 +37,7 @@ class TestCodeLists(TestCase):
                 "beneficiaryLocation_countryCode": "Australia",
                 "fundingOrg_location_countryCode": "France",
                 "recipientOrg_location_countryCode": "United Kingdom of Great Britain and Northern Ireland",
-            },
-            "codeListLookup_LICENCE": "https://creativecommons.org/licenses/by/4.0/",
+            }
         }
 
         source.update_additional_data(grant, source_file, additional_data_in)

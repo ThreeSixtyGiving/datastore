@@ -208,5 +208,3 @@ class NSPLSource(object):
                     self.update_location_data_code_names(location_data)
                     additional_data["recipientOrganizationLocation"] = location_data
                     break
-
-        additional_data[f"{self.ADDITIONAL_DATA_KEY}_LICENCE"] = self.LICENCE
