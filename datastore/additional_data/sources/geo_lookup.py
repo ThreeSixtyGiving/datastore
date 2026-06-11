@@ -148,5 +148,3 @@ class GeoLookupSource(object):
                 area["source"] = "recipientOrganizationPostcode"
                 area["sourceCode"] = lsoa
                 additional_data["locationLookup"].append(area)
-
-        additional_data[f"{self.ADDITIONAL_DATA_KEY}_LICENCE"] = self.LICENCE

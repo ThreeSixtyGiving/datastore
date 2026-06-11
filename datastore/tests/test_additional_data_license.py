@@ -47,35 +47,82 @@ class TestAdditionalDataLicense(TestCase):
 class TestAdditionalDataSourceLicences(TestCase):
     fixtures = ["test_data.json"]
 
-    def _assert_licence(self, source, expected_licence):
+    def test_source_licenses_aggregation(self):
+        """Test that GrantMetadataSource aggregates licenses from all sources"""
         grant = Grant.objects.first()
         additional_data = {}
 
-        source.update_additional_data(
-            grant.data, grant.source_file.data, additional_data
+        # Create source instances
+        sources = {
+            "find_that_charity_source": FindThatCharitySource(),
+            "geo_lookup": GeoLookupSource(),
+            "nspl_source": NSPLSource(),
+            "code_lists": CodeListSource(),
+        }
+
+        grant_metadata_source = GrantMetadataSource()
+
+        # Call with sources parameter
+        grant_metadata_source.update_additional_data(
+            grant.data, grant.source_file.data, additional_data, sources=sources
         )
 
-        licence_key = f"{source.ADDITIONAL_DATA_KEY}_LICENCE"
+        # Verify the structure
+        self.assertIn(
+            "metadata",
+            additional_data,
+            "metadata key was not added.",
+        )
 
         self.assertIn(
-            licence_key,
-            additional_data,
-            f"{licence_key} was not added by {source.__class__.__name__}.",
+            "sources_metadata",
+            additional_data["metadata"],
+            "sources_metadata was not aggregated by GrantMetadataSource.",
+        )
+
+        sources_metadata = additional_data["metadata"]["sources_metadata"]
+
+        # Verify each source's license is present
+        self.assertIn(
+            "recipientOrgInfos",
+            sources_metadata,
+            "FindThatCharitySource license not aggregated.",
         )
         self.assertEqual(
-            additional_data[licence_key],
-            expected_licence,
-            f"{source.__class__.__name__} set the wrong licence value.",
+            sources_metadata["recipientOrgInfos"]["license"],
+            OGL_V3,
+            "FindThatCharitySource has wrong license.",
         )
 
-    def test_find_that_charity_licence(self):
-        self._assert_licence(FindThatCharitySource(), OGL_V3)
+        self.assertIn(
+            "locationLookup",
+            sources_metadata,
+            "GeoLookupSource license not aggregated.",
+        )
+        self.assertEqual(
+            sources_metadata["locationLookup"]["license"],
+            OGL_V3,
+            "GeoLookupSource has wrong license.",
+        )
 
-    def test_geo_lookup_licence(self):
-        self._assert_licence(GeoLookupSource(), OGL_V3)
+        self.assertIn(
+            "recipientOrganizationLocation",
+            sources_metadata,
+            "NSPLSource license not aggregated.",
+        )
+        self.assertEqual(
+            sources_metadata["recipientOrganizationLocation"]["license"],
+            OGL_V3,
+            "NSPLSource has wrong license.",
+        )
 
-    def test_nspl_licence(self):
-        self._assert_licence(NSPLSource(), OGL_V3)
-
-    def test_codelist_lookup_licence(self):
-        self._assert_licence(CodeListSource(), CC_BY_4)
+        self.assertIn(
+            "codeListLookup",
+            sources_metadata,
+            "CodeListSource license not aggregated.",
+        )
+        self.assertEqual(
+            sources_metadata["codeListLookup"]["license"],
+            CC_BY_4,
+            "CodeListSource has wrong license.",
+        )
