@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 import re
 import logging
 import django.db
@@ -54,6 +55,31 @@ NUM_OK_SOURCES_IN_LAST_RUN = Gauge(
 NUM_CURRENT_GRANTS_WITH_BENEFICIARY_LOCATION_GEOCODE_WITHOUT_LOOKUP = Gauge(
     "datastore_num_current_grants_with_beneficiary_location_geocode_without_lookup",
     "The number of grants which explicitly specify a beneficiary location geocode, but for which we were unable to lookup the geocode. This suggests our geocode lookup information may be out of date, or that publishers have used an invalid geocode.",
+)
+
+DURATION_OF_LAST_RUN_FOR_DATAGETTER = Gauge(
+    "datastore_last_run_datagetter_duration_seconds",
+    "The duration that the datagetter part of the last data run took.",
+)
+
+DURATION_OF_LAST_RUN_FOR_DATASTORE_LOAD = Gauge(
+    "datastore_last_run_datastore_load_duration_seconds",
+    "The duration that the datastore load part of the last data run took.",
+)
+
+DURATION_OF_LAST_RUN_FOR_GRANTNAV_DATA_PACKAGE_BUILD = Gauge(
+    "datastore_last_run_grantnav_package_build_duration_seconds",
+    "The duration that the grantnav latest data package build part of the last data run took.",
+)
+
+DURATION_OF_LAST_RUN_FOR_MONITORING_SNAPSHOT = Gauge(
+    "datastore_last_run_monitoring_snapshot_duration_seconds",
+    "The duration that the monitoring snapshot generation part of the last data run took.",
+)
+
+TIME_SINCE_LAST_GRANTNAV_DATA_PACKAGE_BUILD = Gauge(
+    "datastore_time_since_last_grantnav_data_package_build_seconds",
+    "Length of time since the last grantnav latest data package was built.",
 )
 
 
@@ -169,7 +195,15 @@ class ServiceMetrics(View):
                 exc_info=e,
             )
 
+    def _time_since_last_grantnav_data_package_build(self):
+        item, c = db.Status.objects.get_or_create(what="grantnav_data_package")
+        if item.status == db.Statuses.READY:
+            TIME_SINCE_LAST_GRANTNAV_DATA_PACKAGE_BUILD.set(
+                (datetime.now(timezone.utc) - item.when).total_seconds()
+            )
+
     def get(self, *args, **kwargs):
+        logger.info("Fetching metrics")
         # Update gauges unless we're in the middle of processing/loading
         if db.Status.all_idle_and_ready():
             self._num_errors_log()
@@ -177,6 +211,7 @@ class ServiceMetrics(View):
             self._total_datagetter_grants()
             self._total_num_sources_in_last_run()
             self._num_current_grants_with_beneficiary_location_geocode_without_lookup()
+            self._time_since_last_grantnav_data_package_build()
 
         # Generate latest uses default of the global registry
         return HttpResponse(generate_latest(), content_type="text/plain")

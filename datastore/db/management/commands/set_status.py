@@ -1,6 +1,14 @@
+from datetime import datetime, timezone
+
 from django.core.management.base import BaseCommand, CommandError
 
 from db.models import Status, Statuses
+from prometheus.views import (
+    DURATION_OF_LAST_RUN_FOR_DATAGETTER,
+    DURATION_OF_LAST_RUN_FOR_DATASTORE_LOAD,
+    DURATION_OF_LAST_RUN_FOR_GRANTNAV_DATA_PACKAGE_BUILD,
+    DURATION_OF_LAST_RUN_FOR_MONITORING_SNAPSHOT,
+)
 
 
 class Command(BaseCommand):
@@ -50,7 +58,31 @@ class Command(BaseCommand):
                 item.status = Statuses.__dict__.get(options["status"])
             except KeyError:
                 CommandError("Unknown status use --list-options to list statuses")
-            item.save()
 
+            if Statuses.__dict__.get(options["status"]) in (
+                Statuses.IDLE,
+                Statuses.READY,
+            ):
+                if options.get("what") == "datagetter":
+                    DURATION_OF_LAST_RUN_FOR_DATAGETTER.set(
+                        (datetime.now(timezone.utc) - item.when).total_seconds()
+                    )
+
+                elif options.get("what") == "datastore":
+                    DURATION_OF_LAST_RUN_FOR_DATASTORE_LOAD.set(
+                        (datetime.now(timezone.utc) - item.when).total_seconds()
+                    )
+
+                elif options.get("what") == "grantnav_data_package":
+                    DURATION_OF_LAST_RUN_FOR_GRANTNAV_DATA_PACKAGE_BUILD.set(
+                        (datetime.now(timezone.utc) - item.when).total_seconds()
+                    )
+
+                elif options.get("what") == "monitoring_snapshot":
+                    DURATION_OF_LAST_RUN_FOR_MONITORING_SNAPSHOT.set(
+                        (datetime.now(timezone.utc) - item.when).total_seconds()
+                    )
+
+            item.save()
         else:
             raise CommandError("Not enough parameters supplied to set status")
