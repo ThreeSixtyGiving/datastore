@@ -31,6 +31,13 @@ class Command(BaseCommand):
             default=False,
         )
 
+        parser.add_argument(
+            "--threads",
+            type=int,
+            default=3,
+            help="Number of threads to use when rewriting quality data. Set to 0 to disable threading.",
+        )
+
     def check_grant_data_tools_compatible(
         self, grant: Dict[str, Any], distribution_url: [str], publisher_name: [str]
     ) -> bool:
@@ -209,7 +216,7 @@ class Command(BaseCommand):
         # quality data is updated by `rewrite_quality_data`.
         call_command("manage_entities_data", "--update")
         print("Updating quality data", file=self.stdout)
-        call_command("rewrite_quality_data", "latest")
+        call_command("rewrite_quality_data", "latest", threads=options["threads"])
 
         # Clear all cached objects - The latest data as well as new data has been added
         cache.clear()
