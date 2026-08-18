@@ -780,9 +780,8 @@ class TestMonitoringMetricsQueries(APITestCase):
                 amount_awarded=100,
             )
 
-        with fake_getter_run(
-            fake, timestamp=getter_run_1.datetime + timedelta(hours=4)
-        ) as getter_run_2:
+        getter_run_2_datetime = getter_run_1.datetime + timedelta(hours=4)
+        with fake_getter_run(fake, timestamp=getter_run_2_datetime) as getter_run_2:
             test_sourcefile_2 = copy_sourcefile(
                 fake, test_sourcefile, getter_run_2, copy_grants=False
             )
@@ -795,6 +794,12 @@ class TestMonitoringMetricsQueries(APITestCase):
                 amount_awarded=200,
             )
 
+        # Adding this debugging statement to try to understand why this test sometimes fails in GH actions.
+        # I'm suspecting it's something to do with timezones and so the second getter run doesn't
+        # overwrite the first.
+        print(
+            f"First getter run={getter_run_1_datetime} Second getter run={getter_run_2_datetime}"
+        )
         funder_records = self.get_funder_records(
             snapshot_date=getter_run_1.datetime.date()
         )
