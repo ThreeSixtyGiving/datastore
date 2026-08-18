@@ -36,6 +36,8 @@ env = environ.Env(  # set default values and casting
     # TODO could use $XDG_RUNTIME_DIR ?
     DATA_RUN_PID_FILE=(str, "/var/run/user/%s/datarun.pid" % os.getuid()),
     SENTRY_DSN=(str, ""),
+    SECURE_SSL_ENABLED=(bool, False),
+    SECURE_HSTS_SECONDS=(int, 3600),
 )
 
 
@@ -49,6 +51,15 @@ if SENTRY_DSN:
 
     ignore_logger("django.security.DisallowedHost")
     sentry_sdk.init(dsn=env("SENTRY_DSN"), integrations=[DjangoIntegration()])
+
+# Additional security settings.
+if env("SECURE_SSL_ENABLED"):
+    SECURE_HSTS_SECONDS = env("SECURE_HSTS_SECONDS")
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
 
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
