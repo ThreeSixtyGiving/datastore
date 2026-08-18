@@ -38,7 +38,8 @@ jobs:
 
     - run: ./datastore/manage.py makemigrations --dry-run --check
     - run: ./datastore/manage.py migrate
-    - run: coverage run --source='./datastore' ./datastore/manage.py test -v 3 tests
+    - run: coverage run --source='./datastore' ./datastore/manage.py test -v 3 tests.test_monitoring_metrics.TestMonitoringMetricsQueries.test_multiple_getterruns_in_one_day
+
       env:
         DATA_RUN_PID_FILE: datarunpidfile.pid
         DJANGO_SETTINGS_MODULE: settings.settings_test

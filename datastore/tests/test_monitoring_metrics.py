@@ -779,7 +779,7 @@ class TestMonitoringMetricsQueries(APITestCase):
                 recipient=recipient,
                 amount_awarded=100,
             )
-
+        print(getter_run_1.datetime, getter_run_1.datetime + timedelta(hours=4))
         with fake_getter_run(
             fake, timestamp=getter_run_1.datetime + timedelta(hours=4)
         ) as getter_run_2:
