@@ -10,7 +10,6 @@ from additional_data.sources.tsg_recipient_types import TSGRecipientTypesSource
 from additional_data.sources.imd_snapshot import IMDSnapshotSource
 from additional_data.sources.grant_metadata import GrantMetadataSource
 
-
 # This ordering is important for any data dependencies
 # Add other additional_data updaters here
 DATA_SOURCES = [
