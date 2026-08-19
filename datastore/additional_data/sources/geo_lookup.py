@@ -11,7 +11,8 @@ logger = logging.getLogger(__name__)
 
 class GeoLookupSource(object):
     """Imports geographical lookups from https://github.com/drkane/geo-lookups/
-    These allow for looking up from lower-level geography like Ward to a standard local authority, region, etc"""
+    These allow for looking up from lower-level geography like Ward to a standard local authority, region, etc
+    """
 
     ADDITIONAL_DATA_KEY = "locationLookup"
     LICENCE = (

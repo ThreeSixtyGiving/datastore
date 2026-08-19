@@ -49,9 +49,9 @@ class GeoCodeNamesSource(object):
                 "name": area["GEOGNM"],
                 "name_welsh": area["GEOGNMW"] if area["GEOGNMW"] else None,
                 "statutory_instrument_id": area["SI_ID"] if area["SI_ID"] else None,
-                "statutory_instrument_title": area["SI_TITLE"]
-                if area["SI_TITLE"]
-                else None,
+                "statutory_instrument_title": (
+                    area["SI_TITLE"] if area["SI_TITLE"] else None
+                ),
                 "date_start": self.process_date(area["OPER_DATE"][:10], "%d/%m/%Y"),
                 "date_end": self.process_date(area["TERM_DATE"][:10], "%d/%m/%Y"),
                 "parent": area["PARENTCD"] if area["PARENTCD"] else None,
