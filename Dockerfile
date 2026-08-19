@@ -1,4 +1,4 @@
-FROM python:3.8.16-buster
+FROM python:3.12-bookworm
 
 RUN mkdir /code
 WORKDIR /code/
