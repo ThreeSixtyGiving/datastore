@@ -76,7 +76,7 @@ jsonschema==3.2.0
     #   libcove
 libcove==0.31.0
     # via lib360dataquality
-lxml==5.4.0
+lxml==6.1.0
     # via flattentool
 odfpy==1.4.1
     # via flattentool
