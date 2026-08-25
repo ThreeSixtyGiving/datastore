@@ -8,6 +8,7 @@ from django.db.models.aggregates import Sum, Count
 from django.db.models.fields import TextField
 from django.db.models.functions import Cast
 
+from additional_data.models import RegistryFunder
 from db.models import Funder, GetterRun, SourceFile, Publisher, Latest, Recipient
 from monitoring.models import (
     FUZZY_DAY_LEEWAY_HOURS,
@@ -197,6 +198,31 @@ def funder_metrics(funder: Funder) -> FunderMetrics:
     )
 
 
+def registry_funder_fields(funder: Funder) -> dict:
+    """Returns the registry funder profile fields for a given funder"""
+    registry_funder = RegistryFunder.objects.filter(org_id=funder.org_id).first()
+    data = registry_funder.data if registry_funder else {}
+
+    return dict(
+        salesforce_id=data.get("id"),
+        name=data.get("name"),
+        prefix=data.get("prefix"),
+        publisher_prefix=data.get("publisherPrefix"),
+        publisher_prefix_combined=data.get("publisherPrefixCombined"),
+        org_case_safe_id=data.get("orgCaseSafeID"),
+        x360_giving_publisher=data.get("x360GivingPublisher"),
+        sectors=data.get("sectors"),
+        sector_organisation_type=data.get("sectorOrganisationtype"),
+        sector_organisation_subtype=data.get("sectorOrganisationsubtype"),
+        authorised_domain=data.get("authorisedDomain"),
+        self_registration_enabled=data.get("selfregistrationenabled"),
+        first_published_date=data.get("firstPublishedDate"),
+        latest_published_date=data.get("latestPublishedDate"),
+        update_schedule=data.get("updateschedule"),
+        update_method=data.get("updateMethod"),
+    )
+
+
 def gather_funders_metrics(snapshot: MonitoringSnapshot) -> List[FunderMetricsRecord]:
     records = list()
     for funder in Funder.objects.all():
@@ -208,6 +234,7 @@ def gather_funders_metrics(snapshot: MonitoringSnapshot) -> List[FunderMetricsRe
                     funder_org_id=funder.org_id,
                     funder_non_primary_org_ids=funder.non_primary_org_ids,
                     metrics=FunderMetricsSerializer(funder_metrics(funder)).data,
+                    **registry_funder_fields(funder),
                 )
             )
         except Exception as e:
