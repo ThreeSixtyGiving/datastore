@@ -90,6 +90,9 @@ profile_block_start
 ./datastore/manage.py manage_entities_data --update
 profile_block_stop "UPDATE_ENTITIES"
 
+echo_stamp "Loading registry funders data"
+./datastore/manage.py load_registry_funders
+
 echo_stamp "Re-write quality data"
 profile_block_start
 ./datastore/manage.py rewrite_quality_data latest

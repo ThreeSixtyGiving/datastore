@@ -12,6 +12,7 @@ from django.test import TestCase
 
 import faker
 
+from additional_data.models import RegistryFunder
 from db.models import (
     Publisher,
     Funder,
@@ -22,6 +23,7 @@ from monitoring.metrics import (
     gather_metrics,
     publisher_metrics,
     funder_metrics,
+    registry_funder_fields,
     source_file_metrics,
 )
 from monitoring.models import (
@@ -823,6 +825,49 @@ class TestMonitoringMetricsQueries(APITestCase):
         self.assertGreater(funder_metrics.metrics["total_eur"], 0)
         self.assertGreater(funder_metrics.metrics["total_usd"], 0)
 
+    def test_funder_snapshot_api_includes_registry_funder_data(self):
+        fake = faker.Faker()
+
+        funder = fake_grant_org(fake)
+        recipient = fake_grant_org(fake)
+        test_publisher = fake_publisher_info(fake)
+
+        RegistryFunder.objects.create(
+            salesforce_id="0013W000003j3aLQAQ",
+            org_id=funder["id"],
+            data={
+                "id": "0013W000003j3aLQAQ",
+                "name": "ABC Trust",
+                "prefix": "360G-ExampleCT",
+                "publisherPrefix": None,
+                "publisherPrefixCombined": "360G-ExampleCT",
+                "orgCaseSafeID": "0013W000003j3aLQ",
+                "x360GivingPublisher": "360Giving Publisher",
+                "sectors": "Philanthropy",
+                "sectorOrganisationtype": "Grantmaking organisation",
+                "sectorOrganisationsubtype": "Family foundation",
+                "authorisedDomain": None,
+                "selfregistrationenabled": False,
+                "firstPublishedDate": "2020-02-27",
+                "latestPublishedDate": "2026-04-13",
+                "updateschedule": "Annual",
+                "updateMethod": "Manual update to Registry",
+            },
+        )
+
+        with fake_getter_run(fake) as getter_run_1:
+            sourcefile = fake_sourcefile(fake, getter_run_1, test_publisher)
+            fake_grant(fake, sourcefile, funder, recipient)
+
+        funder_records = self.get_funder_records()
+        matching_records = [
+            r for r in funder_records if r["funder_org_id"] == funder["id"]
+        ]
+        self.assertEqual(len(matching_records), 1)
+        record = matching_records[0]
+
+        self.assertEqual(record["salesforce_id"], "0013W000003j3aLQAQ")
+
 
 class TestMonitoringMetrics(TestCase):
     fixtures = ["test_data.json"]
@@ -840,6 +885,25 @@ class TestMonitoringMetrics(TestCase):
         "total_gbp",
         "latest_award_date",
         "earliest_award_date",
+    ]
+
+    registry_funder_fields_keys = [
+        "salesforce_id",
+        "name",
+        "prefix",
+        "publisher_prefix",
+        "publisher_prefix_combined",
+        "org_case_safe_id",
+        "x360_giving_publisher",
+        "sectors",
+        "sector_organisation_type",
+        "sector_organisation_subtype",
+        "authorised_domain",
+        "self_registration_enabled",
+        "first_published_date",
+        "latest_published_date",
+        "update_schedule",
+        "update_method",
     ]
 
     source_file_metrics = [
@@ -886,6 +950,30 @@ class TestMonitoringMetrics(TestCase):
 
             for metric in self.funder_metrics:
                 self.assertIn(metric, values)
+
+    def test_registry_funder_fields_no_registry_funder(self):
+        funder = Funder.objects.get(org_id="GB-example-b")
+
+        values = registry_funder_fields(funder)
+
+        for metric in self.registry_funder_fields_keys:
+            self.assertIsNone(values[metric])
+
+    def test_registry_funder_fields_includes_registry_funder_data(self):
+        funder = Funder.objects.get(org_id="GB-example-b")
+        RegistryFunder.objects.create(
+            salesforce_id="0013W000003j3aLQAQ",
+            org_id=funder.org_id,
+            data={
+                "id": "0013W000003j3aLQAQ",
+                "name": "ABC Trust",
+                "sectors": "Philanthropy",
+            },
+        )
+
+        values = registry_funder_fields(funder)
+
+        self.assertEqual(values["salesforce_id"], "0013W000003j3aLQAQ")
 
     def test_source_file_metrics(self):
         for source_file in SourceFile.objects.all():
