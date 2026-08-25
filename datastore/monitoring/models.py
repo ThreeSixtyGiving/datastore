@@ -303,6 +303,22 @@ class FunderMetricsRecord(AbstractMetricsRecord):
 
     funder_org_id = models.TextField()
     funder_non_primary_org_ids = ArrayField(models.TextField(), blank=True)
+    salesforce_id = models.TextField(null=True, blank=True)
+    name = models.TextField(null=True, blank=True)
+    prefix = models.TextField(null=True, blank=True)
+    publisher_prefix = models.TextField(null=True, blank=True)
+    publisher_prefix_combined = models.TextField(null=True, blank=True)
+    org_case_safe_id = models.TextField(null=True, blank=True)
+    x360_giving_publisher = models.TextField(null=True, blank=True)
+    sectors = models.TextField(null=True, blank=True)
+    sector_organisation_type = models.TextField(null=True, blank=True)
+    sector_organisation_subtype = models.TextField(null=True, blank=True)
+    authorised_domain = models.TextField(null=True, blank=True)
+    self_registration_enabled = models.BooleanField(null=True, blank=True)
+    first_published_date = models.DateField(null=True, blank=True)
+    latest_published_date = models.DateField(null=True, blank=True)
+    update_schedule = models.TextField(null=True, blank=True)
+    update_method = models.TextField(null=True, blank=True)
 
     class Meta:
         indexes = [
