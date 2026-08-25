@@ -9,11 +9,13 @@ from additional_data.sources.codelist_code import CodeListSource
 from additional_data.sources.tsg_recipient_types import TSGRecipientTypesSource
 from additional_data.sources.imd_snapshot import IMDSnapshotSource
 from additional_data.sources.grant_metadata import GrantMetadataSource
+from additional_data.sources.registry_funders import RegistryFundersSource
 
 
 # This ordering is important for any data dependencies
 # Add other additional_data updaters here
 DATA_SOURCES = [
+    "registry_funders",
     "find_that_charity_source",
     "nspl_source",
     "geo_lookup",
@@ -39,6 +41,7 @@ class AdditionalDataGenerator(object):
         self.tsg_recipient_type = TSGRecipientTypesSource()
         self.imd_snapshot = IMDSnapshotSource()
         self.grant_metadata = GrantMetadataSource()
+        self.registry_funders = RegistryFundersSource()
         # Initialise other additional data sources here
 
     def create(self, grant, source_file, additional_data_sources=DATA_SOURCES):
