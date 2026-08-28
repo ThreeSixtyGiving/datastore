@@ -189,6 +189,18 @@ class CodelistCode(models.Model):
         unique_together = ("list_name", "code")
 
 
+class RegistryFunder(models.Model):
+    """Funder organisation records from the registry"""
+
+    salesforce_id = models.CharField(max_length=32, unique=True)
+    org_id = models.CharField(max_length=200, null=True, blank=True, db_index=True)
+    fetched = models.DateTimeField(auto_now=True)
+    data = JSONField()
+
+    def __str__(self):
+        return self.salesforce_id
+
+
 class IMDWardLookup(models.Model):
     """Lookup UK Index of Multiple Deprivation values by Ward Code"""
 
