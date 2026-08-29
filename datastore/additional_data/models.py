@@ -23,6 +23,8 @@ class OrgInfoCache(models.Model):
     LANI = "lani"
     LAS = "las"
     PLA = "pla"
+    COE = "coe"
+    OFFICEFORSTUDENTS = "officeforstudents"
     NHSODS_EPRACCUR = "nhsods-epraccur"
     NHSODS_ETR = "nhsods-etr"
     NHSODS_ENSA = "nhsods-ensa"
@@ -52,6 +54,8 @@ class OrgInfoCache(models.Model):
             ROR,
             "Research Organisation Registry (formerly GRID) - only those that are based in the UK and are not a registered company are included.",
         ),
+        (COE, "Church of England"),
+        (OFFICEFORSTUDENTS, "Office for Students"),
         (HESA, "Organisations covered by the Higher Education Statistics Agency."),
         (LAE, "Register of local authorities in England"),
         (LANI, "Register of local authorities in Northern Ireland"),
