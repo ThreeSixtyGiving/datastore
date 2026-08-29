@@ -135,19 +135,35 @@ def create_orgs_list(entity_type, output=sys.stdout):
     entity_type: publisher, recipient, funder
     output: io
     """
+
+    extra_select = ""
+    end_clause = ""
+
+    if entity_type == "publisher":
+        extra_select = "db_publisher.prefix,"
+        # Limit the publisher entities to only the latest ones from the datagetter
+        end_clause = "WHERE db_publisher.getter_run_id = (SELECT id FROM db_getterrun ORDER BY datetime desc LIMIT 1)"
+
+    # TODO To be removed when GN switch over to publisher org data
+    if entity_type == "funder":
+        extra_select = """
+        db_publisher.name as "publisherName",
+        db_publisher.prefix as "publisherPrefix",
+        """
+        end_clause = "LEFT OUTER JOIN db_publisher on db_funder.org_id = db_publisher.org_id OR db_publisher.org_id = ANY(db_funder.non_primary_org_ids)"
+
     query = f"""
         SELECT DISTINCT
         db_{entity_type}.org_id as "id",
+        {extra_select}
         db_{entity_type}.non_primary_org_ids as "non_primary_org_ids",
         db_{entity_type}.name as name,
         db_{entity_type}."aggregate" as "aggregate",
         db_{entity_type}.additional_data as "additionalData",
-        additional_data_orginfocache.data as "ftcData",
-        db_publisher.name as "publisherName",
-        db_publisher.prefix as "publisherPrefix"
+        additional_data_orginfocache.data as "ftcData"
         FROM db_{entity_type}
         LEFT OUTER JOIN additional_data_orginfocache on db_{entity_type}.org_id = additional_data_orginfocache.org_id
-        LEFT OUTER JOIN db_publisher on db_{entity_type}.org_id = db_publisher.org_id OR db_publisher.org_id = ANY(db_{entity_type}.non_primary_org_ids)
+        {end_clause}
     """
 
     def parse_data_in_result(result, col_types):
@@ -180,7 +196,7 @@ class Command(BaseCommand):
             nargs="+",
             action="store",
             dest="entity_type",
-            help="The entity type to output. One of: recipient, funder",
+            help="The entity type to output. One of: recipient, funder or publisher",
         )
 
         parser.add_argument(
@@ -205,7 +221,7 @@ class Command(BaseCommand):
 
         if options.get("entity_type"):
             for entity_type in options["entity_type"]:
-                if entity_type != "recipient" and entity_type != "funder":
+                if entity_type not in ["recipient", "funder", "publisher"]:
                     raise CommandError(f"{entity_type} is an unknown entity type")
                 create_orgs_list(entity_type)
 

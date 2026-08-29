@@ -55,12 +55,16 @@ class Command(BaseCommand):
         data_all_file = "%s/data_all.json" % options["dir"]
         recipients_file = "%s/recipients.jl" % options["dir"]
         funders_file = "%s/funders.jl" % options["dir"]
+        publishers_file = "%s/publishers.jl" % options["dir"]
 
         with open(funders_file, "w") as funders_fp:
             create_orgs_list("funder", funders_fp)
 
         with open(recipients_file, "w") as recipients_fp:
             create_orgs_list("recipient", recipients_fp)
+
+        with open(publishers_file, "w") as publishers_fp:
+            create_orgs_list("publisher", publishers_fp)
 
         def flatten_grant(in_grant):
             """Add the additional_data inside grant object"""
