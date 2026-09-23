@@ -183,7 +183,7 @@ class FindThatCharitySource(object):
 
         # Have a guess at the org type from the path
         if not org_type:
-            for (short_type, long_type) in OrgInfoCache.ORG_TYPE:
+            for short_type, long_type in OrgInfoCache.ORG_TYPE:
                 if short_type in path:
                     org_type = short_type
                     print("Guessed org_type %s" % org_type)

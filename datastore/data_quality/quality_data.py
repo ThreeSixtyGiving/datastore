@@ -600,21 +600,21 @@ def generate_stats(mode, source_file_set):
         ret["aggregate"][
             "orgIdTypes"
         ] = source_files_stats.get_grant_org_id_types_used()
-        ret["aggregate"][
-            "awardedThisYear"
-        ] = source_files_stats.get_pc_publishers_awarding_in_last(366)
-        ret["aggregate"][
-            "awardedLastThreeMonths"
-        ] = source_files_stats.get_pc_publishers_awarding_in_last(92)
+        ret["aggregate"]["awardedThisYear"] = (
+            source_files_stats.get_pc_publishers_awarding_in_last(366)
+        )
+        ret["aggregate"]["awardedLastThreeMonths"] = (
+            source_files_stats.get_pc_publishers_awarding_in_last(92)
+        )
 
     elif mode == "overview_publishers":
         ret["aggregate"].update(source_files_stats.get_pc_publishers_file_types())
-        ret["aggregate"][
-            "publishedThisYear"
-        ] = source_files_stats.get_pc_publishers_publishing_in_last(366)
-        ret["aggregate"][
-            "publishedLastThreeMonths"
-        ] = source_files_stats.get_pc_publishers_publishing_in_last(92)
+        ret["aggregate"]["publishedThisYear"] = (
+            source_files_stats.get_pc_publishers_publishing_in_last(366)
+        )
+        ret["aggregate"]["publishedLastThreeMonths"] = (
+            source_files_stats.get_pc_publishers_publishing_in_last(92)
+        )
         ret["aggregate"][
             "awardYears"
         ] = source_files_stats.get_pc_publishers_with_grants_awarded_in_last_ten_years()
@@ -630,12 +630,12 @@ def generate_stats(mode, source_file_set):
         ret["aggregate"][
             "orgIdTypes"
         ] = source_files_stats.get_grant_org_id_types_used()
-        ret["aggregate"][
-            "awardedThisYear"
-        ] = source_files_stats.get_pc_publishers_awarding_in_last(366)
-        ret["aggregate"][
-            "awardedLastThreeMonths"
-        ] = source_files_stats.get_pc_publishers_awarding_in_last(92)
+        ret["aggregate"]["awardedThisYear"] = (
+            source_files_stats.get_pc_publishers_awarding_in_last(366)
+        )
+        ret["aggregate"]["awardedLastThreeMonths"] = (
+            source_files_stats.get_pc_publishers_awarding_in_last(92)
+        )
 
         ret["quality"] = source_files_stats.get_publisher_quality_grants()
 

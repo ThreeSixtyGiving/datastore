@@ -15,7 +15,6 @@ import environ
 
 from django.utils.crypto import get_random_string
 
-
 # https://docs.djangoproject.com/en/5.1/topics/logging/#logging-explanation
 LOGGING = {
     "version": 1,

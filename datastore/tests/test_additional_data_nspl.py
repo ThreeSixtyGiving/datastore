@@ -9,7 +9,6 @@ from additional_data.sources.geocode_names import GeoCodeNamesSource
 from additional_data.sources.nspl import NSPLSource
 from db.models import Grant
 
-
 TEST_FILES_DIR = PurePath(__file__).parent.joinpath("files")
 
 

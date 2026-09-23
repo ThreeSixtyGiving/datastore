@@ -5,7 +5,7 @@ selenium>=4.7.2,<4.27
 
 flake8>=6.0,<6.1
 
-black>=22.12.0,<23
+black>=26.3.1,<27
 # black changes the format slightly in newer versions
 # Stability Policy: https://black.readthedocs.io/en/stable/the_black_code_style/index.html#stability-policy
 
