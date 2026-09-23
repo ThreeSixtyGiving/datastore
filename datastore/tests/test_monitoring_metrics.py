@@ -759,14 +759,8 @@ class TestMonitoringMetricsQueries(APITestCase):
         recipient = fake_grant_org(fake)
         test_publisher = fake_publisher_info(fake)
 
-        # Random datetime at least 30 days ago
-        getter_run_1_datetime = fake.date_time(
-            end_datetime="-30d", tzinfo=dt.timezone.utc
-        )
-        # The second getter run below is created 4 hours after the first, so we need to ensure there are at least 4 more
-        # hours in the same day after the first getter run.
-        if getter_run_1_datetime.hour > 19:
-            getter_run_1_datetime = getter_run_1_datetime.replace(hour=19)
+        getter_run_1_datetime = datetime(2020, 2, 1, 3, 0, 0, tzinfo=UTC)
+        getter_run_2_datetime = datetime(2020, 2, 1, 11, 0, 0, tzinfo=UTC)
 
         with fake_getter_run(fake, timestamp=getter_run_1_datetime) as getter_run_1:
             test_sourcefile = fake_sourcefile(
@@ -780,7 +774,6 @@ class TestMonitoringMetricsQueries(APITestCase):
                 amount_awarded=100,
             )
 
-        getter_run_2_datetime = getter_run_1.datetime + timedelta(hours=4)
         with fake_getter_run(fake, timestamp=getter_run_2_datetime) as getter_run_2:
             test_sourcefile_2 = copy_sourcefile(
                 fake, test_sourcefile, getter_run_2, copy_grants=False
@@ -794,12 +787,6 @@ class TestMonitoringMetricsQueries(APITestCase):
                 amount_awarded=200,
             )
 
-        # Adding this debugging statement to try to understand why this test sometimes fails in GH actions.
-        # I'm suspecting it's something to do with timezones and so the second getter run doesn't
-        # overwrite the first.
-        print(
-            f"First getter run={getter_run_1_datetime} Second getter run={getter_run_2_datetime}"
-        )
         funder_records = self.get_funder_records(
             snapshot_date=getter_run_1.datetime.date()
         )

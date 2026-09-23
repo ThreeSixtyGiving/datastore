@@ -10,7 +10,6 @@ from django.views.generic import View
 
 import db.models as db
 
-
 logger = logging.getLogger(__name__)
 
 

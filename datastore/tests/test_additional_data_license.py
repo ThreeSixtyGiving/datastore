@@ -6,6 +6,7 @@ from additional_data.sources.geo_lookup import GeoLookupSource
 from additional_data.sources.nspl import NSPLSource
 from additional_data.sources.codelist_code import CodeListSource
 from db.models import Grant
+from api.org.serializers import GrantSerializer
 
 OGL_V3 = "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/"
 CC_BY_4 = "https://creativecommons.org/licenses/by/4.0/"
@@ -126,3 +127,34 @@ class TestAdditionalDataSourceLicences(TestCase):
             CC_BY_4,
             "CodeListSource has wrong license.",
         )
+
+
+class TestGrantSerializerAdditionalData(TestCase):
+    fixtures = ["test_data.json"]
+
+    def test_additional_data_metadata_exposed(self):
+        """
+        Ensure GrantSerializer exposes additional_data['metadata'] via
+        the additional_data_metadata field when present.
+        """
+        grant = Grant.objects.first()
+
+        # Populate additional_data metadata for the grant (simulate rewrite_additional_data run)
+        sample_metadata = {
+            "source_license_name": "Example License Name",
+            "source_license": "https://example.org/licenses/ex-license",
+            "sources_metadata": {
+                "codeListLookup": {
+                    "license": "https://creativecommons.org/licenses/by/4.0/"
+                }
+            },
+        }
+
+        grant.additional_data = {"metadata": sample_metadata}
+        grant.save()
+
+        serialized = GrantSerializer(grant).data
+
+        # Verify field presence and content
+        self.assertIn("additional_data_metadata", serialized)
+        self.assertEqual(serialized["additional_data_metadata"], sample_metadata)

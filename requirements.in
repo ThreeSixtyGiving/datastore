@@ -2,11 +2,11 @@
 
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@ab4588b6ca0466d773d3434b77fb3a897351aad8#egg=lib360dataquality
 
-Django>=4.2,<5.0
-# Use Django 4.2
-# Stable until April 2026 https://endoflife.date/django
+Django>=6.1,<7.0
+# Use Django 6.1
+# Stable until December 2027 https://endoflife.date/django
 
-djangorestframework>=3.15.2,<3.16
+djangorestframework>=3.16,<3.19
 # DRF claim patch releases are API compatible
 # See: https://www.django-rest-framework.org/community/release-notes/#versioning
 

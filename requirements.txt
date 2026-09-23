@@ -6,7 +6,7 @@
 #
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@ab4588b6ca0466d773d3434b77fb3a897351aad8#egg=lib360dataquality
     # via -r requirements.in
-asgiref==3.8.1
+asgiref==3.12.1
     # via django
 attrs==25.3.0
     # via jsonschema
@@ -24,7 +24,7 @@ charset-normalizer==3.4.2
     # via requests
 defusedxml==0.7.1
     # via odfpy
-django==4.2.28
+django==6.1
     # via
     #   -r requirements.in
     #   django-filter
@@ -39,7 +39,7 @@ django-filter==25.1
     # via -r requirements.in
 django-prettyjson==0.4.1
     # via -r requirements.in
-djangorestframework==3.15.2
+djangorestframework==3.18.0
     # via
     #   -r requirements.in
     #   djangorestframework-csv

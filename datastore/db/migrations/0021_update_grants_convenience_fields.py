@@ -5,7 +5,6 @@ This migration follows on to populate the fields on all existing Grants.
 
 from django.db import migrations
 
-
 UPDATE_GRANTS_SQL = """
 UPDATE db_grant AS g
 SET publisher_org_id = p.org_id,

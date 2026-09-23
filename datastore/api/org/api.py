@@ -23,11 +23,12 @@ class OrganisationListView(generics.ListAPIView):
     def get_queryset(self):
         fields = ["org_id", "name"]
         return (
-            # Empty order_by to cancel default sort
-            db.Publisher.objects.order_by()
-            .values(*fields)
-            .union(db.Funder.objects.all().values(*fields))
-            .union(db.Recipient.objects.all().values(*fields))
+            db.Publisher.objects.values(*fields)
+            .union(
+                db.Funder.objects.all().values(*fields),
+                db.Recipient.objects.all().values(*fields),
+            )
+            .order_by()
         )
 
 

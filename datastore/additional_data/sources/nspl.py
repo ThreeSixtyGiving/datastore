@@ -116,9 +116,7 @@ class NSPLSource(object):
             nspl_postcode = (
                 record["pcd"]
                 if record["pcd"]
-                else record["pcd2"]
-                if record["pcd2"]
-                else record["pcds"]
+                else record["pcd2"] if record["pcd2"] else record["pcds"]
             )
             postcode = "".join(nspl_postcode.split()).upper()
             bulk_save.append(NSPL(postcode=postcode, data=record))

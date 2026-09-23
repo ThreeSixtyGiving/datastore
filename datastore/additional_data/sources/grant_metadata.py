@@ -13,14 +13,14 @@ class GrantMetadataSource(object):
 
         # Add license information from the source of the data.
         if source_file.get("license_name"):
-            additional_data[self.ADDITIONAL_DATA_KEY][
-                "source_license_name"
-            ] = source_file.get("license_name")
+            additional_data[self.ADDITIONAL_DATA_KEY]["source_license_name"] = (
+                source_file.get("license_name")
+            )
 
         if source_file.get("license"):
-            additional_data[self.ADDITIONAL_DATA_KEY][
-                "source_license"
-            ] = source_file.get("license")
+            additional_data[self.ADDITIONAL_DATA_KEY]["source_license"] = (
+                source_file.get("license")
+            )
 
         # Aggregate licenses from all additional_data sources
         sources_metadata = {}

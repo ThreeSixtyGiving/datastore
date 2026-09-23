@@ -1,6 +1,5 @@
 from drf_spectacular.views import SpectacularAPIView
 
-
 INCLUDE_PATHS = set(
     [
         "/api/v1/org/{org_id}/grants_made/",

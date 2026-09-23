@@ -9,5 +9,5 @@ class TSGRecipientTypesSource(object):
         try:
             grant["recipientOrganization"][0]["id"]
             additional_data[self.ADDITIONAL_DATA_KEY] = "Organisation"
-        except (KeyError):
+        except KeyError:
             additional_data[self.ADDITIONAL_DATA_KEY] = "Individual"
