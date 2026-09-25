@@ -1,4 +1,5 @@
 from typing import Optional, Literal
+import django
 from django.core.management.base import BaseCommand
 from django.core.cache import cache
 from django.db import connection
@@ -114,7 +115,7 @@ def rewrite_quality_data(
                 ]
 
             else:
-                with Pool(threads) as process_pool:
+                with Pool(threads, initializer=django.setup) as process_pool:
                     source_file_results = process_pool.map(
                         process_source_file, process_sf_list
                     )

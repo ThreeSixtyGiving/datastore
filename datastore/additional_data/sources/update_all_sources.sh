@@ -17,6 +17,10 @@ $manage_py load_geocode_names # CHD Data
 $manage_py load_geolookups    # DK's geo-lookups
 $manage_py load_nspl
 
+# Registry funders
+
+$manage_py load_registry_funders
+
 # Org data
 
 $manage_py load_org_data --all-ftc-sources --replace
