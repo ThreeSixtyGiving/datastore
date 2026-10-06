@@ -287,7 +287,12 @@ class GrantSerializer(serializers.ModelSerializer):
             )
         ).data
 
-    @extend_schema_field(OpenApiTypes.OBJECT)
+    @extend_schema_field(
+        {
+            "$ref": static(settings.ADDITIONAL_DATA_OPENAPI_SCHEMA_STATICFILE)
+            + "#/properties/metadata"
+        }
+    )
     def get_additional_data_metadata(self, grant):
         """
         Return the aggregated metadata object added to grant.additional_data by
@@ -306,7 +311,9 @@ class GrantSerializer(serializers.ModelSerializer):
             # Return None to avoid breaking serialization; field will be removed by to_representation.
             return None
 
-    @extend_schema_field(OpenApiTypes.OBJECT)
+    @extend_schema_field(
+        {"$ref": static(settings.ADDITIONAL_DATA_OPENAPI_SCHEMA_STATICFILE)}
+    )
     def get_additional_data(self, grant):
         """
         Return additional_data excluding metadata as it is exposed
