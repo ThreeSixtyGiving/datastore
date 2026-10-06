@@ -265,12 +265,14 @@ class GrantSerializer(serializers.ModelSerializer):
             "recipients",
             "funders",
             "additional_data_metadata",
+            "additional_data",
         ]
 
     data = GrantDataField()
 
     data_license = serializers.SerializerMethodField()
     additional_data_metadata = serializers.SerializerMethodField()
+    additional_data = serializers.SerializerMethodField()
 
     publisher = serializers.SerializerMethodField()
     recipients = serializers.SerializerMethodField()
@@ -304,16 +306,41 @@ class GrantSerializer(serializers.ModelSerializer):
             # Return None to avoid breaking serialization; field will be removed by to_representation.
             return None
 
+    @extend_schema_field(OpenApiTypes.OBJECT)
+    def get_additional_data(self, grant):
+        """
+        Return additional_data excluding metadata as it is exposed
+        via additional_data_metadata
+        """
+        try:
+            if not grant.additional_data:
+                return None
+            return {
+                key: value
+                for key, value in grant.additional_data.items()
+                if key != "metadata"
+            }
+        except Exception as e:
+            logger.exception(
+                "Failed to retrieve additional_data for grant %s: %s",
+                getattr(grant, "grant_id", None),
+                e,
+            )
+            return None
+
     def to_representation(self, instance):
         """
-        Ensure not to add `additional_data_metadata` key for grants which have no metadata.
-        Returning None from get_additional_data_metadata would otherwise cause the field to appear
-        with a null value; remove it to preserve the previous API shape.
+        Ensure not to add `additional_data_metadata`/`additional_data` keys for
+        grants which have none. Returning None from the get_ methods above
+        would otherwise cause the fields to appear with a null value; remove
+        them to preserve the previous API shape.
         """
         ret = super().to_representation(instance)
         # Remove field when metadata is not present to avoid changing response shape
         if ret.get("additional_data_metadata", None) is None:
             ret.pop("additional_data_metadata", None)
+        if not ret.get("additional_data", None):
+            ret.pop("additional_data", None)
         return ret
 
     @extend_schema_field(OrganisationRefSerializer)
