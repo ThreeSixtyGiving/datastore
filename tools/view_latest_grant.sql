@@ -4,13 +4,13 @@ AS SELECT db_grant.id,
     db_grant.grant_id,
     db_grant.data,
     db_grant.source_file_id,
-    db_grant.getter_run_id,
-    db_publisher.id,
-    db_grant.additional_data,
-    db_sourcefile.data as source_data
-   FROM db_grant
-     JOIN db_sourcefile_latest ON db_grant.source_file_id = db_sourcefile_latest.sourcefile_id
-     JOIN db_latest ON db_sourcefile_latest.latest_id = db_latest.id
-     JOIN db_sourcefile on db_grant.source_file_id = db_sourcefile.id
-     JOIN db_publisher ON db_publisher.prefix = db_sourcefile.data -> 'publisher' ->> 'prefix'
-  WHERE db_latest.series = 'CURRENT'::text;
+    db_grant.getter_run_id,                                                                                         
+    db_publisher.id as publisher_id,                                                                                
+    db_grant.additional_data,                                                                                       
+    db_sourcefile.data as source_data                                                                               
+    FROM db_grant                                                                                                    
+      JOIN db_sourcefile_latest ON db_grant.source_file_id = db_sourcefile_latest.sourcefile_id                      
+      JOIN db_latest ON db_sourcefile_latest.latest_id = db_latest.id                                                
+      JOIN db_sourcefile ON db_grant.source_file_id = db_sourcefile.id                                               
+      JOIN db_publisher ON db_publisher.prefix::text = ((db_sourcefile.data -> 'publisher'::text) ->> 'prefix'::text)
+   WHERE db_latest.series = 'CURRENT'::text;
