@@ -133,9 +133,13 @@ class OrganisationGrantsMadeView(generics.ListAPIView):
 
         org_ids = [org.org_id] + [lo.org_id for lo in org.linked_orgs]
 
+        current_source_file_ids = list(
+            db.Latest.sourcefiles().values_list("id", flat=True)
+        )
+
         return (
             db.Grant.objects.order_by("grant_id", "id")
-            .filter(source_file__latest__series=db.Latest.CURRENT)
+            .filter(source_file_id__in=current_source_file_ids)
             .filter(funding_org_ids__overlap=org_ids)
             .select_related("source_file")
         )
@@ -165,9 +169,13 @@ class OrganisationGrantsReceivedView(generics.ListAPIView):
 
         org_ids = [org.org_id] + [lo.org_id for lo in org.linked_orgs]
 
+        current_source_file_ids = list(
+            db.Latest.sourcefiles().values_list("id", flat=True)
+        )
+
         return (
             db.Grant.objects.order_by("grant_id", "id")
-            .filter(source_file__latest__series=db.Latest.CURRENT)
+            .filter(source_file_id__in=current_source_file_ids)
             .filter(recipient_org_ids__overlap=org_ids)
             .select_related("source_file")
         )

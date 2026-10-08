@@ -100,13 +100,14 @@ class ServiceMetrics(View):
         NUM_ERRORS_LOGGED.set(errors)
 
     def _total_latest_grants(self):
-        total_current = db.Latest.objects.get(
-            series=db.Latest.CURRENT
-        ).grant_set.count()
+        through_model = db.Latest.grant_set.through
 
+        current_id = db.Latest.objects.get(series=db.Latest.CURRENT).pk
+        total_current = through_model.objects.filter(latest_id=current_id).count()
         TOTAL_CURRENT_LATEST_GRANTS.set(total_current)
 
-        total_prev = db.Latest.objects.get(series=db.Latest.PREVIOUS).grant_set.count()
+        prev_id = db.Latest.objects.get(series=db.Latest.PREVIOUS).pk
+        total_prev = through_model.objects.filter(latest_id=prev_id).count()
         TOTAL_PREVIOUS_LATEST_GRANTS.set(total_prev)
 
     def _total_datagetter_grants(self):
