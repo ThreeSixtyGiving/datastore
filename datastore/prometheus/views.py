@@ -210,7 +210,8 @@ class ServiceMetrics(View):
             self._total_latest_grants()
             self._total_datagetter_grants()
             self._total_num_sources_in_last_run()
-            self._num_current_grants_with_beneficiary_location_geocode_without_lookup()
+            # Temporarily disabled: see https://github.com/ThreeSixtyGiving/datastore/issues/353
+            # self._num_current_grants_with_beneficiary_location_geocode_without_lookup()
             self._time_since_last_grantnav_data_package_build()
 
         # Generate latest uses default of the global registry
