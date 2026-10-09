@@ -211,6 +211,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 TSG_OPENAPI_SCHEMA_STATICFILE = "360-giving-schema-1.3-openapi.json"
+ADDITIONAL_DATA_OPENAPI_SCHEMA_STATICFILE = "additional-data-schema-openapi.json"
 
 STATIC_URL = "/static/"
 

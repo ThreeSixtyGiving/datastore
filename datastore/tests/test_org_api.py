@@ -136,6 +136,19 @@ class OrgAPITestCase(TestCase):
                     }
                 ],
             },
+            "additional_data": {
+                "TSGRecipientType": "Organisation",
+                "codeListLookup": {
+                    "regrantType": "",
+                    "toIndividualsDetails": {
+                        "grantPurpose": [],
+                        "primaryGrantReason": "",
+                        "secondaryGrantReason": "",
+                    },
+                },
+                "locationLookup": [],
+                "recipientLocation": "     ",
+            },
             "data_license": {
                 "url": "https://creativecommons.org/licenses/by/4.0/",
                 "name": "Creative Commons Attribution 4.0",
@@ -282,6 +295,19 @@ class OrgAPITestCase(TestCase):
                         "addressLocality": "LONDON",
                     }
                 ],
+            },
+            "additional_data": {
+                "TSGRecipientType": "Organisation",
+                "codeListLookup": {
+                    "regrantType": "",
+                    "toIndividualsDetails": {
+                        "grantPurpose": [],
+                        "primaryGrantReason": "",
+                        "secondaryGrantReason": "",
+                    },
+                },
+                "locationLookup": [],
+                "recipientLocation": "     ",
             },
             "data_license": {
                 "url": "https://creativecommons.org/licenses/by/4.0/",
