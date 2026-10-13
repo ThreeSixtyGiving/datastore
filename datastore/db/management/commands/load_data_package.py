@@ -16,7 +16,7 @@ class Command(LoadDatagetterDataCommand):
           * This separates the data by treating it like a new GetterRun
     """
 
-    def load_data(self):
+    def load_data(self, **kw_args):
         grants_added = 0
         dataset = self.load_dataset_data()
 
