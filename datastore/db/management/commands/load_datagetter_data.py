@@ -9,7 +9,6 @@ from django.db import transaction
 
 import db.models as db
 from additional_data.generator import AdditionalDataGenerator
-from db.management.spinner import Spinner
 
 
 class Command(BaseCommand):
@@ -124,7 +123,7 @@ class Command(BaseCommand):
         # reconstruct the file path with this value
 
         filename = os.path.split(path)[-1]
-        print("Loading %s" % filename, file=self.stdout)
+        self.stdout.write(f"loading {filename} ... ", ending="")
 
         new_path = os.path.join(self.options["data_dir"][0], "json_all", filename)
 
@@ -144,8 +143,9 @@ class Command(BaseCommand):
 
         getter_run = db.GetterRun.objects.create()
 
-        for ob in dataset:
+        for index, ob in enumerate(dataset):
             source_file = db.SourceFile.objects.create(data=ob, getter_run=getter_run)
+            self.stdout.write(f"Sourcefile {index+1}/{len(dataset)}: ", ending="")
 
             try:
                 grant_data = self.load_grant_data(ob["datagetter_metadata"]["json"])
@@ -180,13 +180,13 @@ class Command(BaseCommand):
                         )
 
                 db.Grant.objects.bulk_create(grant_bulk_insert)
+                self.stdout.write(f"loading {len(grant_data["grants"])} grants into database ... ", ending="")
+                self.stdout.flush()
                 grants_added = grants_added + len(grant_data["grants"])
+                self.stdout.write("done")
 
             except (FileNotFoundError, KeyError, TypeError, json.JSONDecodeError) as e:
-                print(
-                    "Skipping loading due to: '%s'" % e,
-                    file=self.stdout,
-                )
+                self.stdout.write(f"skipped due to {e}")
                 # For debug    raise e
                 continue
 
@@ -199,24 +199,23 @@ class Command(BaseCommand):
 
         self.check_dir_looks_right()
 
-        spinner = Spinner()
-        spinner.start()
-
         with transaction.atomic():
             grants_added = self.load_data()
 
-        spinner.stop()
-        print("\nData loaded: %s grants added" % grants_added, file=self.stdout)
+        self.stdout.write(f"\nData loaded: {grants_added} grants added\n")
 
-        print("Updating Latest", file=self.stdout)
+        self.stdout.write("Updating Latest\n")
         db.Latest.update()
 
         # Update entities data for publisher, funders and recipients
         # Note the order is important, as Publishers are first created by `manage_entities_data`, and then the Publisher
         # quality data is updated by `rewrite_quality_data`.
+        self.stdout.write("Updating entities data\n")
         call_command("manage_entities_data", "--update")
-        print("Updating quality data", file=self.stdout)
+        self.stdout.write("Updating entities data complete\n")
+        self.stdout.write("Updating quality data")
         call_command("rewrite_quality_data", "latest", threads=options["threads"])
+        self.stdout.write("Updating quality data complete\n")
 
         # Clear all cached objects - The latest data as well as new data has been added
         cache.clear()
