@@ -3,7 +3,6 @@ import os
 from typing import Dict, Any
 
 from django.core.cache import cache
-from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
@@ -218,16 +217,6 @@ class Command(BaseCommand):
 
         self.stdout.write("Updating Latest\n")
         db.Latest.update()
-
-        # Update entities data for publisher, funders and recipients
-        # Note the order is important, as Publishers are first created by `manage_entities_data`, and then the Publisher
-        # quality data is updated by `rewrite_quality_data`.
-        self.stdout.write("Updating entities data\n")
-        call_command("manage_entities_data", "--update")
-        self.stdout.write("Updating entities data complete\n")
-        self.stdout.write("Updating quality data")
-        call_command("rewrite_quality_data", "latest", threads=options["threads"])
-        self.stdout.write("Updating quality data complete\n")
 
         # Clear all cached objects - The latest data as well as new data has been added
         cache.clear()
