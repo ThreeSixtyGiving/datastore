@@ -17,3 +17,5 @@ eggs/
 
 .ve
 .coverage
+
+*.log

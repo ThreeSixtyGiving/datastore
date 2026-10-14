@@ -149,6 +149,9 @@ profile_block_start
 echo_stamp "Create monitoring snapshot"
 ./datastore/manage.py set_status --what monitoring_snapshot --status IN_PROGRESS
 
+echo_stamp "Loading registry funders data"
+./datastore/manage.py load_registry_funders
+
 ./datastore/manage.py create_monitoring_snapshot || true # Allow to fail without bringing down the whole pipeline
 
 ./datastore/manage.py set_status --what monitoring_snapshot --status READY

@@ -240,3 +240,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Header used to access FTC API endpoints
 FTC_HEADER = ""
+
+REGISTRY_FUNDERS_URL = "https://registry.threesixtygiving.org/funders.json"
