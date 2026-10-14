@@ -32,3 +32,8 @@ Faker>=35.2.0,<36
 # For generating fake test data
 # Project: https://faker.readthedocs.io/en/stable/
 # Changelog: https://github.com/joke2k/faker/blob/master/CHANGELOG.md
+
+pandas>=3.0.0
+plotly>=7.0.0
+kaleido>=1.5.0
+# For running the analyse_pipeline.py script to analyse pipeline performance.
