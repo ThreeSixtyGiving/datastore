@@ -1,0 +1,1184 @@
+{
+  "$id": "https://raw.githubusercontent.com/ThreeSixtyGiving/datastore/main/datastore/additional_data/schema/additional-data-schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "360Giving Additional Data Schema",
+  "type": "object",
+  "properties": {
+    "codeListLookup": {
+      "type": "object",
+      "title": "Codelist Lookup",
+      "description": "Human-readable titles looked up from 360Giving codelists for coded fields present on the grant.",
+      "properties": {
+        "beneficiaryLocation_countryCode": {
+          "type": "string",
+          "title": "Beneficiary Location Country Code",
+          "description": "Codelist title for beneficiaryLocation[0].countryCode.",
+          "derivedFrom": "beneficiaryLocation[0].countryCode",
+          "dataSource": "countryCode.csv"
+        },
+        "fundingOrg_location_countryCode": {
+          "type": "string",
+          "title": "Funding Organisatin Country Code",
+          "description": "Codelist title for fundingOrganization[0].location[0].countryCode.",
+          "derivedFrom": "fundingOrganization[0].location[0].countryCode",
+          "dataSource": "countryCode.csv"
+        },
+        "locationScope": {
+          "type": "string",
+          "title": "Location Scope",
+          "description": "Codelist title for locationScope.",
+          "derivedFrom": "locationScope",
+          "dataSource": "locationScope.csv"
+        },
+        "recipientOrg_location_countryCode": {
+          "type": "string",
+          "title": "Recipient Organisation Country Code",
+          "description": "Codelist title for recipientOrganization[0].location[0].countryCode.",
+          "derivedFrom": "recipientOrganization[0].location[0].countryCode",
+          "dataSource": "countryCode.csv"
+        },
+        "regrantType": {
+          "type": "string",
+          "title": "Regrant Type",
+          "description": "Codelist title for regrantType.",
+          "derivedFrom": "regrantType",
+          "dataSource": "regrantType.csv"
+        },
+        "toIndividualsDetails": {
+          "type": "object",
+          "title": "To Individuals Details",
+          "description": "Codelist titles for grants to individuals.",
+          "properties": {
+            "grantPurpose": {
+              "type": "array",
+              "title": "Grant Purpose",
+              "description": "Codelist titles for toIndividualsDetails.grantPurpose[].",
+              "derivedFrom": "toIndividualsDetails.grantPurpose[]",
+              "dataSource": "grantToIndividualsPurpose.csv",
+              "items": {
+                "type": "string"
+              }
+            },
+            "primaryGrantReason": {
+              "type": "string",
+              "title": "Primary Grant Reason",
+              "description": "Codelist title for toIndividualsDetails.primaryGrantReason.",
+              "derivedFrom": "toIndividualsDetails.primaryGrantReason",
+              "dataSource": "grantToIndividualsReason.csv"
+            },
+            "secondaryGrantReason": {
+              "type": "string",
+              "title": "Secondary Grant Reason",
+              "description": "Codelist title for toIndividualsDetails.secondaryGrantReason.",
+              "derivedFrom": "toIndividualsDetails.secondaryGrantReason",
+              "dataSource": "grantToIndividualsReason.csv"
+            }
+          }
+        }
+      }
+    },
+    "locationLookup": {
+      "type": "array",
+      "title": "Location Lookup",
+      "description": "One entry per geography source found on the grant (beneficiary location, recipient organisation location, or recipient organisation postcode), giving the ONS/geo-lookups hierarchy for that location.",
+      "derivedFrom": "beneficiaryLocation[].geoCode (when source=beneficiaryLocation), recipientOrganization[].location[].geoCode (when source=recipientOrganizationLocation), or recipientOrganization[].postalCode (when source=recipientOrganizationPostcode) - see this entry's own source field",
+      "items": {
+        "type": "object",
+        "properties": {
+          "areacode": {
+            "type": "string",
+            "title": "Focal Area Code",
+            "description": "ONS code for the specific geographic unit this entry represents.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "areaname": {
+            "type": "string",
+            "title": "Focal Area Name",
+            "description": "Name of the specific geographic unit this entry represents.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "areatype": {
+            "type": "string",
+            "title": "Area Type",
+            "description": "Level of geography represented by the focal area (e.g. lsoa, msoa, ward).",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "cauthcd": {
+            "type": "string",
+            "title": "Combined Authority Code",
+            "description": "ONS code for the Combined Authority Area.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "cauthnm": {
+            "type": "string",
+            "title": "Combined Authority Name",
+            "description": "Name of the Combined Authority Area.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "ctrycd": {
+            "type": "string",
+            "title": "Country Code",
+            "description": "ONS code for the constituent country.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "ctrynm": {
+            "type": "string",
+            "title": "Country Name",
+            "description": "Name of the constituent country.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "ewcd": {
+            "type": "string",
+            "title": "England & Wales Code",
+            "description": "ONS code for England and Wales combined.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "ewnm": {
+            "type": "string",
+            "title": "England & Wales Name",
+            "description": "Name of the combined entity.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "gbcd": {
+            "type": "string",
+            "title": "Great Britain Code",
+            "description": "ONS code for Great Britain (England, Scotland, Wales).",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "gbnm": {
+            "type": "string",
+            "title": "Great Britain Name",
+            "description": "Name of the supra-national entity.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "ladcd": {
+            "type": "string",
+            "title": "Local Authority District Code",
+            "description": "ONS code for the district-level authority.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "ladcd_active": {
+            "type": "string",
+            "title": "Active LAD Code",
+            "description": "Currently active Local Authority District code.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "ladnm": {
+            "type": "string",
+            "title": "Local Authority District Name",
+            "description": "Name of the district-level authority.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "ladnm_active": {
+            "type": "string",
+            "title": "Active LAD Name",
+            "description": "Currently active Local Authority District name.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "latitude": {
+            "type": "number",
+            "title": "Latitude",
+            "description": "WGS84 latitude coordinate (only present for ward-level entries).",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "longitude": {
+            "type": "number",
+            "title": "Longitude",
+            "description": "WGS84 longitude coordinate (only present for ward-level entries).",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "lsoa11cd": {
+            "type": "string",
+            "title": "Lower Layer Super Output Area Code (2011)",
+            "description": "ONS code for the Lower Layer Super Output Area (2011 definition).",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "lsoa11nm": {
+            "type": "string",
+            "title": "Lower Layer Super Output Area Name (2011)",
+            "description": "Name of the Lower Layer Super Output Area (2011 definition).",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "lsoa21cd": {
+            "type": "string",
+            "title": "Lower Layer Super Output Area Code (2021)",
+            "description": "ONS code for the Lower Layer Super Output Area (2021 definition).",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "msoa11cd": {
+            "type": "string",
+            "title": "Middle Layer Super Output Code (2011)",
+            "description": "ONS code for the Middle Layer Super Output Area (2011 definition).",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "msoa11hclnm": {
+            "type": "string",
+            "title": "Middle Layer Super Output Area Hierarchy Classification Name (2011)",
+            "description": "Name of the hierarchical classification for the Middle Layer Super Output Area (2011 definition).",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "msoa11nm": {
+            "type": "string",
+            "title": "Middle Layer Super Output Area Name (2011)",
+            "description": "Name of the Middle Layer Super Output Area (2011 definition).",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "msoacd": {
+            "type": "string",
+            "title": "Middle Layer Super Output Code",
+            "description": "ONS code for the Middle Layer Super Output Area.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "msoahclnm": {
+            "type": "string",
+            "title": "Middle Layer Super Output Area Hierarchy Classification Name",
+            "description": "Name of the hierarchical classification for the Middle Layer Super Output Area.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "msoanm": {
+            "type": "string",
+            "title": "Middle Layer Super Output Area Name",
+            "description": "Name of the Middle Layer Super Output Area.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "rgncd": {
+            "type": "string",
+            "title": "Region Code",
+            "description": "ONS code for the Government Office Region.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "rgnnm": {
+            "type": "string",
+            "title": "Region Name",
+            "description": "Name of the Government Office Region.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "source": {
+            "type": "string",
+            "title": "360Giving Source Field",
+            "description": "The 360Giving data field this lookup entry was derived from, e.g. beneficiaryLocation, recipientOrganizationLocation, recipientOrganizationPostcode.",
+            "dataSource": "Computed by datastore"
+          },
+          "sourceCode": {
+            "type": "string",
+            "title": "360Giving Source Value",
+            "description": "The geo code (e.g. postcode-derived LSOA, or geoCode) that was looked up to produce this entry.",
+            "dataSource": "Computed by datastore"
+          },
+          "ukcd": {
+            "type": "string",
+            "title": "UK Code",
+            "description": "ONS code for the United Kingdom.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "uknm": {
+            "type": "string",
+            "title": "UK Name",
+            "description": "Name of the nation.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "utlacd": {
+            "type": "string",
+            "title": "Upper Tier Local Authority Code",
+            "description": "ONS code for the county-level authority.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          },
+          "utlanm": {
+            "type": "string",
+            "title": "Upper Tier Local Authority Name",
+            "description": "Name of the county-level authority.",
+            "dataSource": "https://github.com/drkane/geo-lookups"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "title": "Metadata",
+      "description": "Licensing metadata for the grant's source file and for each additional_data source used.",
+      "properties": {
+        "source_license": {
+          "type": "string",
+          "title": "Source License URL",
+          "description": "License URL for the publisher's original data file."
+        },
+        "source_license_name": {
+          "type": "string",
+          "title": "Source License Name",
+          "description": "License name for the publisher's original data file."
+        },
+        "sources_metadata": {
+          "type": "object",
+          "title": "Sources Metadata",
+          "description": "License information for each additional_data source that contributed to this grant.",
+          "properties": {
+            "codeListLookup": {
+              "type": "object",
+              "title": "Code List Lookup",
+              "properties": {
+                "license": {
+                  "type": "string",
+                  "title": "License",
+                  "description": "Hardcoded in datastore.",
+                  "dataSource": "Hardcoded in datastore"
+                }
+              }
+            },
+            "locationLookup": {
+              "type": "object",
+              "title": "Location Lookup",
+              "properties": {
+                "license": {
+                  "type": "string",
+                  "title": "License",
+                  "description": "Hardcoded in datastore.",
+                  "dataSource": "Hardcoded in datastore"
+                }
+              }
+            },
+            "recipientOrganizationLocation": {
+              "type": "object",
+              "title": "Recipient Organisation Location",
+              "properties": {
+                "license": {
+                  "type": "string",
+                  "title": "License",
+                  "description": "From NSPL.",
+                  "dataSource": "nspl"
+                }
+              }
+            },
+            "recipientOrgInfos": {
+              "type": "object",
+              "title": "Recipient Organisation Info",
+              "properties": {
+                "license": {
+                  "type": "string",
+                  "title": "License",
+                  "description": "From https://findthatcharity.uk.",
+                  "dataSource": "https://findthatcharity.uk"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "recipientCountryName": {
+      "type": "string",
+      "title": "Recipient Country Name",
+      "description": "Best-available country name for the recipient, taken from the first locationLookup entry. Kept for backward compatibility with GrantNav.",
+      "derivedFrom": "beneficiaryLocation[].geoCode, recipientOrganization[].location[].geoCode, or recipientOrganizationLocation.lsoa23",
+      "dataSource": "https://github.com/drkane/geo-lookups"
+    },
+    "recipientDistrictGeoCode": {
+      "type": "string",
+      "title": "Recipient District Geo Code",
+      "description": "Best-available district (Local Authority District) geo code for the recipient, taken from the first locationLookup entry.",
+      "derivedFrom": "beneficiaryLocation[].geoCode, recipientOrganization[].location[].geoCode, or recipientOrganizationLocation.lsoa24",
+      "dataSource": "https://github.com/drkane/geo-lookups"
+    },
+    "recipientDistrictName": {
+      "type": "string",
+      "title": "Recipient District Name",
+      "description": "Best-available district (Local Authority District) name for the recipient, taken from the first locationLookup entry.",
+      "derivedFrom": "beneficiaryLocation[].geoCode, recipientOrganization[].location[].geoCode, or recipientOrganizationLocation.lsoa25",
+      "dataSource": "https://github.com/drkane/geo-lookups"
+    },
+    "recipientLocation": {
+      "type": "string",
+      "title": "Recipient Location",
+      "description": "Human-readable summary combining the recipient's district, district geo code and region.",
+      "dataSource": "Computed by datastore"
+    },
+    "recipientOrganizationLocation": {
+      "type": "object",
+      "title": "Recipient Organisation Location",
+      "description": "NSPL (National Statistics Postcode Lookup) record for the recipient organisation's postcode.",
+      "derivedFrom": "recipientOrganization[].postalCode",
+      "dataSource": "nspl",
+      "properties": {
+        "bua22": {
+          "type": "string",
+          "title": "Built-up Area Code",
+          "description": "ONS code for the Built-up Area (2022 definition).",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "bua22_name": {
+          "type": "string",
+          "title": "Built-up Area Name",
+          "description": "Name of the Built-up Area (2022 definition).",
+          "derivedFrom": "recipientOrganizationLocation.bua22",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "ced": {
+          "type": "string",
+          "title": "County Electoral Division Code",
+          "description": "ONS code for the county electoral division.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "ctry": {
+          "type": "string",
+          "title": "Country Code",
+          "description": "ONS code for the country.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "ctry_name": {
+          "type": "string",
+          "title": "Country Name",
+          "description": "Name of the country.",
+          "derivedFrom": "recipientOrganizationLocation.ctry",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "cty": {
+          "type": "string",
+          "title": "County Code",
+          "description": "ONS code for the county or metropolitan county.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "dointr": {
+          "type": "string",
+          "title": "Date of Introduction",
+          "description": "Date the postcode was introduced.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "doterm": {
+          "type": "string",
+          "title": "Date of Termination",
+          "description": "Date the postcode was terminated (if applicable).",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "hash": {
+          "type": "string",
+          "title": "Hash",
+          "description": "Hash of the NSPL lookup result for this postcode, used by datastore to detect changes.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "Computed by datastore"
+        },
+        "icb": {
+          "type": "string",
+          "title": "Integrated Care Board Code",
+          "description": "ONS code for the Integrated Care Board.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "icb_name": {
+          "type": "string",
+          "title": "Integrated Care Board Name",
+          "description": "Name of the Integrated Care Board.",
+          "derivedFrom": "recipientOrganizationLocation.icb",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "imd": {
+          "type": "number",
+          "title": "Index of Multiple Deprivation Rank",
+          "description": "Rank of the area on the Index of Multiple Deprivation (lower = more deprived).",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "itl": {
+          "type": "string",
+          "title": "International Territorial Level Code",
+          "description": "ONS code for the International Territorial Level area.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "itl_name": {
+          "type": "string",
+          "title": "International Territorial Level Name",
+          "description": "Name of the International Territorial Level area.",
+          "derivedFrom": "recipientOrganizationLocation.itl",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "lat": {
+          "type": "number",
+          "title": "Latitude",
+          "description": "Latitude of the postcode centroid.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "laua": {
+          "type": "string",
+          "title": "Local Authority District Code",
+          "description": "ONS code for the local authority district.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "laua_name": {
+          "type": "string",
+          "title": "Local Authority District Name",
+          "description": "Name of the local authority district.",
+          "derivedFrom": "recipientOrganizationLocation.laua",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "lep1": {
+          "type": "string",
+          "title": "Local Enterprise Partnership Code (Primary)",
+          "description": "ONS code for the primary Local Enterprise Partnership.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "lep1_name": {
+          "type": "string",
+          "title": "Local Enterprise Partnership Name (Primary)",
+          "description": "Name of the primary Local Enterprise Partnership.",
+          "derivedFrom": "recipientOrganizationLocation.lep1",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "lep2": {
+          "type": "string",
+          "title": "Local Enterprise Partnership Code (Secondary)",
+          "description": "ONS code for the secondary Local Enterprise Partnership (if applicable).",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "location": {
+          "type": "object",
+          "title": "Location",
+          "description": "Coordinates of the postcode centroid.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl",
+          "properties": {
+            "lat": {
+              "type": "number",
+              "title": "Latitude",
+              "description": "Latitude of the postcode centroid.",
+              "derivedFrom": "recipientOrganization[].postalCode",
+              "dataSource": "nspl"
+            },
+            "lon": {
+              "type": "number",
+              "title": "Longitude",
+              "description": "Longitude of the postcode centroid.",
+              "derivedFrom": "recipientOrganization[].postalCode",
+              "dataSource": "nspl"
+            }
+          }
+        },
+        "long": {
+          "type": "number",
+          "title": "Longitude",
+          "description": "Longitude of the postcode centroid.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "lsoa21": {
+          "type": "string",
+          "title": "Lower Layer Super Output Area Code (2021)",
+          "description": "ONS code for the 2021 Lower Layer Super Output Area.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "lsoa21_name": {
+          "type": "string",
+          "title": "Lower Layer Super Output Area Name (2021)",
+          "description": "Name of the 2021 Lower Layer Super Output Area.",
+          "derivedFrom": "recipientOrganizationLocation.lsoa21",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "msoa21": {
+          "type": "string",
+          "title": "Middle Layer Super Output Area Code (2021)",
+          "description": "ONS code for the 2021 Middle Layer Super Output Area.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "msoa21_name": {
+          "type": "string",
+          "title": "Middle Layer Super Output Area Name (2021)",
+          "description": "Name of the 2021 Middle Layer Super Output Area.",
+          "derivedFrom": "recipientOrganizationLocation.msoa21",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "nhser": {
+          "type": "string",
+          "title": "NHS England Region Code",
+          "description": "ONS code for the NHS England region.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "nhser_name": {
+          "type": "string",
+          "title": "NHS England Region Name",
+          "description": "Name of the NHS England region.",
+          "derivedFrom": "recipientOrganizationLocation.nhser",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "npark": {
+          "type": "string",
+          "title": "National Park Code",
+          "description": "ONS code for the National Park area (if applicable).",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "npark_name": {
+          "type": "string",
+          "title": "National Park Name",
+          "description": "Name of the National Park area (if applicable).",
+          "derivedFrom": "recipientOrganizationLocation.npark",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "oa21": {
+          "type": "string",
+          "title": "Output Area Code (2021)",
+          "description": "ONS code for the 2021 Output Area.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "oa21_name": {
+          "type": "string",
+          "title": "Output Area Name (2021)",
+          "description": "Name of the 2021 Output Area.",
+          "derivedFrom": "recipientOrganizationLocation.oa21",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "oac11": {
+          "type": "string",
+          "title": "Output Area Classification (2011)",
+          "description": "Output Area Classification category for the location.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "oseast1m": {
+          "type": "number",
+          "title": "Ordnance Survey Easting Coordinate",
+          "description": "Ordnance Survey easting coordinate in metres.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "osgrdind": {
+          "type": "number",
+          "title": "Ordnance Survey Grid Indicator",
+          "description": "Indicator for the Ordnance Survey grid reference.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "osnrth1m": {
+          "type": "number",
+          "title": "Ordnance Survey Northing Coordinate",
+          "description": "Ordnance Survey northing coordinate in metres.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "pcd": {
+          "type": "string",
+          "title": "Postcode",
+          "description": "Full UK postcode.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "pcd2": {
+          "type": "string",
+          "title": "Postcode (Formatted)",
+          "description": "Formatted UK postcode.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "pcds": {
+          "type": "string",
+          "title": "Postcode (Space-separated)",
+          "description": "Postcode with space between outward and inward codes.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "pcon": {
+          "type": "string",
+          "title": "Parliamentary Constituency Code",
+          "description": "ONS code for the parliamentary constituency.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "pcon_name": {
+          "type": "string",
+          "title": "Parliamentary Constituency Name",
+          "description": "Name of the parliamentary constituency.",
+          "derivedFrom": "recipientOrganizationLocation.pcon",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "pfa": {
+          "type": "string",
+          "title": "Police Force Area Code",
+          "description": "ONS code for the police force area.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "pfa_name": {
+          "type": "string",
+          "title": "Police Force Area Name",
+          "description": "Name of the police force area.",
+          "derivedFrom": "recipientOrganizationLocation.pfa",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "rgn": {
+          "type": "string",
+          "title": "Region Code",
+          "description": "ONS code for the region.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "rgn_name": {
+          "type": "string",
+          "title": "Region Name",
+          "description": "Name of the region.",
+          "derivedFrom": "recipientOrganizationLocation.rgn",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "ru11ind": {
+          "type": "string",
+          "title": "Rural Urban Indicator (2011)",
+          "description": "Classification of whether the area is urban or rural.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "sicbl": {
+          "type": "string",
+          "title": "Sub-Integrated Care Board Location Code",
+          "description": "ONS code for the Sub-Integrated Care Board area.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "sicbl_name": {
+          "type": "string",
+          "title": "Sub-Integrated Care Board Location Name",
+          "description": "Name of the Sub-Integrated Care Board area.",
+          "derivedFrom": "recipientOrganizationLocation.sicbl",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "ttwa": {
+          "type": "string",
+          "title": "Travel to Work Area Code",
+          "description": "ONS code for the Travel to Work Area.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "ttwa_name": {
+          "type": "string",
+          "title": "Travel to Work Area Name",
+          "description": "Name of the Travel to Work Area.",
+          "derivedFrom": "recipientOrganizationLocation.ttwa",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "usertype": {
+          "type": "number",
+          "title": "User Type",
+          "description": "Indicator of whether the postcode is a small or large user postcode.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "ward": {
+          "type": "string",
+          "title": "Ward Code",
+          "description": "ONS code for the electoral ward.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "ward_name": {
+          "type": "string",
+          "title": "Ward Name",
+          "description": "Name of the electoral ward.",
+          "derivedFrom": "recipientOrganizationLocation.ward",
+          "dataSource": "CHD (geocode_names)"
+        },
+        "wz11": {
+          "type": "string",
+          "title": "Workplace Zone Code (2011)",
+          "description": "ONS code for the 2011 Workplace Zone.",
+          "derivedFrom": "recipientOrganization[].postalCode",
+          "dataSource": "nspl"
+        },
+        "wz11_name": {
+          "type": "string",
+          "title": "Workplace Zone Name (2011)",
+          "description": "Name of the 2011 Workplace Zone.",
+          "derivedFrom": "recipientOrganizationLocation.wz11",
+          "dataSource": "CHD (geocode_names)"
+        }
+      }
+    },
+    "recipientOrgInfos": {
+      "type": "array",
+      "title": "Recipient Org Info",
+      "description": "Organisation records matched from Find that Charity for the recipient organisation's 360Giving identifier.",
+      "derivedFrom": "recipientOrganization[0].id",
+      "dataSource": "https://findthatcharity.uk",
+      "items": {
+        "type": "object",
+        "properties": {
+          "active": {
+            "type": "string",
+            "title": "Is Active",
+            "description": "Whether the organisation is currently active.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "charityNumber": {
+            "type": "string",
+            "title": "Charity Number",
+            "description": "Registered charity number, if applicable.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "companyNumber": {
+            "type": "string",
+            "title": "Company Number",
+            "description": "Registered company number, if applicable.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "dateModified": {
+            "type": "string",
+            "title": "Date Modified",
+            "description": "Date this Find that Charity record was last modified.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "dateRegistered": {
+            "type": "string",
+            "title": "Date Registered",
+            "description": "Date the organisation was registered.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "dateRemoved": {
+            "type": "string",
+            "title": "Date Removed",
+            "description": "Date the organisation was removed from its register, if applicable.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "id": {
+            "type": "string",
+            "title": "Identifier",
+            "description": "Canonical organisation identifier.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "latestIncome": {
+            "type": "string",
+            "title": "Latest Income",
+            "description": "Most recently reported annual income.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "latestIncomeDate": {
+            "type": "string",
+            "title": "Latest Income Date",
+            "description": "Date of the most recently reported income.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "linked_orgs": {
+            "type": "array",
+            "title": "Linked Organisations",
+            "description": "Other organisation identifiers Find that Charity links to this organisation.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk",
+            "items": {
+              "type": "string"
+            }
+          },
+          "linked_orgs_verified": {
+            "type": "array",
+            "title": "Linked Organisations (Verified)",
+            "description": "Verified subset of linked organisation identifiers.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk",
+            "items": {
+              "type": "string"
+            }
+          },
+          "name": {
+            "type": "string",
+            "title": "Recipient Organisation Name",
+            "description": "Organisation name as recorded by Find that Charity.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "organisationType": {
+            "type": "array",
+            "title": "Organisation Type",
+            "description": "All organisation type categories recorded for this organisation.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk",
+            "items": {
+              "type": "string"
+            }
+          },
+          "organisationTypePrimary": {
+            "type": "string",
+            "title": "Primary Organisation Type",
+            "description": "Primary organisation type category.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "orgIDs": {
+            "type": "array",
+            "title": "Organisation Identifiers",
+            "description": "All known identifiers for this organisation.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk",
+            "items": {
+              "type": "string"
+            }
+          },
+          "postalCode": {
+            "type": "string",
+            "title": "Postal Code",
+            "description": "Registered postal code for the organisation.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source",
+            "description": "Which Find that Charity source register this record came from, e.g. ccew (Charity Commission for England and Wales).",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          },
+          "url": {
+            "type": "string",
+            "title": "URL",
+            "description": "Organisation's registered website, if known.",
+            "derivedFrom": "recipientOrganization[0].id",
+            "dataSource": "https://findthatcharity.uk"
+          }
+        }
+      }
+    },
+    "recipientRegionName": {
+      "type": "string",
+      "title": "Recipient Region Name",
+      "description": "Best-available region name for the recipient, taken from the first locationLookup entry. Falls back to country name for Wales, Scotland and Northern Ireland, which don't have a region.",
+      "derivedFrom": "additional_data.locationLookup[0].rgnnm",
+      "dataSource": "Computed by datastore"
+    },
+    "TSGFundingOrgType": {
+      "type": "string",
+      "title": "360Giving Funding Organisation Type",
+      "description": "ThreeSixtyGiving's own classification of the funding organisation's type, assigned by matching the funder's identifier against a set of curated rules.",
+      "derivedFrom": "fundingOrganization[0].id",
+      "dataSource": "Computed by datastore"
+    },
+    "TSGRecipientType": {
+      "type": "string",
+      "title": "360Giving Recipient Type",
+      "description": "Whether the recipient is an Organisation or an Individual.",
+      "derivedFrom": "recipientOrganization[0].id",
+      "dataSource": "Computed by datastore"
+    },
+    "recipientWardName": {
+      "type": "string",
+      "title": "Ward Name",
+      "description": "Electoral ward name for the recipient organisation, from its registered postcode. Only available for the recipient organisation, not the beneficiary, since it needs postcode-level granularity.",
+      "derivedFrom": "additional_data.recipientOrganizationLocation.ward_name",
+      "dataSource": "Computed by datastore"
+    },
+    "recipientWardNameGeoCode": {
+      "type": "string",
+      "title": "Ward Name Geo Code",
+      "description": "ONS code for the recipient organisation's electoral ward.",
+      "derivedFrom": "additional_data.recipientOrganizationLocation.ward",
+      "dataSource": "Computed by datastore"
+    },
+    "GNCanonicalRecipientOrgName": {
+      "type": "string",
+      "title": "Recipient Org: Canonical Name",
+      "description": "GrantNav's canonical (deduplicated/merged) name for the recipient organisation, computed in GrantNav from its own organisation-matching data; falls back to the grant's own recipientOrganization[0].name if no canonical match is found.",
+      "derivedFrom": "recipientOrganization[0].id",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNCanonicalRecipientOrgId": {
+      "type": "string",
+      "title": "Recipient Org: Canonical Org ID",
+      "description": "GrantNav's canonical organisation identifier for the recipient organisation, computed in GrantNav from its own organisation-matching data; falls back to recipientOrganization[0].id if no canonical match is found.",
+      "derivedFrom": "recipientOrganization[0].id",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNCanonicalFundingOrgName": {
+      "type": "string",
+      "title": "Funding Org: Canonical Name",
+      "description": "GrantNav's canonical (deduplicated/merged) name for the funding organisation, computed in GrantNav from its own organisation-matching data; falls back to the grant's own fundingOrganization[0].name if no canonical match is found.",
+      "derivedFrom": "fundingOrganization[0].id",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNCanonicalFundingOrgId": {
+      "type": "string",
+      "title": "Funding Org: Canonical Org ID",
+      "description": "GrantNav's canonical organisation identifier for the funding organisation, computed in GrantNav from its own organisation-matching data; falls back to fundingOrganization[0].id if no canonical match is found.",
+      "derivedFrom": "fundingOrganization[0].id",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNRecipientOrgInfo0": {
+      "type": "object",
+      "title": "Recipient Org Info (First Match)",
+      "description": "Convenience fields computed from the first entry of recipientOrgInfos.",
+      "dataSource": "Computed in Grantnav",
+      "properties": {
+        "latestIncome": {
+          "type": "string",
+          "title": "Recipient Org Latest Income",
+          "description": "Copy of recipientOrgInfos[0].latestIncome.",
+          "derivedFrom": "additional_data.recipientOrgInfos[0].latestIncome",
+          "dataSource": "Computed in Grantnav"
+        },
+        "ageWhenAwarded": {
+          "type": "string",
+          "title": "Recipient Org Age When Awarded",
+          "description": "How old the recipient organisation was at the grant's awardDate, bucketed into bands (e.g. \"1-2 years\"), computed from awardDate minus recipientOrgInfos[0].dateRegistered.",
+          "derivedFrom": "awardDate minus additional_data.recipientOrgInfos[0].dateRegistered",
+          "dataSource": "Computed in Grantnav"
+        }
+      }
+    },
+    "GNRecipientOrgCountryName": {
+      "type": "string",
+      "title": "Recipient Org Country Name",
+      "description": "Recipient organisation's country name, from locationLookup entries with source recipientOrganizationLocation/recipientOrganizationPostcode (falling back to codeListLookup.recipientOrg_location_countryCode, and to \"United Kingdom\" if the location is within the UK & NI).",
+      "derivedFrom": "additional_data.codeListLookup.recipientOrg_location_countryCode",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNBeneficiaryCountryName": {
+      "type": "string",
+      "title": "Beneficiary Country Name",
+      "description": "Beneficiary's country name, from locationLookup entries with source beneficiaryLocation (falling back to codeListLookup.beneficiaryLocation_countryCode, and to \"United Kingdom\" if the location is within the UK & NI).",
+      "derivedFrom": "additional_data.codeListLookup.beneficiaryLocation_countryCode",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNBeneficiaryDistrictName": {
+      "type": "string",
+      "title": "Beneficiary District",
+      "description": "Beneficiary's district (Local Authority District) name, from the locationLookup entry with source beneficiaryLocation.",
+      "derivedFrom": "additional_data.locationLookup[].ladnm where source == 'beneficiaryLocation'",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNBeneficiaryDistrictGeoCode": {
+      "type": "string",
+      "title": "Beneficiary District Geographic code",
+      "description": "ONS code for the beneficiary's district, from the locationLookup entry with source beneficiaryLocation.",
+      "derivedFrom": "additional_data.locationLookup[].ladcd where source == 'beneficiaryLocation'",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNBeneficiaryCountyName": {
+      "type": "string",
+      "title": "Beneficiary County",
+      "description": "Beneficiary's county (Upper Tier Local Authority) name, from the locationLookup entry with source beneficiaryLocation.",
+      "derivedFrom": "additional_data.locationLookup[].utlanm where source == 'beneficiaryLocation'",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNBeneficiaryRegionName": {
+      "type": "string",
+      "title": "Beneficiary Region",
+      "description": "Beneficiary's region name, from the locationLookup entry with source beneficiaryLocation. Falls back to country name for Wales, Scotland and Northern Ireland, which don't have a region.",
+      "derivedFrom": "additional_data.locationLookup[].rgnnm",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNBeneficiaryRegionGeoCode": {
+      "type": "string",
+      "title": "Beneficiary Region Geographic code",
+      "description": "ONS code for the beneficiary's region (or country, where a nation has no region), from the locationLookup entry with source beneficiaryLocation.",
+      "derivedFrom": "additional_data.locationLookup[].rgncd",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNRecipientOrgCountyName": {
+      "type": "string",
+      "title": "Recipient County",
+      "description": "Recipient organisation's county (Upper Tier Local Authority) name, from locationLookup entries with source recipientOrganizationLocation/recipientOrganizationPostcode.",
+      "derivedFrom": "additional_data.locationLookup[].utlanm",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNRecipientOrgDistrictName": {
+      "type": "string",
+      "title": "Recipient District",
+      "description": "Recipient organisation's district (Local Authority District) name, from locationLookup entries with source recipientOrganizationLocation/recipientOrganizationPostcode.",
+      "derivedFrom": "additional_data.locationLookup[].ladnm",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNRecipientOrgDistrictGeoCode": {
+      "type": "string",
+      "title": "Recipient District Geographic code",
+      "description": "ONS code for the recipient organisation's district, from locationLookup entries with source recipientOrganizationLocation/recipientOrganizationPostcode.",
+      "derivedFrom": "additional_data.locationLookup[].ladcd",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNRecipientOrgRegionName": {
+      "type": "string",
+      "title": "Recipient Region",
+      "description": "Recipient organisation's region name, from locationLookup entries with source recipientOrganizationLocation/recipientOrganizationPostcode. Falls back to country name for Wales, Scotland and Northern Ireland, which don't have a region.",
+      "derivedFrom": "additional_data.locationLookup[].rgnnm",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNRecipientOrgRegionGeoCode": {
+      "type": "string",
+      "title": "Recipient Region Geographic code",
+      "description": "ONS code for the recipient organisation's region (or country, where a nation has no region), from locationLookup entries with source recipientOrganizationLocation/recipientOrganizationPostcode.",
+      "derivedFrom": "additional_data.locationLookup[].rgncd",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNBestCountyName": {
+      "type": "string",
+      "title": "Best Available County",
+      "description": "GNBeneficiaryCountyName if available, otherwise GNRecipientOrgCountyName.",
+      "derivedFrom": "additional_data.GNBeneficiaryCountyName or GNRecipientOrgCountyName",
+      "dataSource": "Computed in Grantnav"
+    },
+    "GNBestCountryName": {
+      "type": "string",
+      "title": "Best Available Country",
+      "description": "GNBeneficiaryCountryName if available, otherwise GNRecipientOrgCountryName.",
+      "derivedFrom": "additional_data.GNBeneficiaryCountryName or GNRecipientOrgCountryName",
+      "dataSource": "Computed in Grantnav"
+    },
+    "recipientOrganizationCanonical": {
+      "type": "object",
+      "title": "Recipient Org: Canonical",
+      "description": "Canonical recipient organisation identifier/name from an older, pre-refactor version of GrantNav's org-matching (superseded by GNCanonicalRecipientOrgId/Name). Not produced by current code; still present on documents indexed before that refactor.",
+      "derivedFrom": "recipientOrganization[0].id",
+      "dataSource": "Not produced by current code (legacy)",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Recipient Org: Canonical Org ID",
+          "description": "See recipientOrganizationCanonical.",
+          "derivedFrom": "recipientOrganization[0].id",
+          "dataSource": "Not produced by current code (legacy)"
+        },
+        "name": {
+          "type": "string",
+          "title": "Recipient Org: Canonical Name",
+          "description": "See recipientOrganizationCanonical.",
+          "derivedFrom": "recipientOrganization[0].id",
+          "dataSource": "Not produced by current code (legacy)"
+        }
+      }
+    },
+    "fundingOrganizationCanonical": {
+      "type": "object",
+      "title": "Funding Org: Canonical",
+      "description": "Canonical funding organisation identifier/name from an older, pre-refactor version of GrantNav's org-matching (superseded by GNCanonicalFundingOrgId/Name). Not produced by current code; still present on documents indexed before that refactor.",
+      "derivedFrom": "fundingOrganization[0].id",
+      "dataSource": "Not produced by current code (legacy)",
+      "properties": {
+        "id": {
+          "type": "string",
+          "title": "Funding Org: Canonical Org ID",
+          "description": "See fundingOrganizationCanonical.",
+          "derivedFrom": "fundingOrganization[0].id",
+          "dataSource": "Not produced by current code (legacy)"
+        },
+        "name": {
+          "type": "string",
+          "title": "Funding Org: Canonical Name",
+          "description": "See fundingOrganizationCanonical.",
+          "derivedFrom": "fundingOrganization[0].id",
+          "dataSource": "Not produced by current code (legacy)"
+        }
+      }
+    }
+  }
+}
