@@ -38,6 +38,18 @@ class LatestDataTest(TransactionTestCase):
                 0,
                 f"Errors output by command {err_out.getvalue()}",
             )
+            call_command("manage_entities_data", "--update", stderr=err_out)
+            self.assertEqual(
+                len(err_out.getvalue()),
+                0,
+                f"Errors output by command {err_out.getvalue()}",
+            )
+            call_command("rewrite_quality_data", "latest", stderr=err_out)
+            self.assertEqual(
+                len(err_out.getvalue()),
+                0,
+                f"Errors output by command {err_out.getvalue()}",
+            )
             # 50 in the Fixture and 50 from generate_data
             self.assertEqual(db.Grant.objects.count(), 50)
             self.assertEqual(
@@ -49,7 +61,10 @@ class LatestDataTest(TransactionTestCase):
 
             call_command("load_datagetter_data", tmpdir, stderr=err_out)
             self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
-
+            call_command("manage_entities_data", "--update", stderr=err_out)
+            self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
+            call_command("rewrite_quality_data", "latest", stderr=err_out)
+            self.assertEqual(len(err_out.getvalue()), 0, "Errors output by command")
             self.assertEqual(
                 db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.count(), 50
             )
