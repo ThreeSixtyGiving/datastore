@@ -24,11 +24,10 @@ psycopg2-binary>=2.8,<2.10
 # psycopg2 is in maintenance mode since the release of psycopg3
 # so don't expect any new breaking releases
 
-prometheus_client>=0.7,<0.8
+prometheus_client==0.26.0
 # prometheus_client seems to use ZeroVer, so "minor" updates can be breaking
 # (inferred from looking at the changelog)
 # Changelog: https://github.com/prometheus/client_python/releases
-# Latest is 0.21 - TODO: Check if newer releases still work?
 
 django-environ>=0.9.0,<0.10
 # django-environ uses ZeroVer, so "minor" updates can be breaking
