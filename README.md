@@ -186,7 +186,7 @@ Alternatively edit the selenium test setup in test_browser to use your preferred
 #### Run tests
 
 ```
-$ ./manage.py test tests
+$ DJANGO_SETTINGS_MODULE=settings.settings_test ./manage.py test tests
 $ flake8
 $ black --check ./
 ```

@@ -154,7 +154,7 @@ platformdirs==4.3.8
     #   choreographer
 plotly==7.1.0
     # via -r requirements_dev.in
-prometheus-client==0.7.1
+prometheus-client==0.26.0
     # via -r requirements.in
 psycopg2-binary==2.9.10
     # via -r requirements.in
