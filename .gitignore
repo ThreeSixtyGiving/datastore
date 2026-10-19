@@ -17,3 +17,8 @@ eggs/
 
 .ve
 .coverage
+
+# Logs
+**/data_run.log
+**/log.txt
+**/selenium.log
