@@ -22,6 +22,7 @@ def process_source_file(source_file):
         source_file_quality, source_file_aggregate = quality_data.create(grants)
         return {
             "pk": source_file["pk"],
+            "identifier": source_file["identifier"],
             "quality": source_file_quality,
             "aggregate": source_file_aggregate,
         }
