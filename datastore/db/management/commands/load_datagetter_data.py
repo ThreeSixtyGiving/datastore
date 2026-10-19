@@ -3,13 +3,11 @@ import os
 from typing import Dict, Any
 
 from django.core.cache import cache
-from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 import db.models as db
 from additional_data.generator import AdditionalDataGenerator
-from db.management.spinner import Spinner
 
 
 class Command(BaseCommand):
@@ -36,6 +34,13 @@ class Command(BaseCommand):
             type=int,
             default=3,
             help="Number of threads to use when rewriting quality data. Set to 0 to disable threading.",
+        )
+
+        parser.add_argument(
+            "--batch-size",
+            type=int,
+            default=5000,
+            help="Size of each batch when creating grant records in the database.",
         )
 
     def check_grant_data_tools_compatible(
@@ -124,7 +129,7 @@ class Command(BaseCommand):
         # reconstruct the file path with this value
 
         filename = os.path.split(path)[-1]
-        print("Loading %s" % filename, file=self.stdout)
+        self.stdout.write(f"loading {filename} ... ", ending="")
 
         new_path = os.path.join(self.options["data_dir"][0], "json_all", filename)
 
@@ -137,56 +142,62 @@ class Command(BaseCommand):
             else:
                 raise e
 
-    def load_data(self):
+    def load_data(self, batch_size: int = 1000) -> int:
         grant_additional_data_generator = AdditionalDataGenerator()
         grants_added = 0
         dataset = self.load_dataset_data()
 
         getter_run = db.GetterRun.objects.create()
 
-        for ob in dataset:
+        for index, ob in enumerate(dataset):
             source_file = db.SourceFile.objects.create(data=ob, getter_run=getter_run)
+            self.stdout.write(f"Sourcefile {index+1}/{len(dataset)}: ", ending="")
 
             try:
                 grant_data = self.load_grant_data(ob["datagetter_metadata"]["json"])
 
-                grant_bulk_insert = []
+                def grant_generator():
+                    """Generator to return loaded grant data in this sourcefile
 
-                for grant in grant_data["grants"]:
-                    try:
-                        additional_data = grant_additional_data_generator.create(
-                            grant, source_file.data
-                        )
-                    except Exception as e:
-                        print(
-                            "Generating additional for grant %s failed %s"
-                            % (grant["id"], e),
-                            file=self.stderr,
-                        )
-                        additional_data = None
+                    Yields
+                    ------
+                    Iterator[db.Grant]
+                    """
+                    for grant in grant_data["grants"]:
 
-                    if self.check_grant_data_tools_compatible(
-                        grant,
-                        ob["distribution"][0]["downloadURL"],
-                        ob["publisher"]["name"],
-                    ):
-                        grant_bulk_insert.append(
-                            db.Grant.from_data(
+                        try:
+                            additional_data = grant_additional_data_generator.create(
+                                grant, source_file.data
+                            )
+                        except Exception as e:
+                            self.stderr.write(
+                                f"Generating additional for grant {grant["id"]} failed {e}"
+                            )
+                            additional_data = None
+
+                        if self.check_grant_data_tools_compatible(
+                            grant,
+                            ob["distribution"][0]["downloadURL"],
+                            ob["publisher"]["name"],
+                        ):
+                            yield db.Grant.from_data(
                                 source_file=source_file,
                                 data=grant,
                                 additional_data=additional_data,
                                 getter_run=getter_run,
                             )
-                        )
 
-                db.Grant.objects.bulk_create(grant_bulk_insert)
+                self.stdout.write(
+                    f"loading {len(grant_data["grants"])} grants into database ... ",
+                    ending="",
+                )
+                self.stdout.flush()
+                db.Grant.objects.bulk_create(grant_generator(), batch_size=batch_size)
                 grants_added = grants_added + len(grant_data["grants"])
+                self.stdout.write("done")
 
             except (FileNotFoundError, KeyError, TypeError, json.JSONDecodeError) as e:
-                print(
-                    "Skipping loading due to: '%s'" % e,
-                    file=self.stdout,
-                )
+                self.stdout.write(f"skipped due to {e}")
                 # For debug    raise e
                 continue
 
@@ -199,24 +210,13 @@ class Command(BaseCommand):
 
         self.check_dir_looks_right()
 
-        spinner = Spinner()
-        spinner.start()
-
         with transaction.atomic():
-            grants_added = self.load_data()
+            grants_added = self.load_data(batch_size=options["batch_size"])
 
-        spinner.stop()
-        print("\nData loaded: %s grants added" % grants_added, file=self.stdout)
+        self.stdout.write(f"\nData loaded: {grants_added} grants added\n")
 
-        print("Updating Latest", file=self.stdout)
+        self.stdout.write("Updating Latest\n")
         db.Latest.update()
-
-        # Update entities data for publisher, funders and recipients
-        # Note the order is important, as Publishers are first created by `manage_entities_data`, and then the Publisher
-        # quality data is updated by `rewrite_quality_data`.
-        call_command("manage_entities_data", "--update")
-        print("Updating quality data", file=self.stdout)
-        call_command("rewrite_quality_data", "latest", threads=options["threads"])
 
         # Clear all cached objects - The latest data as well as new data has been added
         cache.clear()
