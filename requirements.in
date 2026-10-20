@@ -2,7 +2,7 @@
 
 -e git+https://github.com/ThreeSixtyGiving/dataquality.git@65355977cd62a87a12e3322f8c91eede7cc9786c#egg=lib360dataquality
 
-Django>=6.1,<7.0
+Django>=6.1.1,<7.0
 # Use Django 6.1
 # Stable until December 2027 https://endoflife.date/django
 
