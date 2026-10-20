@@ -230,7 +230,7 @@ typing-extensions==4.13.2
     #   selenium
 uritemplate==4.1.1
     # via drf-spectacular
-urllib3[socks]==2.7.0
+urllib3[socks]==2.8.0
     # via
     #   requests
     #   selenium
