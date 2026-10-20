@@ -24,7 +24,7 @@ charset-normalizer==3.4.2
     # via requests
 defusedxml==0.7.1
     # via odfpy
-django==6.1
+django==6.1.1
     # via
     #   -r requirements.in
     #   django-filter
@@ -126,7 +126,7 @@ transaction==5.0
     # via zodb
 uritemplate==4.1.1
     # via drf-spectacular
-urllib3==2.7.0
+urllib3==2.8.0
     # via
     #   requests
     #   sentry-sdk
