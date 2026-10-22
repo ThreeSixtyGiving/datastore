@@ -22,8 +22,8 @@ class GeoLookupSource(object):
     # Source URLS
     SOURCE_URLS = {
         "lsoa": {
-            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/lsoa_la.csv",
-            "url_latlong": "https://raw.githubusercontent.com/drkane/geo-lookups/master/lsoa_latlong.csv",
+            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/main/lsoa_la.csv",
+            "url_latlong": "https://raw.githubusercontent.com/drkane/geo-lookups/main/lsoa_latlong.csv",
             "field_areacode": "lsoacd",
             "field_areaname": "lsoanm",
             "field_transforms": {
@@ -32,8 +32,8 @@ class GeoLookupSource(object):
             },
         },
         "msoa": {
-            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/msoa_la.csv",
-            "url_latlong": "https://raw.githubusercontent.com/drkane/geo-lookups/master/msoa_latlong.csv",
+            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/main/msoa_la.csv",
+            "url_latlong": "https://raw.githubusercontent.com/drkane/geo-lookups/main/msoa_latlong.csv",
             "field_areacode": "msoacd",
             "field_areaname": "msoahclnm",
             "field_transforms": {
@@ -42,13 +42,13 @@ class GeoLookupSource(object):
             },
         },
         "ward": {
-            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/ward_all_codes.csv",
-            "url_latlong": "https://raw.githubusercontent.com/drkane/geo-lookups/master/ward_latlong.csv",
+            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/main/ward_all_codes.csv",
+            "url_latlong": "https://raw.githubusercontent.com/drkane/geo-lookups/main/ward_latlong.csv",
             "field_areacode": "wdcd",
             "field_areaname": "wdnm",
         },
         "areas": {
-            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/master/area_all_codes.csv",
+            "url_lookup": "https://raw.githubusercontent.com/drkane/geo-lookups/main/area_all_codes.csv",
             "field_areacode": "areacode",
             "field_areaname": "areaname",
             "field_areatype": "areatype",
