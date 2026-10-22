@@ -34,6 +34,7 @@ Dependencies are in `requirements.txt`.  We recommend setting up a virtual envir
 ```
 $ virtualenv --python=python3.12 ./.ve/
 $ source ./.ve/bin/activate
+$ pip install --upgrade pip
 $ pip install -r requirements.txt
 ```
 
