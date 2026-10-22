@@ -53,3 +53,6 @@ sentry-sdk[django]>=2,<3
 # Use latest version
 # Project: https://github.com/getsentry/sentry-python
 # Changelog: https://github.com/getsentry/sentry-python/releases
+
+certifi>=2026.10.19
+# Response to eMudhra/emSign CA certificate security incident.
