@@ -64,7 +64,7 @@ django-filter==25.1
     # via -r requirements.in
 django-prettyjson==0.4.1
     # via -r requirements.in
-djangorestframework==3.18.0
+djangorestframework==3.18.2
     # via
     #   -r requirements.in
     #   djangorestframework-csv
