@@ -35,6 +35,7 @@ else
   MAX_TOTAL_RUNS_IN_DB=31
   # Based on running this script each day and Keep a few extra for safety
   MAX_PACKAGE_AGE_DAYS=`expr $MAX_TOTAL_RUNS_IN_DB + 2`
+  DASHBOARD_HOST=localhost:8000
   ### End CONFIG ###
   PERFORMANCE_CSV=~/data_run_profile.csv
 fi
@@ -99,6 +100,12 @@ profile_block_start
 profile_block_stop "REWRITE_QUALITY_DATA"
 
 ./datastore/manage.py set_status --what datastore --status IDLE
+
+##
+## Warm the dashboard endpoints cache for the DQD
+##
+curl -s -o /dev/null "https://$DASHBOARD_HOST/api/dashboard/overview?mode=publishers" || true
+curl -s -o /dev/null "https://$DASHBOARD_HOST/api/dashboard/overview?mode=grants" || true
 
 ##
 ## Clean up before creating the GrantNav data package.
