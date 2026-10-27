@@ -88,6 +88,7 @@ class Overview(View):
 
         ret = quality_data.generate_stats(mode, source_file_set)
 
-        cache.set(full_request_uri, ret)
+        # As cache is cleared on a pipeline run, set without a timeout
+        cache.set(full_request_uri, ret, timeout=None)
 
         return JsonResponse(ret, safe=False)
