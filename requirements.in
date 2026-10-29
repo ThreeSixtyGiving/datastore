@@ -1,12 +1,12 @@
 # Note: this project uses Python 3.12
 
--e git+https://github.com/ThreeSixtyGiving/dataquality.git@ab4588b6ca0466d773d3434b77fb3a897351aad8#egg=lib360dataquality
+-e git+https://github.com/ThreeSixtyGiving/dataquality.git@65355977cd62a87a12e3322f8c91eede7cc9786c#egg=lib360dataquality
 
-Django>=6.1,<7.0
+Django>=6.1.1,<7.0
 # Use Django 6.1
 # Stable until December 2027 https://endoflife.date/django
 
-djangorestframework>=3.16,<3.19
+djangorestframework>=3.18.2,<3.19
 # DRF claim patch releases are API compatible
 # See: https://www.django-rest-framework.org/community/release-notes/#versioning
 
@@ -24,11 +24,10 @@ psycopg2-binary>=2.8,<2.10
 # psycopg2 is in maintenance mode since the release of psycopg3
 # so don't expect any new breaking releases
 
-prometheus_client>=0.7,<0.8
+prometheus_client==0.26.0
 # prometheus_client seems to use ZeroVer, so "minor" updates can be breaking
 # (inferred from looking at the changelog)
 # Changelog: https://github.com/prometheus/client_python/releases
-# Latest is 0.21 - TODO: Check if newer releases still work?
 
 django-environ>=0.9.0,<0.10
 # django-environ uses ZeroVer, so "minor" updates can be breaking
@@ -54,3 +53,6 @@ sentry-sdk[django]>=2,<3
 # Use latest version
 # Project: https://github.com/getsentry/sentry-python
 # Changelog: https://github.com/getsentry/sentry-python/releases
+
+certifi>=2026.10.19
+# Response to eMudhra/emSign CA certificate security incident.

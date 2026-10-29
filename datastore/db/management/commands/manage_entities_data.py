@@ -75,13 +75,20 @@ def update_entities(publishers_only: bool = False):
     db.Recipient.objects.all().delete()
     db.Funder.objects.all().delete()
 
-    print("Analysing latest best grant data for entities")
+    print("Analysing latest best grant data for entities [", end="", flush=True)
 
-    grants = db.Latest.objects.get(series=db.Latest.CURRENT).grant_set.values_list(
-        "data", flat=True
+    grants = (
+        db.Latest.objects.get(series=db.Latest.CURRENT)
+        .grant_set.values_list("data", flat=True)
+        .iterator(chunk_size=10000)
     )
 
+    index = 0
     for grant in grants:
+        index += 1
+        if index % 100000 == 0:
+            print(".", end="", flush=True)
+
         # Create recipient orgs
         for recipient in grant.get("recipientOrganization", []):
             # If the org-id provided is a non-primary org-id return the primary
@@ -124,6 +131,7 @@ def update_entities(publishers_only: bool = False):
             funder_ob.source = db.Entity.GRANT
             funder_ob.update_aggregate(grant)
 
+    print("]")
     print(f"Creating {len(recipient_orgs_bulk)} recipient org entities")
     db.Recipient.objects.bulk_create(recipient_orgs_bulk.values(), batch_size=100000)
     print(f"Creating {len(funder_orgs_bulk)} funder org entities")

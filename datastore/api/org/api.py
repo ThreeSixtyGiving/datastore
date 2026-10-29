@@ -28,7 +28,7 @@ class OrganisationListView(generics.ListAPIView):
                 db.Funder.objects.all().values(*fields),
                 db.Recipient.objects.all().values(*fields),
             )
-            .order_by()
+            .order_by("org_id")
         )
 
 
@@ -40,7 +40,7 @@ class FunderListView(generics.ListAPIView):
 
     def get_queryset(self):
         fields = ["org_id", "name"]
-        return db.Funder.objects.order_by().values(*fields)
+        return db.Funder.objects.order_by("org_id").values(*fields)
 
 
 class OrganisationDetailView(generics.RetrieveAPIView):
@@ -134,7 +134,8 @@ class OrganisationGrantsMadeView(generics.ListAPIView):
         org_ids = [org.org_id] + [lo.org_id for lo in org.linked_orgs]
 
         return (
-            db.Grant.objects.filter(source_file__latest__series=db.Latest.CURRENT)
+            db.Grant.objects.order_by("grant_id", "id")
+            .filter(source_file__latest__series=db.Latest.CURRENT)
             .filter(funding_org_ids__overlap=org_ids)
             .select_related("source_file")
         )
@@ -165,7 +166,8 @@ class OrganisationGrantsReceivedView(generics.ListAPIView):
         org_ids = [org.org_id] + [lo.org_id for lo in org.linked_orgs]
 
         return (
-            db.Grant.objects.filter(source_file__latest__series=db.Latest.CURRENT)
+            db.Grant.objects.order_by("grant_id", "id")
+            .filter(source_file__latest__series=db.Latest.CURRENT)
             .filter(recipient_org_ids__overlap=org_ids)
             .select_related("source_file")
         )

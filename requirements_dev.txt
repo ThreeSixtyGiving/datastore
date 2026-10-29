@@ -4,7 +4,7 @@
 #
 #    pip-compile requirements_dev.in
 #
--e git+https://github.com/ThreeSixtyGiving/dataquality.git@ab4588b6ca0466d773d3434b77fb3a897351aad8#egg=lib360dataquality
+-e git+https://github.com/ThreeSixtyGiving/dataquality.git@65355977cd62a87a12e3322f8c91eede7cc9786c#egg=lib360dataquality
     # via -r requirements.in
 asgiref==3.12.1
     # via
@@ -17,12 +17,13 @@ attrs==25.3.0
     #   trio
 backports-datetime-fromisoformat==2.0.3
     # via flattentool
-black==26.3.1
+black==26.10.1
     # via -r requirements_dev.in
 btrees==6.1
     # via zodb
-certifi==2025.4.26
+certifi==2026.10.19
     # via
+    #   -r requirements.in
     #   requests
     #   selenium
     #   sentry-sdk
@@ -30,6 +31,8 @@ cffi==1.17.1
     # via persistent
 charset-normalizer==3.4.2
     # via requests
+choreographer==1.4.0
+    # via kaleido
 chromedriver-autoinstaller==0.6.4
     # via -r requirements_dev.in
 click==8.2.1
@@ -40,7 +43,7 @@ coveralls==3.3.1
     # via -r requirements_dev.in
 defusedxml==0.7.1
     # via odfpy
-django==6.1
+django==6.1.1
     # via
     #   -r requirements.in
     #   django-cors-headers
@@ -61,7 +64,7 @@ django-filter==25.1
     # via -r requirements.in
 django-prettyjson==0.4.1
     # via -r requirements.in
-djangorestframework==3.18.0
+djangorestframework==3.18.2
     # via
     #   -r requirements.in
     #   djangorestframework-csv
@@ -106,14 +109,24 @@ jsonschema==3.2.0
     #   drf-spectacular
     #   lib360dataquality
     #   libcove
+kaleido==1.5.0
+    # via -r requirements_dev.in
 libcove==0.31.0
     # via lib360dataquality
+logistro==2.0.1
+    # via
+    #   choreographer
+    #   kaleido
 lxml==6.1.0
     # via flattentool
 mccabe==0.7.0
     # via flake8
 mypy-extensions==1.1.0
     # via black
+narwhals==2.27.1
+    # via plotly
+numpy==2.5.4
+    # via pandas
 odfpy==1.4.1
     # via flattentool
 openpyxl==3.1.5
@@ -126,6 +139,10 @@ packaging==25.0
     # via
     #   black
     #   chromedriver-autoinstaller
+    #   kaleido
+    #   plotly
+pandas==3.0.6
+    # via -r requirements_dev.in
 pathspec==1.1.1
     # via black
 persistent==6.1.1
@@ -133,8 +150,12 @@ persistent==6.1.1
     #   btrees
     #   zodb
 platformdirs==4.3.8
-    # via black
-prometheus-client==0.7.1
+    # via
+    #   black
+    #   choreographer
+plotly==7.1.0
+    # via -r requirements_dev.in
+prometheus-client==0.26.0
     # via -r requirements.in
 psycopg2-binary==2.9.10
     # via -r requirements.in
@@ -152,6 +173,7 @@ python-dateutil==2.9.0.post0
     # via
     #   faker
     #   lib360dataquality
+    #   pandas
 pytokens==0.4.1
     # via black
 pytz==2025.2
@@ -177,6 +199,8 @@ selenium==4.26.1
     # via -r requirements_dev.in
 sentry-sdk[django]==2.29.1
     # via -r requirements.in
+simplejson==4.2.0
+    # via choreographer
 six==1.17.0
     # via
     #   django-prettyjson
@@ -207,7 +231,7 @@ typing-extensions==4.13.2
     #   selenium
 uritemplate==4.1.1
     # via drf-spectacular
-urllib3[socks]==2.7.0
+urllib3[socks]==2.8.0
     # via
     #   requests
     #   selenium

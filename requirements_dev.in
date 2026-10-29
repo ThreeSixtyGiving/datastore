@@ -5,7 +5,7 @@ selenium>=4.7.2,<4.27
 
 flake8>=6.0,<6.1
 
-black>=26.3.1,<27
+black>=26.10.1,<27
 # black changes the format slightly in newer versions
 # Stability Policy: https://black.readthedocs.io/en/stable/the_black_code_style/index.html#stability-policy
 
@@ -32,3 +32,8 @@ Faker>=35.2.0,<36
 # For generating fake test data
 # Project: https://faker.readthedocs.io/en/stable/
 # Changelog: https://github.com/joke2k/faker/blob/master/CHANGELOG.md
+
+pandas>=3.0.0
+plotly>=7.0.0
+kaleido>=1.5.0
+# For running the analyse_pipeline.py script to analyse pipeline performance.

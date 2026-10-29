@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_OUTPUT_PATH = Path("./files/geolookups/")
 
-DOWNLOAD_URL_PREFIX = "https://raw.githubusercontent.com/drkane/geo-lookups/master/"
+DOWNLOAD_URL_PREFIX = "https://raw.githubusercontent.com/drkane/geo-lookups/main/"
 
 DOWNLOAD_CSV_TIMEOUT = 60
 

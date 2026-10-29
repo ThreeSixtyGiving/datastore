@@ -16,7 +16,12 @@ from django.db.models import (
     Func,
 )
 from django.db.models.functions import Cast
-from prometheus_client import Gauge
+from prometheus_client import (
+    CollectorRegistry,
+    CONTENT_TYPE_LATEST,
+    Gauge,
+    multiprocess,
+)
 from prometheus_client.exposition import generate_latest
 
 import db.models as db
@@ -24,62 +29,79 @@ import db.models as db
 logger = logging.getLogger(__name__)
 
 NUM_ERRORS_LOGGED = Gauge(
-    "total_service_errors_logged", "Total number of errors logged by last service run"
+    "total_service_errors_logged",
+    "Total number of errors logged by last service run",
+    multiprocess_mode="livemostrecent",
 )
 
 # These metrics don't start with datastore, for backwards compatibility.
 TOTAL_CURRENT_LATEST_GRANTS = Gauge(
-    "total_current_latest_grants", "Total number of current latest grants in the system"
+    "total_current_latest_grants",
+    "Total number of current latest grants in the system",
+    multiprocess_mode="livemostrecent",
 )
 
 TOTAL_PREVIOUS_LATEST_GRANTS = Gauge(
     "total_previous_latest_grants",
     "Total number of previous latest grants in the system",
+    multiprocess_mode="livemostrecent",
 )
 
 TOTAL_DATAGETTER_GRANTS = Gauge(
-    "total_datagetter_grants", "Total number of grants in the last datagetter run"
+    "total_datagetter_grants",
+    "Total number of grants in the last datagetter run",
+    multiprocess_mode="livemostrecent",
 )
 
 # New metrics we add start with datastore.
 # It's a prometheus convention that metrics start with the name of the collector.
 # This avoids problems with name collisions and different types of metrics.
 NUM_PROBLEM_SOURCES_IN_LAST_RUN = Gauge(
-    "datastore_num_problem_sources_in_last_run", "Number of problem sources in last run"
+    "datastore_num_problem_sources_in_last_run",
+    "Number of problem sources in last run",
+    multiprocess_mode="livemostrecent",
 )
 
 NUM_OK_SOURCES_IN_LAST_RUN = Gauge(
-    "datastore_num_ok_sources_in_last_run", "Number of ok sources in last run"
+    "datastore_num_ok_sources_in_last_run",
+    "Number of ok sources in last run",
+    multiprocess_mode="livemostrecent",
 )
 
 NUM_CURRENT_GRANTS_WITH_BENEFICIARY_LOCATION_GEOCODE_WITHOUT_LOOKUP = Gauge(
     "datastore_num_current_grants_with_beneficiary_location_geocode_without_lookup",
     "The number of grants which explicitly specify a beneficiary location geocode, but for which we were unable to lookup the geocode. This suggests our geocode lookup information may be out of date, or that publishers have used an invalid geocode.",
+    multiprocess_mode="livemostrecent",
 )
 
 DURATION_OF_LAST_RUN_FOR_DATAGETTER = Gauge(
     "datastore_last_run_datagetter_duration_seconds",
     "The duration that the datagetter part of the last data run took.",
+    multiprocess_mode="livemostrecent",
 )
 
 DURATION_OF_LAST_RUN_FOR_DATASTORE_LOAD = Gauge(
     "datastore_last_run_datastore_load_duration_seconds",
     "The duration that the datastore load part of the last data run took.",
+    multiprocess_mode="livemostrecent",
 )
 
 DURATION_OF_LAST_RUN_FOR_GRANTNAV_DATA_PACKAGE_BUILD = Gauge(
     "datastore_last_run_grantnav_package_build_duration_seconds",
     "The duration that the grantnav latest data package build part of the last data run took.",
+    multiprocess_mode="livemostrecent",
 )
 
 DURATION_OF_LAST_RUN_FOR_MONITORING_SNAPSHOT = Gauge(
     "datastore_last_run_monitoring_snapshot_duration_seconds",
     "The duration that the monitoring snapshot generation part of the last data run took.",
+    multiprocess_mode="livemostrecent",
 )
 
 TIME_SINCE_LAST_GRANTNAV_DATA_PACKAGE_BUILD = Gauge(
     "datastore_time_since_last_grantnav_data_package_build_seconds",
     "Length of time since the last grantnav latest data package was built.",
+    multiprocess_mode="livemostrecent",
 )
 
 
@@ -210,8 +232,12 @@ class ServiceMetrics(View):
             self._total_latest_grants()
             self._total_datagetter_grants()
             self._total_num_sources_in_last_run()
-            self._num_current_grants_with_beneficiary_location_geocode_without_lookup()
+            # Temporarily disabled: see https://github.com/ThreeSixtyGiving/datastore/issues/353
+            # self._num_current_grants_with_beneficiary_location_geocode_without_lookup()
             self._time_since_last_grantnav_data_package_build()
 
-        # Generate latest uses default of the global registry
-        return HttpResponse(generate_latest(), content_type="text/plain")
+        # Generate latest now uses a multiprocess collector to get metrics
+        # from all workers.
+        registry = CollectorRegistry(support_collectors_without_names=True)
+        multiprocess.MultiProcessCollector(registry)
+        return HttpResponse(generate_latest(registry), content_type=CONTENT_TYPE_LATEST)

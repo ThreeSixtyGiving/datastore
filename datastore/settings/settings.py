@@ -211,6 +211,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 TSG_OPENAPI_SCHEMA_STATICFILE = "360-giving-schema-1.3-openapi.json"
+ADDITIONAL_DATA_OPENAPI_SCHEMA_STATICFILE = "additional-data-schema-openapi.json"
 
 STATIC_URL = "/static/"
 
@@ -240,3 +241,5 @@ DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
 
 # Header used to access FTC API endpoints
 FTC_HEADER = ""
+
+REGISTRY_FUNDERS_URL = "https://registry.threesixtygiving.org/funders.json"

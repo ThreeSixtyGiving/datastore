@@ -75,19 +75,30 @@ profile_block_stop "RUNNING_DATAGETTER"
 ##
 ## Load the downloaded datagetter data into the datastore.
 ##
-profile_block_start
 cd $DATASTORE
 source $DATASTORE/.ve/bin/activate
 ./datastore/manage.py set_status --what datagetter --status IDLE
-
-echo_stamp "Load the downloaded datagetter data into datastore"
 ./datastore/manage.py set_status --what datastore --status LOADING_DATA
 
+echo_stamp "Load the downloaded datagetter data into datastore"
+profile_block_start
 ./datastore/manage.py load_datagetter_data $DOWNLOAD_DIR/data
-
-./datastore/manage.py set_status --what datastore --status IDLE
 profile_block_stop "LOADING_DATA_INTO_DATASTORE"
 
+echo_stamp "Update publishers, funders and recipient data"
+profile_block_start
+./datastore/manage.py manage_entities_data --update
+profile_block_stop "UPDATE_ENTITIES"
+
+echo_stamp "Loading registry funders data"
+./datastore/manage.py load_registry_funders
+
+echo_stamp "Re-write quality data"
+profile_block_start
+./datastore/manage.py rewrite_quality_data latest
+profile_block_stop "REWRITE_QUALITY_DATA"
+
+./datastore/manage.py set_status --what datastore --status IDLE
 
 ##
 ## Clean up before creating the GrantNav data package.

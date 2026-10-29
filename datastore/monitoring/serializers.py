@@ -196,7 +196,28 @@ class FunderMetricsSerializer(BaseMetricsSerializer):
 class FunderMetricsRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = FunderMetricsRecord
-        fields = ["timestamp", "funder_org_id", "funder_non_primary_org_ids", "metrics"]
+        fields = [
+            "timestamp",
+            "funder_org_id",
+            "funder_non_primary_org_ids",
+            "metrics",
+            "salesforce_id",
+            "name",
+            "prefix",
+            "publisher_prefix",
+            "publisher_prefix_combined",
+            "org_case_safe_id",
+            "x360_giving_publisher",
+            "sectors",
+            "sector_organisation_type",
+            "sector_organisation_subtype",
+            "authorised_domain",
+            "self_registration_enabled",
+            "first_published_date",
+            "latest_published_date",
+            "update_schedule",
+            "update_method",
+        ]
 
     metrics = FunderMetricsSerializer()
 
