@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "additional_data",
     "data_quality",
     "monitoring",
+    "bulk_data",
     # Useful Django apps:
     "django.contrib.admin",
     "django.contrib.auth",

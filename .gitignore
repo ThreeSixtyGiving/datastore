@@ -17,8 +17,12 @@ eggs/
 
 .ve
 .coverage
+.DS_Store
 
 # Logs
 **/data_run.log
 **/log.txt
 **/selenium.log
+
+# Bulk data
+bulk_data_export/
