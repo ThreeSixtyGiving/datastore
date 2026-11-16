@@ -14,7 +14,7 @@ from additional_data.models import GeoCodeName
 class GeoCodeNamesSource(object):
     """Uses CHD (Change history data) at https://geoportal.statistics.gov.uk/ to obtain information about geo code names."""
 
-    CHD_URL = "https://www.arcgis.com/sharing/rest/content/items/393a031178684c69973d0e416a862890/data"
+    CHD_URL = "https://www.arcgis.com/sharing/rest/content/items/e0bc41722b1a4b76a6ecfff14f91cbb4/data"
 
     def __init__(self):
         pass
