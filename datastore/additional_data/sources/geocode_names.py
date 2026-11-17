@@ -42,7 +42,7 @@ class GeoCodeNamesSource(object):
         """
         Contains the change history for geographies, where new coding is being used, from x date onwards.
         """
-        reader = csv.DictReader(io.TextIOWrapper(infile, "utf-8-sig"))
+        reader = csv.DictReader(io.TextIOWrapper(infile, "utf-8-sig", errors="replace"))
         for area in reader:
             areas[area["GEOGCD"]] = {
                 "code": area["GEOGCD"],
@@ -73,7 +73,7 @@ class GeoCodeNamesSource(object):
         Contains details of name changes since x date and includes the current and previous names as well as
         the operative date of those changes.
         """
-        reader = csv.DictReader(io.TextIOWrapper(infile, "utf-8-sig"))
+        reader = csv.DictReader(io.TextIOWrapper(infile, "utf-8-sig", errors="replace"))
 
         for area in reader:
             if area["GEOGCD_P"] == "":
@@ -97,7 +97,7 @@ class GeoCodeNamesSource(object):
             "welsh_government": ["GEOGCDWG", "GEOGNMWG", "GEOGNMWWG"],
         }
 
-        reader = csv.DictReader(io.TextIOWrapper(infile, "utf-8-sig"))
+        reader = csv.DictReader(io.TextIOWrapper(infile, "utf-8-sig", errors="replace"))
         for area in reader:
             if area["GEOGCD"] not in areas:
                 continue
