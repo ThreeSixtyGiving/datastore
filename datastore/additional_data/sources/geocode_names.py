@@ -2,6 +2,7 @@ import csv
 import io
 import zipfile
 from datetime import datetime
+from typing import Iterator
 
 import requests
 
@@ -125,12 +126,12 @@ class GeoCodeNamesSource(object):
         return areas
 
     def save_data(self, areas):
-        bulk_save = []
 
-        for code, data in areas.items():
-            bulk_save.append(GeoCodeName(code=code, data=data))
+        def _area_generator() -> Iterator[GeoCodeName]:
+            for code, data in areas.items():
+                yield GeoCodeName(code=code, data=data)
 
-        GeoCodeName.objects.bulk_create(bulk_save)
+        GeoCodeName.objects.bulk_create(_area_generator(), batch_size=10000)
 
     def import_code_names(self, url=CHD_URL):
         """
