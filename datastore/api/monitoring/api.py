@@ -60,6 +60,10 @@ class DatasetMetricsSnapshotAPIView(SnapshotAPIView):
     renderer_classes = tuple(api_settings.DEFAULT_RENDERER_CLASSES) + (CSVRenderer,)
     serializer_class = DatasetMetricsRecordSerializer
 
+    def get_queryset(self):
+        # Show headline stats for the most recent dataset
+        return super().get_queryset().order_by("-timestamp")[0:1]
+
     metrics_record_model = DatasetMetricsRecord
 
 
