@@ -1,6 +1,7 @@
 from typing import Any, Optional, Literal
+from django.conf import settings
 from django.core.management.base import BaseCommand
-from django.core.cache import cache
+from django.core.cache import caches
 from django.db import connection, connections
 
 from data_quality import quality_data
@@ -256,4 +257,5 @@ def rewrite_quality_data(
         )
 
     # Clear all caches - data has changed
-    cache.clear()
+    for alias in settings.CACHES:
+        caches[alias].clear()
