@@ -223,7 +223,14 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
         "LOCATION": "/var/tmp/django_cache",
-    }
+    },
+    "overview": {
+        "BACKEND": "django.core.cache.backends.filebased.FileBasedCache",
+        "LOCATION": "/var/tmp/django_cache_overview",
+        "OPTIONS": {
+            "MAX_ENTRIES": 10,
+        },
+    },
 }
 
 DATA_RUN_PID_FILE = env("DATA_RUN_PID_FILE")

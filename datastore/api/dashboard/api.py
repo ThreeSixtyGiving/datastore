@@ -1,6 +1,6 @@
 from django.http.response import JsonResponse
 from django.views import View
-from django.core.cache import cache
+from django.core.cache import caches
 from django.conf import settings
 
 import django_filters.rest_framework
@@ -68,6 +68,8 @@ class Sources(generics.ListAPIView):
 
 
 class Overview(View):
+    cache = caches["overview"]
+
     def get(self, *args, **kwargs):
         # If we have a cache of this uri then return that.
         # All caches are cleared if the dataload happens
@@ -75,7 +77,7 @@ class Overview(View):
 
         # Don't cache if we have ?nocache in the query
         if not self.request.GET.get("nocache") and not settings.DEBUG:
-            ret = cache.get(full_request_uri)
+            ret = self.cache.get(full_request_uri)
             if ret:
                 print("retuning cache")
                 return JsonResponse(ret, safe=False)
@@ -89,6 +91,6 @@ class Overview(View):
         ret = quality_data.generate_stats(mode, source_file_set)
 
         # As cache is cleared on a pipeline run, set without a timeout
-        cache.set(full_request_uri, ret, timeout=None)
+        self.cache.set(full_request_uri, ret, timeout=None)
 
         return JsonResponse(ret, safe=False)

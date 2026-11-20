@@ -2,7 +2,8 @@ import json
 import os
 from typing import Dict, Any
 
-from django.core.cache import cache
+from django.conf import settings
+from django.core.cache import caches
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
@@ -219,4 +220,5 @@ class Command(BaseCommand):
         db.Latest.update()
 
         # Clear all cached objects - The latest data as well as new data has been added
-        cache.clear()
+        for alias in settings.CACHES:
+            caches[alias].clear()
